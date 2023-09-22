@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Norline";
+  font-weight: 500;
+  font-display: swap;
+  font-style: normal;
+  font-named-instance: "Regular";
+  src: url("./fonts/Norline-Regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Norline";
+  font-weight: 500;
+  font-display: swap;
+  font-style: italic;
+  font-named-instance: "Italic";
+  src: url("./fonts/Norline-Italic.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "PPNeueBit";
+  font-weight: 500;
+  font-display: swap;
+  font-style: normal;
+  font-named-instance: "Regular";
+  src: url("./fonts/PPNeueBit-Regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "PPNeueBit";
+  font-weight: 600;
+  font-display: swap;
+  font-style: normal;
+  font-named-instance: "Regular";
+  src: url("./fonts/PPNeueBit-Bold.otf") format("opentype");
+}
+
+.box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 10px;
+  left: 10px;
+  bottom: 0;
+  border-bottom: 0;
+  border-color: rgba(255, 255, 255, 0.25) rgba(255, 255, 255, 0.1)
+    rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+  border-width: 4px;
+}
+
+.box::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-color: rgb(223, 223, 223) rgb(10, 10, 10) rgb(10, 10, 10)
+    rgb(223, 223, 223);
+  box-shadow: rgba(0, 0, 0, 0.1) 2px 2px 0px 2px inset,
+    rgba(0, 0, 0, 0.12) -2px -2px 0px 2px inset,
+    rgba(0, 0, 0, 0.16) -4px -4px 0px 4px inset;
+  filter: url(#rgb-split);
+}

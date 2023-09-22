@@ -1,0 +1,4 @@
+{
+  "name": "my-party",
+  "main": "party/index.ts"
+}
