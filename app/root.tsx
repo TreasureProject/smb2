@@ -3,13 +3,12 @@ import {
   Links,
   LiveReload,
   Meta,
-  Outlet,
   Scripts,
   ScrollRestoration,
   useLocation,
   useOutlet,
 } from "@remix-run/react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import stylesheet from "~/tailwind.css";
 import SmearImg from "~/assets/smear.png";
@@ -62,44 +61,47 @@ export default function App() {
           });
         }}
       >
-        <AnimatePresence initial={false} mode="popLayout">
-          <motion.div
-            key={useLocation().pathname}
-            initial={false}
-            className="h-full absolute inset-0"
-            exit={{
-              scale: 1,
-            }}
-            transition={{
-              duration: 5,
-              ease: "easeOut",
-            }}
-          >
-            <AnimatedOutlet />
-          </motion.div>
-        </AnimatePresence>
-        <AnimatePresence>
-          {smear.state === "active" && (
-            <motion.img
-              key="smear"
+        <MotionConfig
+          transition={{
+            duration: 0.3,
+            ease: "easeOut",
+          }}
+        >
+          <AnimatePresence initial={false} mode="popLayout">
+            <motion.div
+              key={useLocation().pathname}
               initial={false}
-              animate={{
-                opacity: 0.3,
-                x: smear.x - 50,
-                y: smear.y - 50,
-              }}
+              className="h-full absolute inset-0"
               exit={{
-                opacity: 0,
+                scale: 1,
               }}
-              transition={{
-                duration: 5,
-                ease: "easeOut",
-              }}
-              src={SmearImg}
-              className="absolute w-[100px] h-[100px] rounded-full pointer-events-none"
-            ></motion.img>
-          )}
-        </AnimatePresence>
+            >
+              <AnimatedOutlet />
+            </motion.div>
+          </AnimatePresence>
+          <AnimatePresence>
+            {smear.state === "active" && (
+              <motion.img
+                key="smear"
+                initial={false}
+                animate={{
+                  opacity: 0.3,
+                  x: smear.x - 50,
+                  y: smear.y - 50,
+                }}
+                exit={{
+                  opacity: 0,
+                }}
+                transition={{
+                  duration: 5,
+                  ease: "easeOut",
+                }}
+                src={SmearImg}
+                className="absolute w-[100px] h-[100px] rounded-full pointer-events-none"
+              ></motion.img>
+            )}
+          </AnimatePresence>
+        </MotionConfig>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

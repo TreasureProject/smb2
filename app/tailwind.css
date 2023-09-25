@@ -31,11 +31,74 @@
 
 @font-face {
   font-family: "PPNeueBit";
-  font-weight: 600;
+  font-weight: 700;
   font-display: swap;
   font-style: normal;
   font-named-instance: "Regular";
   src: url("./fonts/PPNeueBit-Bold.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "PPEditorialNew";
+  font-weight: 500;
+  font-display: swap;
+  font-style: normal;
+  font-named-instance: "Regular";
+  src: url("./fonts/PPEditorialNew-Regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "PPEditorialNew";
+  font-weight: 500;
+  font-display: swap;
+  font-style: italic;
+  font-named-instance: "Italic";
+  src: url("./fonts/PPEditorialNew-Italic.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "PPEditorialNew";
+  font-weight: 400;
+  font-display: swap;
+  font-style: normal;
+  font-named-instance: "Regular";
+  src: url("./fonts/PPEditorialNew-Thin.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Oakley";
+  font-weight: 400;
+  font-display: swap;
+  font-style: normal;
+  font-named-instance: "Regular";
+  src: url("./fonts/Oakley-Black.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Oakley";
+  font-weight: 400;
+  font-display: swap;
+  font-style: italic;
+  font-named-instance: "Italic";
+  src: url("./fonts/Oakley-BlackItalic.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "PPMondwest";
+  font-weight: 400;
+  font-display: swap;
+  font-style: normal;
+  font-named-instance: "Regular";
+  src: url("./fonts/PPMondwest-Regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "PPMondwest";
+  font-weight: 700;
+  font-display: swap;
+  font-style: normal;
+  font-named-instance: "Regular";
+  src: url("./fonts/PPMondwest-Bold.otf") format("opentype");
 }
 
 .box::before {

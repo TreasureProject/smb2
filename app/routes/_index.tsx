@@ -13,10 +13,9 @@ import { cn, getTransformOrigin } from "~/utils";
 import { Box } from "~/components/Box";
 import TestImg from "../assets/test.png";
 import TestTwoImg from "../assets/test2.png";
-import usePartySocket from "partysocket/react";
+// import usePartySocket from "partysocket/react";
 import { ShaderCanvas } from "~/components/GlslCanvas";
 import { useControls } from "leva";
-import { Link, useLocation, useNavigate } from "@remix-run/react";
 
 export const meta: V2_MetaFunction = () => {
   return [
@@ -46,7 +45,6 @@ export default function Index() {
   //     console.log("connected");
   //   },
   // });
-  const location = useNavigate();
   const dragRef = useRef<HTMLDivElement | null>(null);
   const introRef = useRef<HTMLDivElement | null>(null);
   const [colorMode, setColorMode] = useState(true);
@@ -223,7 +221,7 @@ export default function Index() {
             <div className="grid grid-areas-widgets grid-cols-7 grid-rows-4 gap-8">
               <Box
                 as="link"
-                to="/sketch"
+                to="/smolspace"
                 state={getTransformOrigin}
                 className="grid-in-w1 bg-white/10 backdrop-blur-sm"
               >
@@ -235,7 +233,7 @@ export default function Index() {
               </Box>
               <Box
                 as="link"
-                to="/sketch"
+                to="/smolspace"
                 state={getTransformOrigin}
                 className="grid-in-w2 bg-[#FF016C] bg-white/10 backdrop-blur-sm"
               >

@@ -1,7 +1,6 @@
 import { Link } from "@remix-run/react";
 import type { RemixLinkProps } from "@remix-run/react/dist/components";
-import { useEffect, useRef, useState } from "react";
-import { useHydrated } from "remix-utils";
+import { useState } from "react";
 import { cn } from "~/utils";
 
 type Props =
