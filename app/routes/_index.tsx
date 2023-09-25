@@ -9,13 +9,14 @@ import {
 import { useDrag } from "@use-gesture/react";
 import React, { useRef, useState } from "react";
 import { interpolate } from "popmotion";
-import { cn } from "~/utils";
+import { cn, getTransformOrigin } from "~/utils";
 import { Box } from "~/components/Box";
 import TestImg from "../assets/test.png";
 import TestTwoImg from "../assets/test2.png";
 import usePartySocket from "partysocket/react";
 import { ShaderCanvas } from "~/components/GlslCanvas";
 import { useControls } from "leva";
+import { Link, useLocation, useNavigate } from "@remix-run/react";
 
 export const meta: V2_MetaFunction = () => {
   return [
@@ -45,7 +46,7 @@ export default function Index() {
   //     console.log("connected");
   //   },
   // });
-
+  const location = useNavigate();
   const dragRef = useRef<HTMLDivElement | null>(null);
   const introRef = useRef<HTMLDivElement | null>(null);
   const [colorMode, setColorMode] = useState(true);
@@ -101,9 +102,9 @@ export default function Index() {
   const { u_saturation, u_complexity, u_twist, u_light, u_mix } = useControls({
     u_saturation: 20.0,
     u_complexity: 3.0,
-    u_twist: 10.0,
+    u_twist: 5.0,
     u_light: 0.0,
-    u_mix: 2.5,
+    u_mix: 2.0,
   });
 
   return (
@@ -129,9 +130,9 @@ export default function Index() {
           </filter>
         </defs>
       </svg>
-      <div className="relative">
+      <div className="relative h-full">
         <motion.div
-          className="h-[100dvh] py-12 relative"
+          className="h-full py-12 relative"
           style={{
             filter: animatedFilter,
             transform: "translate3d(0, 0, 0)",
@@ -150,50 +151,47 @@ export default function Index() {
               [u_complexity, u_light, u_mix, u_saturation, u_twist]
             )}
             frag={`
-        
-        #ifdef GL_ES
-precision mediump float;
-#endif
+            #ifdef GL_ES
+            precision mediump float;
+            #endif
 
-uniform vec2 u_resolution;
-uniform float u_time;
-uniform float u_complexity;
-uniform float u_saturation;
-uniform float u_twist;
-uniform float u_light;
-uniform float u_mix;
+            uniform vec2 u_resolution;
+            uniform float u_time;
+            uniform float u_complexity;
+            uniform float u_saturation;
+            uniform float u_twist;
+            uniform float u_light;
+            uniform float u_mix;
 
-void main() {
-  vec2 coord = (gl_FragCoord.xy - (u_resolution / 2.)) / max(u_resolution.y, u_resolution.x);
-  float len = length(vec2(coord.x, coord.y));
+            void main() {
+              vec2 coord = (gl_FragCoord.xy - (u_resolution / 2.)) / max(u_resolution.y, u_resolution.x);
+              float len = length(vec2(coord.x, coord.y));
 
-  coord.x -= cos(coord.y + sin(len * u_twist)) * sin(u_time / 20.0);
-  coord.y -= sin(coord.x + cos(len * (u_twist / 2.))) * sin(u_time / 10.0);
+              coord.x -= cos(coord.y + sin(len * u_twist)) * sin(u_time / 20.0);
+              coord.y -= sin(coord.x + cos(len * (u_twist / 2.))) * sin(u_time / 10.0);
 
-  float space = cos(atan(sin(len * coord.x), sin(len * coord.y)) * 6.);
-  space /= 6.;
+              float space = cos(atan(sin(len * coord.x), sin(len * coord.y)) * 6.);
+              space /= 6.;
 
-  space = fract(space * u_complexity) / 2.2;
-  vec3 color = vec3(space);
+              space = fract(space * u_complexity) / 2.2;
+              vec3 color = vec3(space);
 
-  color.r *= sin(len * (1.2 - u_mix)) * u_saturation;
-  color.g *= sin(len * (3.3 - u_mix)) * u_saturation;
-  color.b *= sin(len * (4.3 - u_mix)) * u_saturation;
+              color.r *= sin(len * (1.2 - u_mix)) * u_saturation;
+              color.g *= sin(len * (3.3 - u_mix)) * u_saturation;
+              color.b *= sin(len * (4.3 - u_mix)) * u_saturation;
 
-  if (u_light == 1.0) {
-    color.r = cos(len * color.r);
-    color.g = cos(len * color.g);
-    color.b = cos(len * color.b);
-  } else {
-    color.r = 1. - abs(cos(len * color.r));
-    color.g = 1. - abs(cos(len * color.g));
-    color.b = 1. - abs(cos(len * color.b));
-  }
+              if (u_light == 1.0) {
+                color.r = cos(len * color.r);
+                color.g = cos(len * color.g);
+                color.b = cos(len * color.b);
+              } else {
+                color.r = 1. - abs(cos(len * color.r));
+                color.g = 1. - abs(cos(len * color.g));
+                color.b = 1. - abs(cos(len * color.b));
+              }
 
-  gl_FragColor = vec4(color, 1.0);
-}
-
-
+              gl_FragColor = vec4(color, 1.0);
+            }
         `}
           />
           <motion.button
@@ -223,18 +221,28 @@ void main() {
           </motion.button>
           <div className="flex relative flex-col max-w-7xl gap-12 mx-auto h-full">
             <div className="grid grid-areas-widgets grid-cols-7 grid-rows-4 gap-8">
-              <Box className="grid-in-w1 bg-[#FA1DFA]">
+              <Box
+                as="link"
+                to="/sketch"
+                state={getTransformOrigin}
+                className="grid-in-w1 bg-white/10 backdrop-blur-sm"
+              >
                 <img
                   src={TestImg}
                   alt="test"
-                  className="aspect-square w-full h-full"
+                  className="aspect-square w-full h-full opacity-[0.85]"
                 ></img>
               </Box>
-              <Box className="grid-in-w2 bg-[#FF016C]">
+              <Box
+                as="link"
+                to="/sketch"
+                state={getTransformOrigin}
+                className="grid-in-w2 bg-[#FF016C] bg-white/10 backdrop-blur-sm"
+              >
                 <img
                   src={TestTwoImg}
                   alt="test"
-                  className="aspect-square w-full h-full"
+                  className="aspect-square w-full h-full opacity-[0.85]"
                 ></img>
               </Box>
               <Box className="grid-in-w3 bg-[#FA1DFA]"></Box>
@@ -259,6 +267,7 @@ void main() {
                 y: "50%",
               }}
               animate={{
+                x: "-50%",
                 y: ["10%", "0%"],
               }}
               transition={{
