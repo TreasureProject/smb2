@@ -40,7 +40,7 @@ function AnimatedOutlet() {
 
 export default function App() {
   const data = useLoaderData<typeof loader>();
-
+  const [users, setUsers] = useState(0);
   const [smear, setSmear] = useState({
     state: "idle",
     x: 0,
@@ -54,11 +54,15 @@ export default function App() {
     host: data.ENV.PUBLIC_PARTYKIT_URL,
     room: "my-room",
 
-    onOpen() {
-      console.log("connected");
+    onOpen(e) {
+      console.log("connected", e);
     },
     onMessage(e) {
       const msg = JSON.parse(e.data);
+
+      if (msg.type === "connect" || msg.type === "disconnect") {
+        setUsers(msg.count);
+      }
 
       if (msg.type === "flickoff") {
         setFlicked(true);
@@ -130,7 +134,7 @@ export default function App() {
               ws.send(JSON.stringify({ type: "flickoff" }));
             }}
           >
-            <span className="tracking-wide">PEE</span>
+            <span className="tracking-wide">PEE ON ONE OF {users}</span>
           </button>
           <AnimatePresence initial={false}>
             {flicked && (
