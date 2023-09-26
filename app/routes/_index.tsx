@@ -13,7 +13,6 @@ import { cn, getTransformOrigin } from "~/utils";
 import { Box } from "~/components/Box";
 import TestImg from "../assets/test.png";
 import TestTwoImg from "../assets/test2.png";
-// import usePartySocket from "partysocket/react";
 import { ShaderCanvas } from "~/components/GlslCanvas";
 import { useControls } from "leva";
 
@@ -25,26 +24,6 @@ export const meta: V2_MetaFunction = () => {
 };
 
 export default function Index() {
-  // usePartySocket({
-  //   // usePartySocket takes the same arguments as PartySocket.
-  //   host: "localhost:1999", // or localhost:1999 in dev
-  //   room: "my-room",
-
-  //   // in addition, you can provide socket lifecycle event handlers
-  //   // (equivalent to using ws.addEventListener in an effect hook)
-  //   onOpen() {
-  //     console.log("connected");
-  //   },
-  //   onMessage(e) {
-  //     console.log("message", e.data);
-  //   },
-  //   onClose() {
-  //     console.log("connected");
-  //   },
-  //   onError(e) {
-  //     console.log("connected");
-  //   },
-  // });
   const dragRef = useRef<HTMLDivElement | null>(null);
   const introRef = useRef<HTMLDivElement | null>(null);
   const [colorMode, setColorMode] = useState(true);

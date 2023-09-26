@@ -2,28 +2,43 @@ import type * as Party from "partykit/server";
 
 export default class Server implements Party.Server {
   constructor(readonly party: Party.Party) {}
+  options: Party.ServerOptions = {
+    hibernate: true,
+  };
 
   onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
-    // A websocket just connected!
-    console.log(
-      `Connected:
-  id: ${conn.id}
-  room: ${this.party.id}
-  url: ${new URL(ctx.request.url).pathname}`
+    this.party.broadcast(
+      JSON.stringify({
+        type: "connect",
+        count: [...this.party.getConnections()].length,
+      })
     );
-
-    // let's send a message to the connection
-    conn.send("hello from server");
   }
 
   onMessage(message: string, sender: Party.Connection) {
-    // let's log the message
-    console.log(`connection ${sender.id} sent message: ${message}`);
-    // as well as broadcast it to all the other connections in the room...
+    const msg = JSON.parse(message as string);
+
+    if (msg.type === "flickoff") {
+      const connections = [...this.party.getConnections()].filter(
+        (ws) => ws.id !== sender.id
+      );
+
+      const randomConnection =
+        connections[Math.floor(Math.random() * connections.length)];
+      randomConnection.send(
+        JSON.stringify({
+          type: "flickoff",
+        })
+      );
+    }
+  }
+
+  onClose(connection: Party.Connection): void | Promise<void> {
     this.party.broadcast(
-      `${sender.id}: ${message}`,
-      // ...except for the connection it came from
-      [sender.id]
+      JSON.stringify({
+        type: "disconnect",
+        count: [...this.party.getConnections()].length,
+      })
     );
   }
 }
