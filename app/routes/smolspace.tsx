@@ -33,7 +33,6 @@ export default function Smolspace() {
       }}
       animate={{ scale: 1, left: 0, top: 0, opacity: 1 }}
       exit={{
-        scale: 0,
         opacity: 0,
       }}
       className="h-full bg-acid p-3"

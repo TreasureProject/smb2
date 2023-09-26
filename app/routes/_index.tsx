@@ -1,15 +1,7 @@
 import type { V2_MetaFunction } from "@remix-run/node";
-import {
-  motion,
-  useMotionTemplate,
-  useMotionValue,
-  useMotionValueEvent,
-  useSpring,
-} from "framer-motion";
-import { useDrag } from "@use-gesture/react";
-import React, { useRef, useState } from "react";
-import { interpolate } from "popmotion";
-import { cn, getTransformOrigin } from "~/utils";
+import { motion } from "framer-motion";
+import React from "react";
+import { getTransformOrigin } from "~/utils";
 import { Box } from "~/components/Box";
 import TestImg from "../assets/test.png";
 import TestTwoImg from "../assets/test2.png";
@@ -24,57 +16,7 @@ export const meta: V2_MetaFunction = () => {
 };
 
 export default function Index() {
-  const dragRef = useRef<HTMLDivElement | null>(null);
-  const introRef = useRef<HTMLDivElement | null>(null);
-  const [colorMode, setColorMode] = useState(true);
-  const blur = useMotionValue(55);
-  const y = useSpring(0, {
-    stiffness: 5000,
-    damping: 200,
-  });
-  const grayscale = useSpring(0, {
-    stiffness: 20,
-    damping: 20,
-  });
-  const animatedFilter = useMotionTemplate`blur(${blur}px) grayscale(${grayscale}%)`;
-
-  const heightRef = useRef(0);
-
-  useMotionValueEvent(y, "change", (y) => {
-    if (!introRef.current) return;
-    const blurValue = introRef.current.getBoundingClientRect().height + y;
-    if (!heightRef.current) {
-      heightRef.current = blurValue;
-    }
-    const b = interpolate([100, heightRef.current], [0, 55])(blurValue);
-    blur.set(b);
-  });
-
-  useDrag(
-    ({ down, movement: [, my] }) => {
-      if (my > 0 || !introRef.current) return;
-      const isAboveCenter =
-        my + introRef.current?.getBoundingClientRect().height / 2 < 0;
-
-      if (down) {
-        y.set(my);
-        return;
-      }
-
-      if (!isAboveCenter) {
-        y.set(0);
-      } else {
-        y.set(-introRef.current?.getBoundingClientRect().height);
-      }
-    },
-    {
-      axis: "y",
-      target: dragRef,
-      pointer: {
-        capture: false,
-      },
-    }
-  );
+  // const [colorMode, setColorMode] = useState(true);
 
   const { u_saturation, u_complexity, u_twist, u_light, u_mix } = useControls({
     u_saturation: 20.0,
@@ -108,13 +50,7 @@ export default function Index() {
         </defs>
       </svg>
       <div className="relative h-full">
-        <motion.div
-          className="h-full py-12 relative"
-          style={{
-            filter: animatedFilter,
-            transform: "translate3d(0, 0, 0)",
-          }}
-        >
+        <motion.div className="h-full py-12 relative">
           <ShaderCanvas
             className="absolute inset-0"
             setUniforms={React.useMemo(
@@ -171,31 +107,7 @@ export default function Index() {
             }
         `}
           />
-          <motion.button
-            className="absolute text-7xl border-[8px] border-black h-24 px-4 z-10 bottom-0 right-0 bg-black/10 backdrop-blur-xl"
-            layout
-            layoutId="button"
-            onClick={() =>
-              setColorMode((c) => {
-                if (c) {
-                  grayscale.set(100);
-                } else {
-                  grayscale.set(0);
-                }
-                return !c;
-              })
-            }
-          >
-            <motion.span
-              animate={{ opacity: 1 }}
-              initial={{ opacity: 0 }}
-              transition={{ delay: 0.2 }}
-              key={colorMode ? "on" : "off"}
-              className="tracking-wide"
-            >
-              {colorMode ? "TURN THE LIGHTS OFF" : "TURN THE LIGHTS ON"}
-            </motion.span>
-          </motion.button>
+
           <div className="flex relative flex-col max-w-7xl gap-12 mx-auto h-full">
             <div className="grid grid-areas-widgets grid-cols-7 grid-rows-4 gap-8">
               <Box
@@ -226,39 +138,6 @@ export default function Index() {
               <Box className="grid-in-w4 bg-sky-300"></Box>
               <Box className="grid-in-w5 bg-purple-300"></Box>
             </div>
-          </div>
-        </motion.div>
-        <motion.div
-          style={{
-            y,
-          }}
-          ref={introRef}
-          className="absolute h-[100dvh] inset-0 bg-white/50 w-full touch-pan-x"
-        >
-          <div className="grid items-center justify-center py-12 max-w-7xl mx-auto h-full">
-            <p className="text-black text-[40rem] leading-[0]">SMOL</p>
-            <motion.div
-              ref={dragRef}
-              initial={{
-                x: "-50%",
-                y: "50%",
-              }}
-              animate={{
-                x: "-50%",
-                y: ["10%", "0%"],
-              }}
-              transition={{
-                y: {
-                  duration: 1.5,
-                  ease: "easeOut",
-                  repeat: Infinity,
-                  repeatType: "reverse",
-                },
-              }}
-              className={cn(
-                "absolute bottom-2 px-4 rounded-xl h-3 bg-gray-400 w-64 left-1/2 touch-none"
-              )}
-            ></motion.div>
           </div>
         </motion.div>
       </div>

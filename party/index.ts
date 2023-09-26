@@ -10,24 +10,29 @@ export default class Server implements Party.Server {
     this.party.broadcast(
       JSON.stringify({
         type: "connect",
-        count: [...this.party.getConnections()].length,
+        count: this.getConnectedCount(),
       })
     );
+  }
+
+  getConnectedCount() {
+    return [...this.party.getConnections()].length;
   }
 
   onMessage(message: string, sender: Party.Connection) {
     const msg = JSON.parse(message as string);
 
-    if (msg.type === "flickoff") {
+    if (msg.type === "pee") {
       const connections = [...this.party.getConnections()].filter(
         (ws) => ws.id !== sender.id
       );
 
       const randomConnection =
         connections[Math.floor(Math.random() * connections.length)];
+
       randomConnection.send(
         JSON.stringify({
-          type: "flickoff",
+          type: "pee",
         })
       );
     }
@@ -37,7 +42,7 @@ export default class Server implements Party.Server {
     this.party.broadcast(
       JSON.stringify({
         type: "disconnect",
-        count: [...this.party.getConnections()].length,
+        count: this.getConnectedCount(),
       })
     );
   }

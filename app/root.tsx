@@ -1,5 +1,5 @@
 import { json } from "@remix-run/node";
-import type { LoaderArgs, LinksFunction } from "@remix-run/node";
+import type { LinksFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -14,14 +14,19 @@ import {
   AnimatePresence,
   MotionConfig,
   motion,
+  useMotionTemplate,
   useMotionValue,
+  useMotionValueEvent,
+  useSpring,
 } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import stylesheet from "~/tailwind.css";
 import SmearImg from "~/assets/smear.png";
 import usePartySocket from "partysocket/react";
 import peeImg from "~/assets/pee.png";
-import { getPublicKeys } from "./utils";
+import { cn, getPublicKeys } from "./utils";
+import { useDrag } from "@use-gesture/react";
+import { interpolate } from "popmotion";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -39,7 +44,8 @@ function AnimatedOutlet() {
 }
 
 export default function App() {
-  const data = useLoaderData<typeof loader>();
+  const lastMessage = useRef({});
+  const data = useLoaderData<typeof loader>() || lastMessage.current;
   const [users, setUsers] = useState(0);
   const [smear, setSmear] = useState({
     state: "idle",
@@ -49,6 +55,67 @@ export default function App() {
   const [flicked, setFlicked] = useState(false);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  const dragRef = useRef<HTMLDivElement | null>(null);
+  const introRef = useRef<HTMLDivElement | null>(null);
+  const location = useLocation();
+
+  const isRoot = location.pathname === "/";
+
+  const blur = useMotionValue(isRoot ? 55 : 0);
+  const y = useSpring(0, {
+    stiffness: 5000,
+    damping: 200,
+  });
+  const grayscale = useSpring(0, {
+    stiffness: 20,
+    damping: 20,
+  });
+
+  const animatedFilter = useMotionTemplate`blur(${blur}px) grayscale(${grayscale}%)`;
+
+  const heightRef = useRef(0);
+
+  useMotionValueEvent(y, "change", (y) => {
+    if (!introRef.current) return;
+    const blurValue = introRef.current.getBoundingClientRect().height + y;
+    if (!heightRef.current) {
+      heightRef.current = blurValue;
+    }
+    const b = interpolate([100, heightRef.current], [0, 55])(blurValue);
+    blur.set(b);
+  });
+
+  useEffect(() => {
+    if (data) lastMessage.current = data;
+  }, [data]);
+
+  useDrag(
+    ({ event, down, movement: [, my] }) => {
+      event.preventDefault();
+
+      if (my > 0 || !introRef.current) return;
+      const isAboveCenter =
+        my + introRef.current?.getBoundingClientRect().height / 2 < 0;
+
+      if (down) {
+        y.set(my);
+        return;
+      }
+
+      if (!isAboveCenter) {
+        y.set(0);
+      } else {
+        y.set(-introRef.current?.getBoundingClientRect().height);
+      }
+    },
+    {
+      axis: "y",
+      target: dragRef,
+      pointer: {
+        capture: false,
+      },
+    }
+  );
 
   const ws = usePartySocket({
     host: data.ENV.PUBLIC_PARTYKIT_URL,
@@ -64,7 +131,7 @@ export default function App() {
         setUsers(msg.count);
       }
 
-      if (msg.type === "flickoff") {
+      if (msg.type === "pee") {
         setFlicked(true);
       }
     },
@@ -105,7 +172,7 @@ export default function App() {
         <Links />
       </head>
       <body
-        className="cursor-[url(/img/MiddleFingerCursor.svg),auto] antialiased relative h-[100dvh]"
+        className="cursor-[url(/img/MiddleFingerCursor.svg),auto] antialiased relative h-[100dvh] overflow-hidden"
         onMouseMove={({ currentTarget, clientX, clientY }) => {
           const { left, top } = currentTarget.getBoundingClientRect();
           mouseX.set(clientX - left - 40);
@@ -123,19 +190,46 @@ export default function App() {
       >
         <MotionConfig
           transition={{
-            duration: 0.3,
+            duration: 0.2,
             ease: "easeOut",
           }}
         >
           {/* demo */}
           <button
-            className="absolute text-7xl border-[8px] border-black h-24 px-4 z-10 bottom-0 right-0 bg-black/10 backdrop-blur-xl"
+            className="absolute text-7xl border-[8px] border-black h-24 px-4 z-10 bottom-4 right-4 bg-black/10 backdrop-blur-xl"
             onClick={() => {
-              ws.send(JSON.stringify({ type: "flickoff" }));
+              ws.send(JSON.stringify({ type: "pee" }));
             }}
           >
             <span className="tracking-wide">PEE ON ONE OF {users}</span>
           </button>
+
+          {/* <motion.button
+            className="absolute text-7xl border-[8px] border-black h-24 px-4 z-10 bottom-0 right-0 bg-black/10 backdrop-blur-xl"
+            layout
+            layoutId="button"
+            onClick={() =>
+              setColorMode((c) => {
+                if (c) {
+                  grayscale.set(100);
+                } else {
+                  grayscale.set(0);
+                }
+                return !c;
+              })
+            }
+          >
+            <motion.span
+              animate={{ opacity: 1 }}
+              initial={{ opacity: 0 }}
+              transition={{ delay: 0.2 }}
+              key={colorMode ? "on" : "off"}
+              className="tracking-wide"
+            >
+              {colorMode ? "TURN THE LIGHTS OFF" : "TURN THE LIGHTS ON"}
+            </motion.span>
+          </motion.button> */}
+
           <AnimatePresence initial={false}>
             {flicked && (
               <motion.img
@@ -166,18 +260,61 @@ export default function App() {
               />
             )}
           </AnimatePresence>
-          <AnimatePresence initial={false} mode="popLayout">
+          <motion.div
+            style={{
+              filter: animatedFilter,
+              transform: "translate3d(0, 0, 0)",
+            }}
+            className="h-full relative"
+          >
+            <AnimatePresence initial={false} mode="popLayout">
+              <motion.div
+                key={useLocation().pathname}
+                initial={false}
+                className="h-full absolute inset-0"
+                exit={{
+                  scale: 1,
+                }}
+              >
+                <AnimatedOutlet />
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
+          {isRoot && (
             <motion.div
-              key={useLocation().pathname}
-              initial={false}
-              className="h-full absolute inset-0"
-              exit={{
-                scale: 1,
+              style={{
+                y,
               }}
+              ref={introRef}
+              className="absolute h-[100dvh] inset-0 bg-white/50 w-full touch-pan-x"
             >
-              <AnimatedOutlet />
+              <div className="grid items-center justify-center py-12 max-w-7xl mx-auto h-full">
+                <p className="text-black text-[40rem] leading-[0]">SMOL</p>
+                <motion.div
+                  ref={dragRef}
+                  initial={{
+                    x: "-50%",
+                    y: "50%",
+                  }}
+                  animate={{
+                    x: "-50%",
+                    y: ["10%", "0%"],
+                  }}
+                  transition={{
+                    y: {
+                      duration: 1.5,
+                      ease: "easeOut",
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                    },
+                  }}
+                  className={cn(
+                    "absolute bottom-2 px-4 rounded-xl h-3 bg-gray-400 w-64 left-1/2 touch-none select-none"
+                  )}
+                ></motion.div>
+              </div>
             </motion.div>
-          </AnimatePresence>
+          )}
           <AnimatePresence>
             {smear.state === "active" && (
               <motion.img
