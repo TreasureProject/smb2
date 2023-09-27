@@ -6,6 +6,9 @@ import { getTransformOrigin } from "~/utils";
 import { Box } from "~/components/Box";
 import TestImg from "../assets/test.png";
 import TestTwoImg from "../assets/test2.png";
+import { Link } from "@remix-run/react";
+
+const MotionLink = motion(Link);
 
 export const meta: V2_MetaFunction = () => {
   return [
@@ -18,20 +21,20 @@ function Dock() {
   let mouseX = useMotionValue(Infinity);
 
   return (
-    <motion.div
+    <Box
       onMouseMove={(e) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Infinity)}
-      className="mx-auto flex h-16 items-end gap-4 rounded-2xl bg-vroom px-4 pb-3"
+      className="mx-auto flex h-28 items-end gap-4 px-6 pb-7 overflow-visible bg-neonPink"
     >
       {[...Array(8).keys()].map((i) => (
         <AppIcon mouseX={mouseX} key={i} />
       ))}
-    </motion.div>
+    </Box>
   );
 }
 
 function AppIcon({ mouseX }: { mouseX: MotionValue }) {
-  let ref = useRef<HTMLDivElement>(null);
+  let ref = useRef<HTMLImageElement>(null);
 
   let distance = useTransform(mouseX, (val) => {
     let bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
@@ -39,21 +42,28 @@ function AppIcon({ mouseX }: { mouseX: MotionValue }) {
     return val - bounds.x - bounds.width / 2;
   });
 
-  let widthSync = useTransform(distance, [-150, 0, 150], [40, 60, 40]);
+  let widthSync = useTransform(distance, [-150, 0, 150], [64, 112, 64]);
   let width = useSpring(widthSync, { mass: 0.1, stiffness: 150, damping: 12 });
 
   return (
-    <motion.div
+    <MotionLink
       ref={ref}
-      style={{ width }}
-      className="aspect-square w-10 rounded-full bg-neonPink"
-    />
+      to="/smolspace"
+      style={{
+        // @ts-ignore
+        width,
+      }}
+      className="aspect-square h-auto w-16 z-10 relative"
+    >
+      <motion.img
+        src={TestImg}
+        className="w-full h-full rounded-md bg-neonPink"
+      ></motion.img>
+    </MotionLink>
   );
 }
 
 export default function Index() {
-  // const [colorMode, setColorMode] = useState(true);
-
   return (
     <>
       <svg width={0} className="hidden">
@@ -78,7 +88,7 @@ export default function Index() {
         </defs>
       </svg>
       <div className="h-full relative flex flex-col">
-        <div className="flex flex-1 relative flex-col max-w-7xl gap-12 mx-auto h-full">
+        <div className="flex mt-24 flex-1 relative flex-col max-w-7xl gap-12 mx-auto h-full">
           <div className="grid grid-areas-widgets grid-cols-7 grid-rows-4 gap-8">
             <Box
               as="link"
@@ -96,7 +106,7 @@ export default function Index() {
               as="link"
               to="/smolspace"
               state={getTransformOrigin}
-              className="grid-in-w2 bg-[#FF016C] bg-white/10 backdrop-blur-sm"
+              className="grid-in-w2 bg-white/10 backdrop-blur-sm"
             >
               <img
                 src={TestTwoImg}
@@ -104,7 +114,7 @@ export default function Index() {
                 className="aspect-square w-full h-full opacity-[0.85]"
               ></img>
             </Box>
-            <Box className="grid-in-w3 bg-[#FA1DFA]"></Box>
+            <Box className="grid-in-w3 bg-acid"></Box>
             <Box className="grid-in-w4 bg-sky-300"></Box>
             <Box className="grid-in-w5 bg-purple-300"></Box>
           </div>

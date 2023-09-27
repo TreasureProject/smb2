@@ -183,7 +183,7 @@ export default function App() {
       <body
         className={cn(
           "cursor-[url(/img/MiddleFingerCursor.svg),auto] antialiased relative h-[100dvh]",
-          isRoot && !showIntro && "overflow-hidden"
+          isRoot && "overflow-hidden"
         )}
         onMouseMove={({ currentTarget, clientX, clientY }) => {
           const { left, top } = currentTarget.getBoundingClientRect();

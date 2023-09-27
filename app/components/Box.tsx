@@ -5,7 +5,10 @@ import { cn } from "~/utils";
 
 type Props =
   | ({
-      as?: "button";
+      as?: "div";
+    } & React.HTMLAttributes<HTMLDivElement>)
+  | ({
+      as: "button";
     } & React.HTMLAttributes<HTMLButtonElement>)
   | ({
       as: "a";
@@ -21,7 +24,16 @@ export const Box = (props: Props) => {
   const { children, as } = props;
   const [ref, setNodeRef] = useState<HTMLAnchorElement | null>(null);
 
-  if (!as || as === "button") {
+  if (!as || as === "div") {
+    const { className: _, as: __, ...rest } = props;
+    return (
+      <div className={className} {...rest}>
+        {children}
+      </div>
+    );
+  }
+
+  if (as === "button") {
     const { className: _, as: __, ...rest } = props;
     return (
       <button className={className} {...rest}>
