@@ -1,12 +1,12 @@
 import { json } from "@remix-run/node";
 import type { LinksFunction } from "@remix-run/node";
+import type { ShouldRevalidateFunction } from "@remix-run/react";
 import {
   Links,
   LiveReload,
   Meta,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
   useLocation,
   useOutlet,
 } from "@remix-run/react";
@@ -27,6 +27,8 @@ import peeImg from "~/assets/pee.png";
 import { cn, getPublicKeys } from "./utils";
 import { useDrag } from "@use-gesture/react";
 import { interpolate } from "popmotion";
+import { useCustomLoaderData } from "./hooks/useCustomLoaderData";
+import { ShaderCanvas } from "./components/GlslCanvas";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -38,14 +40,15 @@ export const loader = () => {
   });
 };
 
+export const shouldRevalidate: ShouldRevalidateFunction = () => false;
+
 function AnimatedOutlet() {
   const [outlet] = useState(useOutlet());
   return outlet;
 }
 
 export default function App() {
-  const lastMessage = useRef({});
-  const data = useLoaderData<typeof loader>() || lastMessage.current;
+  const data = useCustomLoaderData<typeof loader>();
   const [users, setUsers] = useState(0);
   const [smear, setSmear] = useState({
     state: "idle",
@@ -58,6 +61,7 @@ export default function App() {
   const dragRef = useRef<HTMLDivElement | null>(null);
   const introRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
+  const [showIntro, setShowIntro] = useState(true);
 
   const isRoot = location.pathname === "/";
 
@@ -77,6 +81,15 @@ export default function App() {
 
   useMotionValueEvent(y, "change", (y) => {
     if (!introRef.current) return;
+
+    // if we're at the top, unmount the intro
+    if (Math.abs(y) === introRef.current.getBoundingClientRect().height) {
+      setShowIntro(false);
+    }
+  });
+
+  useMotionValueEvent(y, "change", (y) => {
+    if (!introRef.current) return;
     const blurValue = introRef.current.getBoundingClientRect().height + y;
     if (!heightRef.current) {
       heightRef.current = blurValue;
@@ -84,10 +97,6 @@ export default function App() {
     const b = interpolate([100, heightRef.current], [0, 55])(blurValue);
     blur.set(b);
   });
-
-  useEffect(() => {
-    if (data) lastMessage.current = data;
-  }, [data]);
 
   useDrag(
     ({ event, down, movement: [, my] }) => {
@@ -118,7 +127,7 @@ export default function App() {
   );
 
   const ws = usePartySocket({
-    host: data.ENV.PUBLIC_PARTYKIT_URL,
+    host: data?.ENV.PUBLIC_PARTYKIT_URL || "localhost:1999",
     room: "my-room",
 
     onOpen(e) {
@@ -126,7 +135,7 @@ export default function App() {
     },
     onMessage(e) {
       const msg = JSON.parse(e.data);
-
+      console.log({ msg });
       if (msg.type === "connect" || msg.type === "disconnect") {
         setUsers(msg.count);
       }
@@ -172,7 +181,10 @@ export default function App() {
         <Links />
       </head>
       <body
-        className="cursor-[url(/img/MiddleFingerCursor.svg),auto] antialiased relative h-[100dvh] overflow-hidden"
+        className={cn(
+          "cursor-[url(/img/MiddleFingerCursor.svg),auto] antialiased relative h-[100dvh]",
+          isRoot && !showIntro && "overflow-hidden"
+        )}
         onMouseMove={({ currentTarget, clientX, clientY }) => {
           const { left, top } = currentTarget.getBoundingClientRect();
           mouseX.set(clientX - left - 40);
@@ -190,13 +202,13 @@ export default function App() {
       >
         <MotionConfig
           transition={{
-            duration: 0.2,
+            duration: 0.25,
             ease: "easeOut",
           }}
         >
           {/* demo */}
           <button
-            className="absolute text-7xl border-[8px] border-black h-24 px-4 z-10 bottom-4 right-4 bg-black/10 backdrop-blur-xl"
+            className="absolute text-4xl border-[4px] border-black h-16 px-4 z-10 top-4 left-4 bg-black/10 backdrop-blur-xl"
             onClick={() => {
               ws.send(JSON.stringify({ type: "pee" }));
             }}
@@ -267,6 +279,59 @@ export default function App() {
             }}
             className="h-full relative"
           >
+            <ShaderCanvas
+              className="absolute inset-0"
+              setUniforms={{
+                u_saturation: 20.0,
+                u_complexity: 3.0,
+                u_twist: 5.0,
+                u_light: 0.0,
+                u_mix: 2.0,
+              }}
+              frag={`
+            #ifdef GL_ES
+            precision mediump float;
+            #endif
+
+            uniform vec2 u_resolution;
+            uniform float u_time;
+            uniform float u_complexity;
+            uniform float u_saturation;
+            uniform float u_twist;
+            uniform float u_light;
+            uniform float u_mix;
+
+            void main() {
+              vec2 coord = (gl_FragCoord.xy - (u_resolution / 2.)) / max(u_resolution.y, u_resolution.x);
+              float len = length(vec2(coord.x, coord.y));
+
+              coord.x -= cos(coord.y + sin(len * u_twist)) * sin(u_time / 20.0);
+              coord.y -= sin(coord.x + cos(len * (u_twist / 2.))) * sin(u_time / 10.0);
+
+              float space = cos(atan(sin(len * coord.x), sin(len * coord.y)) * 6.);
+              space /= 6.;
+
+              space = fract(space * u_complexity) / 2.2;
+              vec3 color = vec3(space);
+
+              color.r *= sin(len * (1.2 - u_mix)) * u_saturation;
+              color.g *= sin(len * (3.3 - u_mix)) * u_saturation;
+              color.b *= sin(len * (4.3 - u_mix)) * u_saturation;
+
+              if (u_light == 1.0) {
+                color.r = cos(len * color.r);
+                color.g = cos(len * color.g);
+                color.b = cos(len * color.b);
+              } else {
+                color.r = 1. - abs(cos(len * color.r));
+                color.g = 1. - abs(cos(len * color.g));
+                color.b = 1. - abs(cos(len * color.b));
+              }
+
+              gl_FragColor = vec4(color, 1.0);
+            }
+        `}
+            />
             <AnimatePresence initial={false} mode="popLayout">
               <motion.div
                 key={useLocation().pathname}
@@ -280,7 +345,8 @@ export default function App() {
               </motion.div>
             </AnimatePresence>
           </motion.div>
-          {isRoot && (
+          {/* Only show the intro on the root page */}
+          {isRoot && showIntro && (
             <motion.div
               style={{
                 y,
@@ -289,7 +355,9 @@ export default function App() {
               className="absolute h-[100dvh] inset-0 bg-white/50 w-full touch-pan-x"
             >
               <div className="grid items-center justify-center py-12 max-w-7xl mx-auto h-full">
-                <p className="text-black text-[40rem] leading-[0]">SMOL</p>
+                <p className="text-black text-[40rem] leading-[0] select-none">
+                  SMOL
+                </p>
                 <motion.div
                   ref={dragRef}
                   initial={{
@@ -341,7 +409,7 @@ export default function App() {
         <ScrollRestoration />
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+            __html: `window.ENV = ${JSON.stringify(data?.ENV)}`,
           }}
         />
         <Scripts />

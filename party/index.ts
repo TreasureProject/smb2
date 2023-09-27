@@ -10,7 +10,7 @@ export default class Server implements Party.Server {
     this.party.broadcast(
       JSON.stringify({
         type: "connect",
-        count: this.getConnectedCount(),
+        count: [...this.party.getConnections()].length,
       })
     );
   }
@@ -42,7 +42,7 @@ export default class Server implements Party.Server {
     this.party.broadcast(
       JSON.stringify({
         type: "disconnect",
-        count: this.getConnectedCount(),
+        count: [...this.party.getConnections()].length,
       })
     );
   }

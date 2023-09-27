@@ -1,7 +1,6 @@
 import { json } from "@remix-run/node";
-import { useLoaderData, useLocation } from "@remix-run/react";
-import { motion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { AnimationContainer } from "~/components/AnimationContainer";
+import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
 
 export const loader = async () => {
   return json({
@@ -10,33 +9,10 @@ export const loader = async () => {
 };
 
 export default function Smolspace() {
-  const { state } = useLocation();
-
-  const lastMessage = useRef({});
-  const data = useLoaderData<typeof loader>() || lastMessage.current;
-
-  useEffect(() => {
-    if (data) lastMessage.current = data;
-  }, [data]);
+  const data = useCustomLoaderData<typeof loader>();
 
   return (
-    <motion.div
-      style={{
-        zIndex: 10,
-        position: "absolute",
-        inset: 0,
-      }}
-      initial={{
-        scale: 0,
-        opacity: 0,
-        transformOrigin: state?.transformOrigin || "50% 50%",
-      }}
-      animate={{ scale: 1, left: 0, top: 0, opacity: 1 }}
-      exit={{
-        opacity: 0,
-      }}
-      className="h-full bg-acid p-3"
-    >
+    <AnimationContainer className="bg-acid p-3">
       <h1 className="font-chad font-medium text-7xl italic">Smolspace</h1>
       <div className="flex gap-4 font-mono font-bold mt-3">
         <div className="gap-4 basis-72 flex flex-col">
@@ -190,6 +166,6 @@ export default function Smolspace() {
           </div>
         </div>
       </div>
-    </motion.div>
+    </AnimationContainer>
   );
 }
