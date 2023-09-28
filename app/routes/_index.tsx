@@ -7,6 +7,7 @@ import { Box } from "~/components/Box";
 import TestImg from "../assets/test.png";
 import TestTwoImg from "../assets/test2.png";
 import { Link } from "@remix-run/react";
+import { CallIcon } from "~/components/Icons";
 
 const MotionLink = motion(Link);
 
@@ -64,6 +65,17 @@ function AppIcon({ mouseX }: { mouseX: MotionValue }) {
 }
 
 export default function Index() {
+  const [id, setId] = React.useState(0);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const playSound = () => {
+    if (audioRef.current && !audioRef.current.paused) return;
+
+    const searchParams = new URLSearchParams({ id: String(id) });
+    const audio = new Audio(`/speech.wav?${searchParams.toString()}`);
+
+    audioRef.current = audio;
+    audio.play();
+  };
   return (
     <>
       <svg width={0} className="hidden">
@@ -88,8 +100,8 @@ export default function Index() {
         </defs>
       </svg>
       <div className="h-full relative flex flex-col">
-        <div className="flex mt-24 flex-1 relative flex-col max-w-7xl gap-12 mx-auto h-full">
-          <div className="grid grid-areas-widgets grid-cols-7 grid-rows-4 gap-8">
+        <div className="flex flex-1 relative items-center max-w-7xl gap-12 mx-auto h-full">
+          <div className="grid grid-areas-widgets grid-cols-[repeat(7,100px)] grid-rows-4 gap-8">
             <Box
               as="link"
               to="/smolspace"
@@ -114,7 +126,22 @@ export default function Index() {
                 className="aspect-square w-full h-full opacity-[0.85]"
               ></img>
             </Box>
-            <Box className="grid-in-w3 bg-acid"></Box>
+            <Box className="grid-in-w3 bg-acid flex items-center justify-center flex-col">
+              <input
+                type="number"
+                value={id}
+                className="tracking-wider text-4xl"
+                onChange={(e) => {
+                  setId(Number(e.currentTarget.value));
+                }}
+              />
+              <button
+                onClick={playSound}
+                className="border bg-gray-200 border-black mt-4"
+              >
+                <CallIcon className="w-12 h-12" />
+              </button>
+            </Box>
             <Box className="grid-in-w4 bg-sky-300"></Box>
             <Box className="grid-in-w5 bg-purple-300"></Box>
           </div>
