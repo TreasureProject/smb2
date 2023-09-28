@@ -12,16 +12,21 @@ WORKDIR /app
 # Set production environment
 ENV NODE_ENV="production"
 
+# Install festival and text2wave in the base stage
+RUN apt-get update -qq && \
+    apt-get install -y festival
 
 # Throw-away build stage to reduce size of final image
 FROM base as build
 
 # Install packages needed to build node modules
 RUN apt-get update -qq && \
-    apt-get install -y build-essential pkg-config python-is-python3
+    apt-get install -y build-essential pkg-config python-is-python3 festival
 
 # Install node modules
 COPY --link package.json ./
+COPY patches ./patches
+
 RUN npm install --include=dev
 
 # Copy application code

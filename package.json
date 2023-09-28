@@ -5,7 +5,8 @@
     "build": "remix build",
     "dev": "remix dev",
     "start": "remix-serve build",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@remix-run/css-bundle": "^1.19.3",
@@ -19,10 +20,12 @@
     "isbot": "^3.6.8",
     "leva": "^0.9.35",
     "partysocket": "^0.0.8",
+    "patch-package": "^8.0.0",
     "popmotion": "^11.0.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "remix-utils": "^6.6.0",
+    "say": "^0.16.0",
     "tailwind-merge": "^1.14.0"
   },
   "devDependencies": {
