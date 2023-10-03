@@ -12,6 +12,7 @@ import { distance } from "@popmotion/popcorn";
 
 // this is the height for the visible area on line 201, h-96.
 const VISIBLE_AREA_HEIGHT = 384;
+const BOX_HEIGHT = 100;
 
 const APP_LIST = [
   "Random",
@@ -148,7 +149,7 @@ const Item = ({
   const d = useTransform(() =>
     distance(
       {
-        x: ref?.offsetLeft ?? 0,
+        x: (ref?.offsetLeft ?? 0) + BOX_HEIGHT / 2,
         y: offsetRelative.get(),
       },
       {
@@ -158,7 +159,7 @@ const Item = ({
     )
   );
 
-  const s = useTransform(d, [VISIBLE_AREA_HEIGHT, 0], [0.2, 1.1]);
+  const s = useTransform(d, [VISIBLE_AREA_HEIGHT, 0], [0.1, 1.1]);
 
   const transform = useMotionTemplate`scale(${useSpring(s, {
     stiffness: 5000,
@@ -217,9 +218,9 @@ export default function Gallery() {
 
   return (
     <div className="h-full grid place-content-center font-mono">
-      <div className="border border-red-500 relative h-96 overflow-hidden">
+      <div className="border border-red-500 h-96 overflow-hidden">
         <motion.div
-          className="grid gap-2 p-4 touch-none"
+          className="grid gap-2 p-4 touch-none relative"
           ref={attachRef}
           style={{
             y,
