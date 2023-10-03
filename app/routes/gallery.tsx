@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { distance } from "@popmotion/popcorn";
 
+// this is the height for the visible area on line 201, h-96.
 const VISIBLE_AREA_HEIGHT = 384;
 
 const APP_LIST = [
@@ -41,22 +42,32 @@ const APP_LIST = [
   "Discord",
   "Slack",
   "Whatsapp",
+  "Netflix",
+  "Twitter",
+  "Instagram",
+  "Facebook",
+  "Reddit",
+  "Google",
+  "Amazon",
+  "Twitch",
+  "Discord",
+  "Slack",
+  "Whatsapp",
 ];
 
-// function that takes in an array and returns a new array with this [[0, 1, 2], [3, 4, 5, 6], [7, 8, 9]]
 function splitApps(apps: typeof APP_LIST) {
   let results = [];
-  let isThree = true;
+  let isSeven = true;
 
   for (let i = 0; i < apps.length; ) {
-    if (isThree) {
-      results.push(apps.slice(i, i + 3));
-      i += 3;
+    if (isSeven) {
+      results.push(apps.slice(i, i + 7));
+      i += 7;
     } else {
-      results.push(apps.slice(i, i + 4));
-      i += 4;
+      results.push(apps.slice(i, i + 5));
+      i += 5;
     }
-    isThree = !isThree; // Toggle between 3 and 4
+    isSeven = !isSeven;
   }
 
   return results;
@@ -69,47 +80,41 @@ function useCallbackRef<TValue = unknown>(): [
   return useState<TValue | null>(null);
 }
 
-const ThreeColumns = ({
+const FiveColumns = ({
   apps,
-  variableHeight,
   height,
+  width,
+  y,
 }: {
   apps: typeof APP_LIST;
-  variableHeight: MotionValue<number>;
   height: number;
+  width: number;
+  y: MotionValue<number>;
 }) => {
   return (
-    <div className="grid grid-cols-[repeat(3,100px)] grid-rows-[100px] place-content-center gap-4">
+    <div className="grid grid-cols-[repeat(5,100px)] grid-rows-[100px] place-content-center gap-4">
       {apps.map((app) => (
-        <Item
-          key={app}
-          app={app}
-          variableHeight={variableHeight}
-          height={height}
-        />
+        <Item key={app} app={app} height={height} width={width} y={y} />
       ))}
     </div>
   );
 };
 
-const FourColumns = ({
+const SevenColumns = ({
   apps,
-  variableHeight,
   height,
+  width,
+  y,
 }: {
   apps: typeof APP_LIST;
-  variableHeight: MotionValue<number>;
   height: number;
+  width: number;
+  y: MotionValue<number>;
 }) => {
   return (
-    <div className="grid grid-cols-[repeat(4,100px)] grid-rows-[100px] place-content-center gap-4">
+    <div className="grid grid-cols-[repeat(7,100px)] grid-rows-[100px] place-content-center gap-4">
       {apps.map((app) => (
-        <Item
-          key={app}
-          app={app}
-          variableHeight={variableHeight}
-          height={height}
-        />
+        <Item key={app} app={app} height={height} width={width} y={y} />
       ))}
     </div>
   );
@@ -117,30 +122,44 @@ const FourColumns = ({
 
 const Item = ({
   app,
-  variableHeight,
+
   height,
+  width,
+  y,
 }: {
   app: (typeof APP_LIST)[number];
-  variableHeight: MotionValue<number>;
   height: number;
+  width: number;
+  y: MotionValue<number>;
 }) => {
   const [ref, attachRef] = useCallbackRef<HTMLDivElement>();
-  const heightPlusOffset = height + 50;
-  const d = useTransform(() => {
-    return distance(ref?.offsetTop ?? 0, variableHeight.get());
-  });
 
-  const s = useTransform(
-    d,
-    [
-      heightPlusOffset,
-      heightPlusOffset - VISIBLE_AREA_HEIGHT / 4.8,
-      heightPlusOffset - VISIBLE_AREA_HEIGHT / 2,
-      heightPlusOffset - VISIBLE_AREA_HEIGHT / 1.2,
-      heightPlusOffset - VISIBLE_AREA_HEIGHT,
-    ],
-    [0, 0.9, 1, 0.9, 0]
+  const offsetRelative = useTransform(() => {
+    const yValue = Math.abs(y.get());
+
+    const yPlusVisibleArea = yValue + VISIBLE_AREA_HEIGHT;
+
+    const offsetTop = ref?.offsetTop ?? 0;
+
+    if (offsetTop < yValue || offsetTop > yPlusVisibleArea) return 0;
+
+    return offsetTop - yValue;
+  });
+  const d = useTransform(() =>
+    distance(
+      {
+        x: ref?.offsetLeft ?? 0,
+        y: offsetRelative.get(),
+      },
+      {
+        x: width / 2,
+        y: VISIBLE_AREA_HEIGHT / 2,
+      }
+    )
   );
+
+  const s = useTransform(d, [VISIBLE_AREA_HEIGHT, 0], [0.2, 1.1]);
+
   const transform = useMotionTemplate`scale(${useSpring(s, {
     stiffness: 5000,
     damping: 100,
@@ -154,9 +173,9 @@ const Item = ({
         transform,
       }}
       ref={attachRef}
-      className="border border-red-500 text-white"
+      className="border text-xl border-red-500 text-white"
     >
-      {d}
+      <span className="block truncate">{app}</span>
     </motion.div>
   );
 };
@@ -169,6 +188,7 @@ export default function Gallery() {
   const [dragRef, attachRef] = useCallbackRef<HTMLDivElement>();
 
   const height = dragRef?.getBoundingClientRect().height ?? 0;
+  const width = dragRef?.getBoundingClientRect().width ?? 0;
 
   const variableHeight = useMotionValue(height);
 
@@ -177,11 +197,10 @@ export default function Gallery() {
   }, [height, variableHeight]);
 
   useDrag(
-    ({ event, down, offset: [, oy] }) => {
+    ({ event, offset: [, oy] }) => {
       event.preventDefault();
 
       if (oy > 0 || Math.abs(oy) > height - VISIBLE_AREA_HEIGHT) return;
-      // normalize this value between 0 and 1
       variableHeight.set(height - oy);
       y.set(oy);
     },
@@ -197,32 +216,34 @@ export default function Gallery() {
   );
 
   return (
-    <div className="h-full grid place-content-center">
-      <div className="border border-red-500 h-96 overflow-hidden">
+    <div className="h-full grid place-content-center font-mono">
+      <div className="border border-red-500 relative h-96 overflow-hidden">
         <motion.div
-          className="grid gap-2 p-4 relative touch-none"
+          className="grid gap-2 p-4 touch-none"
           ref={attachRef}
           style={{
             y,
           }}
         >
           {splitApps(APP_LIST).map((apps) => {
-            if (apps.length === 4) {
+            if (apps.length === 7) {
               return (
-                <FourColumns
+                <SevenColumns
                   key={apps.join("")}
                   apps={apps}
-                  variableHeight={variableHeight}
                   height={height}
+                  width={width}
+                  y={y}
                 />
               );
             } else {
               return (
-                <ThreeColumns
+                <FiveColumns
                   key={apps.join("")}
                   apps={apps}
-                  variableHeight={variableHeight}
                   height={height}
+                  width={width}
+                  y={y}
                 />
               );
             }

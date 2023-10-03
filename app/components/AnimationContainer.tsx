@@ -17,6 +17,7 @@ export const AnimationContainer = ({
         zIndex: 10,
         position: "absolute",
         inset: 0,
+        transform: "translate3d(0, 0, 0)",
       }}
       initial={{
         scale: 0,
