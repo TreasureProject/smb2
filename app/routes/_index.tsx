@@ -56,10 +56,7 @@ function AppIcon({ mouseX }: { mouseX: MotionValue }) {
       }}
       className="aspect-square h-auto w-16 z-10 relative"
     >
-      <motion.img
-        src={TestImg}
-        className="w-full h-full rounded-md bg-neonPink"
-      ></motion.img>
+      <img src={TestImg} className="w-full h-full rounded-md bg-neonPink"></img>
     </MotionLink>
   );
 }
