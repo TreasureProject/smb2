@@ -177,17 +177,22 @@ export default function Gallery() {
   }, [height, variableHeight]);
 
   useDrag(
-    ({ down, offset: [, my] }) => {
-      if (my > 0 || Math.abs(my) > height - VISIBLE_AREA_HEIGHT) return;
+    ({ event, down, offset: [, oy] }) => {
+      event.preventDefault();
+
+      if (oy > 0 || Math.abs(oy) > height - VISIBLE_AREA_HEIGHT) return;
       // normalize this value between 0 and 1
-      variableHeight.set(height - my);
-      y.set(my);
+      variableHeight.set(height - oy);
+      y.set(oy);
     },
     {
       from: () => {
         return [0, y.get()];
       },
       target: dragRef ?? undefined,
+      pointer: {
+        capture: false,
+      },
     }
   );
 
@@ -195,7 +200,7 @@ export default function Gallery() {
     <div className="h-full grid place-content-center">
       <div className="border border-red-500 h-96 overflow-hidden">
         <motion.div
-          className="grid gap-2 p-4 relative"
+          className="grid gap-2 p-4 relative touch-none"
           ref={attachRef}
           style={{
             y,
