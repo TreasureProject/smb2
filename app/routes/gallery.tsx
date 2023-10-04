@@ -2,17 +2,31 @@ import { useDrag } from "@use-gesture/react";
 import type { MotionValue } from "framer-motion";
 import {
   motion,
-  useMotionValue,
   useSpring,
   useTransform,
   useMotionTemplate,
+  useMotionValue,
+  useAnimate,
+  stagger,
 } from "framer-motion";
 import { useEffect, useState } from "react";
 import { distance } from "@popmotion/popcorn";
+import type { TroveSmolToken } from "~/api";
+import { fetchSmols } from "~/api";
+import { json } from "@remix-run/node";
+import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
 
 // this is the height for the visible area on line 201, h-96.
 const VISIBLE_AREA_HEIGHT = 384;
 const BOX_HEIGHT = 100;
+
+export const loader = async () => {
+  const res = await fetchSmols();
+
+  return json({
+    data: res,
+  });
+};
 
 const APP_LIST = [
   "Random",
@@ -56,7 +70,7 @@ const APP_LIST = [
   "Whatsapp",
 ];
 
-function splitApps(apps: typeof APP_LIST) {
+function splitApps(apps: TroveSmolToken[]) {
   let results = [];
   let isSeven = true;
 
@@ -83,19 +97,28 @@ function useCallbackRef<TValue = unknown>(): [
 
 const FiveColumns = ({
   apps,
-  height,
   width,
   y,
+  x,
+  parentHeight,
 }: {
-  apps: typeof APP_LIST;
-  height: number;
+  apps: TroveSmolToken[];
   width: number;
   y: MotionValue<number>;
+  x: MotionValue<number>;
+  parentHeight: number;
 }) => {
   return (
-    <div className="grid grid-cols-[repeat(5,100px)] grid-rows-[100px] place-content-center gap-4">
+    <div className="grid grid-cols-[repeat(5,100px)] grid-rows-[100px] place-content-center gap-12">
       {apps.map((app) => (
-        <Item key={app} app={app} height={height} width={width} y={y} />
+        <Item
+          parentHeight={parentHeight}
+          x={x}
+          key={app.tokenId}
+          app={app}
+          width={width}
+          y={y}
+        />
       ))}
     </div>
   );
@@ -103,19 +126,28 @@ const FiveColumns = ({
 
 const SevenColumns = ({
   apps,
-  height,
   width,
   y,
+  x,
+  parentHeight,
 }: {
-  apps: typeof APP_LIST;
-  height: number;
+  apps: TroveSmolToken[];
   width: number;
   y: MotionValue<number>;
+  x: MotionValue<number>;
+  parentHeight: number;
 }) => {
   return (
-    <div className="grid grid-cols-[repeat(7,100px)] grid-rows-[100px] place-content-center gap-4">
+    <div className="grid grid-cols-[repeat(7,100px)] grid-rows-[100px] place-content-center gap-12">
       {apps.map((app) => (
-        <Item key={app} app={app} height={height} width={width} y={y} />
+        <Item
+          parentHeight={parentHeight}
+          x={x}
+          key={app.tokenId}
+          app={app}
+          width={width}
+          y={y}
+        />
       ))}
     </div>
   );
@@ -123,22 +155,23 @@ const SevenColumns = ({
 
 const Item = ({
   app,
-
-  height,
   width,
   y,
+  x,
+  parentHeight,
 }: {
-  app: (typeof APP_LIST)[number];
-  height: number;
+  app: TroveSmolToken;
   width: number;
   y: MotionValue<number>;
+  x: MotionValue<number>;
+  parentHeight: number;
 }) => {
   const [ref, attachRef] = useCallbackRef<HTMLDivElement>();
 
   const offsetRelative = useTransform(() => {
     const yValue = Math.abs(y.get());
 
-    const yPlusVisibleArea = yValue + VISIBLE_AREA_HEIGHT;
+    const yPlusVisibleArea = yValue + parentHeight;
 
     const offsetTop = ref?.offsetTop ?? 0;
 
@@ -146,20 +179,20 @@ const Item = ({
 
     return offsetTop - yValue;
   });
-  const d = useTransform(() =>
-    distance(
+  const d = useTransform(() => {
+    return distance(
       {
-        x: (ref?.offsetLeft ?? 0) + BOX_HEIGHT / 2,
+        x: (ref?.offsetLeft ?? 0) + x.get() + BOX_HEIGHT / 2,
         y: offsetRelative.get(),
       },
       {
         x: width / 2,
-        y: VISIBLE_AREA_HEIGHT / 2,
+        y: parentHeight / 2,
       }
-    )
-  );
+    );
+  });
 
-  const s = useTransform(d, [VISIBLE_AREA_HEIGHT, 0], [0.1, 1.1]);
+  const s = useTransform(d, [parentHeight, 0], [0.5, 1.4]);
 
   const transform = useMotionTemplate`scale(${useSpring(s, {
     stiffness: 5000,
@@ -174,9 +207,12 @@ const Item = ({
         transform,
       }}
       ref={attachRef}
-      className="border text-xl border-red-500 text-white"
+      className="outline rounded-full overflow-hidden text-xl outline-neonPink text-white aspect-square"
     >
-      <span className="block truncate">{app}</span>
+      <motion.img
+        src={app.image.uri}
+        className="w-full h-full select-none touch-none [-moz-user-select:none] [-webkit-user-drag:none]"
+      />
     </motion.div>
   );
 };
@@ -186,69 +222,100 @@ export default function Gallery() {
     stiffness: 5000,
     damping: 500,
   });
+  const x = useSpring(0, {
+    stiffness: 5000,
+    damping: 500,
+  });
+  const [scope, animate] = useAnimate();
+
+  const data = useCustomLoaderData<typeof loader>();
   const [dragRef, attachRef] = useCallbackRef<HTMLDivElement>();
+  const [parentRef, attachParentRef] = useCallbackRef<HTMLDivElement>();
 
   const height = dragRef?.getBoundingClientRect().height ?? 0;
   const width = dragRef?.getBoundingClientRect().width ?? 0;
 
-  const variableHeight = useMotionValue(height);
-
-  useEffect(() => {
-    variableHeight.set(height);
-  }, [height, variableHeight]);
-
+  const parentHeight = parentRef?.getBoundingClientRect().height ?? 0;
   useDrag(
-    ({ event, offset: [, oy] }) => {
+    ({ event, offset: [ox, oy] }) => {
       event.preventDefault();
 
-      if (oy > 0 || Math.abs(oy) > height - VISIBLE_AREA_HEIGHT) return;
-      variableHeight.set(height - oy);
+      x.set(ox);
+
+      if (oy > 0 || Math.abs(oy) > height - parentHeight) return;
       y.set(oy);
     },
     {
       from: () => {
-        return [0, y.get()];
+        return [x.get(), y.get()];
       },
       target: dragRef ?? undefined,
+      bounds: { left: -0, right: 0 },
+
+      rubberband: true,
       pointer: {
         capture: false,
       },
     }
   );
 
+  useEffect(() => {
+    animate(
+      "div",
+      { y: [999, 0], opacity: [0, 1] },
+      {
+        type: "spring",
+
+        ease: "easeInOut",
+        delay: stagger(0.001),
+      }
+    );
+  }, [animate]);
+
   return (
-    <div className="h-full grid place-content-center font-mono">
-      <div className="border border-red-500 h-96 overflow-hidden">
+    <div className="h-full flex flex-col font-mono bg-troll">
+      <div className="h-24 bg-red-500/50">
+        <h1>GALLERY</h1>
+      </div>
+      <div
+        ref={attachParentRef}
+        className="flex-1 overflow-hidden [-webkit-mask-image:radial-gradient(60%_80%_at_center,white,transparent_65%)]"
+      >
         <motion.div
-          className="grid gap-2 p-4 touch-none relative"
           ref={attachRef}
           style={{
             y,
+            x,
           }}
         >
-          {splitApps(APP_LIST).map((apps) => {
-            if (apps.length === 7) {
-              return (
-                <SevenColumns
-                  key={apps.join("")}
-                  apps={apps}
-                  height={height}
-                  width={width}
-                  y={y}
-                />
-              );
-            } else {
-              return (
-                <FiveColumns
-                  key={apps.join("")}
-                  apps={apps}
-                  height={height}
-                  width={width}
-                  y={y}
-                />
-              );
-            }
-          })}
+          <div ref={scope} className="grid gap-10 p-4 touch-none relative">
+            {data &&
+              splitApps(data.data).map((apps) => {
+                if (apps.length === 7) {
+                  return (
+                    <SevenColumns
+                      key={apps.map((d) => d.tokenId).join(",")}
+                      apps={apps}
+                      width={width}
+                      y={y}
+                      x={x}
+                      parentHeight={parentHeight}
+                    />
+                  );
+                } else {
+                  return (
+                    <FiveColumns
+                      key={apps.map((d) => d.tokenId).join(",")}
+                      apps={apps}
+                      width={width}
+                      y={y}
+                      x={x}
+                      parentHeight={parentHeight}
+                    />
+                  );
+                }
+              })}
+          </div>
         </motion.div>
       </div>
     </div>
