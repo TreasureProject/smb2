@@ -22,7 +22,6 @@ export type TroveSmolToken = {
 };
 
 export const fetchSmols = async () => {
-  console.log(process.env.PUBLIC_TROVE_API_KEY);
   const res = await fetch(
     `https://${BASE_URL}.treasure.lol/collection/arb/smol-brains/tokens?${new URLSearchParams(
       {

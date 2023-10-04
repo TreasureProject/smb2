@@ -9,6 +9,7 @@ import {
   useAnimate,
   stagger,
 } from "framer-motion";
+import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
 import { distance } from "@popmotion/popcorn";
 import type { TroveSmolToken } from "~/api";
@@ -17,8 +18,7 @@ import { json } from "@remix-run/node";
 import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
 
 // this is the height for the visible area on line 201, h-96.
-const VISIBLE_AREA_HEIGHT = 384;
-const BOX_HEIGHT = 100;
+const BOX_HEIGHT = 200;
 
 export const loader = async () => {
   const res = await fetchSmols();
@@ -109,7 +109,14 @@ const FiveColumns = ({
   parentHeight: number;
 }) => {
   return (
-    <div className="grid grid-cols-[repeat(5,100px)] grid-rows-[100px] place-content-center gap-12">
+    <div
+      style={
+        {
+          "--size": `${BOX_HEIGHT}px`,
+        } as CSSProperties
+      }
+      className="grid grid-cols-[repeat(5,var(--size))] grid-rows-[var(--size)] place-content-center gap-12"
+    >
       {apps.map((app) => (
         <Item
           parentHeight={parentHeight}
@@ -138,7 +145,14 @@ const SevenColumns = ({
   parentHeight: number;
 }) => {
   return (
-    <div className="grid grid-cols-[repeat(7,100px)] grid-rows-[100px] place-content-center gap-12">
+    <div
+      style={
+        {
+          "--size": `${BOX_HEIGHT}px`,
+        } as CSSProperties
+      }
+      className="grid grid-cols-[repeat(7,var(--size))] grid-rows-[var(--size)] place-content-center gap-12"
+    >
       {apps.map((app) => (
         <Item
           parentHeight={parentHeight}
@@ -167,7 +181,6 @@ const Item = ({
   parentHeight: number;
 }) => {
   const [ref, attachRef] = useCallbackRef<HTMLDivElement>();
-
   const offsetRelative = useTransform(() => {
     const yValue = Math.abs(y.get());
 
@@ -183,7 +196,7 @@ const Item = ({
     return distance(
       {
         x: (ref?.offsetLeft ?? 0) + x.get() + BOX_HEIGHT / 2,
-        y: offsetRelative.get(),
+        y: offsetRelative.get() + BOX_HEIGHT / 2,
       },
       {
         x: width / 2,
@@ -192,7 +205,11 @@ const Item = ({
     );
   });
 
-  const s = useTransform(d, [parentHeight, 0], [0.5, 1.4]);
+  const s = useTransform(
+    d,
+    [parentHeight, parentHeight / 2, 0],
+    [0.5, 0.8, 1.4]
+  );
 
   const transform = useMotionTemplate`scale(${useSpring(s, {
     stiffness: 5000,
@@ -277,7 +294,10 @@ export default function Gallery() {
       <div className="h-24 bg-red-500/50">
         <h1>GALLERY</h1>
       </div>
-      <div
+      <motion.div
+        animate={{ opacity: 1 }}
+        initial={{ opacity: 0 }}
+        transition={{ delay: 0.2 }}
         ref={attachParentRef}
         className="flex-1 overflow-hidden [-webkit-mask-image:radial-gradient(60%_80%_at_center,white,transparent_65%)]"
       >
@@ -288,7 +308,7 @@ export default function Gallery() {
             x,
           }}
         >
-          <div ref={scope} className="grid gap-10 p-4 touch-none relative">
+          <div ref={scope} className="grid gap-16 p-4 touch-none relative">
             {data &&
               splitApps(data.data).map((apps) => {
                 if (apps.length === 7) {
@@ -317,7 +337,7 @@ export default function Gallery() {
               })}
           </div>
         </motion.div>
-      </div>
+      </motion.div>
     </div>
   );
 }

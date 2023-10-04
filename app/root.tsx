@@ -64,7 +64,7 @@ export default function App() {
   const [showIntro, setShowIntro] = useState(true);
 
   const isRoot = location.pathname === "/";
-
+  const overflowHide = location.pathname === "/gallery";
   const blur = useMotionValue(isRoot ? 55 : 0);
   const y = useSpring(0, {
     stiffness: 5000,
@@ -183,7 +183,7 @@ export default function App() {
       <body
         className={cn(
           "cursor-[url(/img/MiddleFingerCursor.svg),auto] antialiased relative h-[100dvh]",
-          isRoot && "overflow-hidden"
+          isRoot || overflowHide ? "overflow-hidden" : null
         )}
         onMouseMove={({ currentTarget, clientX, clientY }) => {
           const { left, top } = currentTarget.getBoundingClientRect();
