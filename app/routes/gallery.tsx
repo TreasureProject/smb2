@@ -16,10 +16,9 @@ import type { TroveSmolToken } from "~/api";
 import { fetchSmols } from "~/api";
 import { json } from "@remix-run/node";
 import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
-import { Sheet, SheetContent, SheetHeader } from "~/components/ui/sheet";
+import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { interpolate } from "popmotion";
 import { Icon } from "~/components/Icons";
-import { formatPercent } from "~/utils";
 
 const MotionIcon = motion(Icon);
 // this is the height for the visible area on line 201, h-96.
