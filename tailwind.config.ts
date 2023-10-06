@@ -4,13 +4,6 @@ import defaultTheme from "tailwindcss/defaultTheme";
 export default {
   content: ["./app/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
-    },
     extend: {
       colors: {
         troll: "#7237E3",
@@ -41,6 +34,7 @@ export default {
         chad: ["PPEditorialNew", ...defaultTheme.fontFamily.sans],
         oakley: ["Oakley", ...defaultTheme.fontFamily.sans],
         mondwest: ["PPMondwest", ...defaultTheme.fontFamily.sans],
+        formula: ["PPFormula", ...defaultTheme.fontFamily.sans],
       },
       keyframes: {
         "accordion-down": {

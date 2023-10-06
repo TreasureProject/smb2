@@ -19,6 +19,16 @@ export type TroveSmolToken = {
       display_type?: string;
     }[];
   };
+  rarity: {
+    score: number;
+    rank: number;
+    scoreBreakdown: {
+      count: number;
+      trait: string;
+      value: string;
+      score: number;
+    }[];
+  };
 };
 
 export const fetchSmols = async () => {

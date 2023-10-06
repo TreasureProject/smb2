@@ -10,7 +10,7 @@ import {
   useIsomorphicLayoutEffect,
 } from "framer-motion";
 import type { CSSProperties } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { distance } from "@popmotion/popcorn";
 import type { TroveSmolToken } from "~/api";
 import { fetchSmols } from "~/api";
@@ -18,9 +18,23 @@ import { json } from "@remix-run/node";
 import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
 import { Sheet, SheetContent, SheetHeader } from "~/components/ui/sheet";
 import { interpolate } from "popmotion";
+import { Icon } from "~/components/Icons";
+import { formatPercent } from "~/utils";
 
+const MotionIcon = motion(Icon);
 // this is the height for the visible area on line 201, h-96.
 const BOX_HEIGHT = 200;
+
+const filterTraits = [
+  "Background",
+  "Body",
+  "Clothes",
+  "Glasses",
+  "Hat",
+  "Naked",
+  "Mouth",
+  "Gender",
+];
 
 export const loader = async () => {
   const res = await fetchSmols();
@@ -327,6 +341,9 @@ export default function Gallery() {
   const triggerModal = (id: string) =>
     setOpenModal({ isOpen: true, targetTokenId: id });
 
+  const targetSmol = data?.data.find(
+    (d) => d.tokenId === openModal.targetTokenId
+  );
   return (
     <motion.div
       className="h-full flex flex-col font-mono bg-[url(/img/stars.png)] bg-repeat brightness-125"
@@ -392,18 +409,124 @@ export default function Gallery() {
             </div>
           </motion.div>
         </div>
-        <SheetContent>
-          <SheetHeader>
-            <img
-              src={
-                data?.data.find((d) => d.tokenId === openModal.targetTokenId)
-                  ?.image.uri || ""
-              }
-              alt=""
-            />
-          </SheetHeader>
+        <SheetContent className="bg-[#1C122F] overflow-hidden">
+          {targetSmol ? <SidePopup smol={targetSmol} /> : null}
         </SheetContent>
       </Sheet>
     </motion.div>
   );
 }
+
+const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
+  const [color, setColor] = useState<string | null>(null);
+  const [ringing, setRinging] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const playSound = () => {
+      if (audioRef.current && !audioRef.current.paused) return;
+
+      const searchParams = new URLSearchParams({ id: String(smol.tokenId) });
+      const audio = new Audio(`/speech.wav?${searchParams.toString()}`);
+
+      audioRef.current = audio;
+      audio.play();
+    };
+
+    if (ringing) {
+      const id = setTimeout(() => {
+        setRinging(false);
+        playSound();
+      }, 2000);
+      return () => clearTimeout(id);
+    }
+  }, [ringing, smol.tokenId]);
+
+  return (
+    <div className="relative flex flex-col h-full">
+      <img
+        src={smol.image.uri}
+        crossOrigin="anonymous"
+        onLoad={(e) => {
+          const canvas = document.createElement("canvas");
+          canvas.width = e.currentTarget.width;
+          canvas.height = e.currentTarget.height;
+          const ctx = canvas.getContext("2d");
+
+          if (!ctx) return;
+
+          ctx.drawImage(e.currentTarget, 0, 0);
+
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+          // get the first three values of the first pixel
+          const r = imageData.data[0];
+          const g = imageData.data[1];
+          const b = imageData.data[2];
+
+          // get the rgb string
+          const rgb = `rgb(${r},${g},${b})`;
+          setColor(rgb);
+        }}
+        alt=""
+      />
+      <Icon
+        name="splash"
+        style={{
+          color: color ?? "white",
+        }}
+        className="fill-current z-10 pointer-events-none absolute top-64 -left-12 w-40 h-48"
+      />
+      <Icon
+        name="splash"
+        style={{
+          color: color ?? "white",
+        }}
+        className="fill-current z-10 pointer-events-none absolute top-60 -right-12 w-40 h-48"
+      />
+      <div className="p-4 flex gap-4 flex-col h-full relative">
+        <div className="gap-2 grid-cols-2 grid flex-1">
+          {smol.rarity.scoreBreakdown
+            .filter((data) => filterTraits.includes(data.trait))
+            .map((data) => {
+              return (
+                <div
+                  key={data.value}
+                  className="relative text-white group font-formula font-bold uppercase bg-[#443560]"
+                >
+                  <div className="opacity-0 group-hover:opacity-100 absolute grid place-items-center inset-0 h-full w-full bg-[#7237E3] transition-all duration-300">
+                    <p className="text-sm">{data.score.toFixed(2)}%</p>
+                  </div>
+                  <div className="flex py-2 h-full gap-1 items-center justify-center flex-col">
+                    <p className="text-white/50 text-sm">{data.trait}</p>
+                    <p className="text-lg">{data.value}</p>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+        <button
+          onClick={() => {
+            setRinging(true);
+          }}
+          className="h-12 font-formula font-bold bg-acid inline-flex py-4 border items-center justify-center"
+        >
+          <MotionIcon
+            animate={
+              ringing
+                ? {
+                    rotate: 360,
+                  }
+                : undefined
+            }
+            name="call"
+            className="w-8 h-8"
+          />
+          <span className="ml-1">
+            {ringing ? "Ringing..." : `Call ${smol.tokenId}`}
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+};
