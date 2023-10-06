@@ -8,6 +8,7 @@ import {
   useAnimate,
   animate as _animate,
   useMotionValueEvent,
+  useIsomorphicLayoutEffect,
 } from "framer-motion";
 import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
@@ -17,7 +18,7 @@ import { fetchSmols } from "~/api";
 import { json } from "@remix-run/node";
 import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
 import { Sheet, SheetContent, SheetHeader } from "~/components/ui/sheet";
-import { interpolate } from "popmotion";
+import { animate, interpolate } from "popmotion";
 
 // this is the height for the visible area on line 201, h-96.
 const BOX_HEIGHT = 200;
@@ -30,46 +31,50 @@ export const loader = async () => {
   });
 };
 
-// type WindowSize = {
-//   width: number;
-//   height: number;
-// };
+type WindowSize = {
+  width: number;
+  height: number;
+};
 
-// export function useWindowSize(): WindowSize {
-//   const [windowSize, setWindowSize] = useState<WindowSize>({
-//     width: 0,
-//     height: 0,
-//   });
+export function useWindowSize(): WindowSize {
+  const [windowSize, setWindowSize] = useState<WindowSize>({
+    width: 0,
+    height: 0,
+  });
 
-//   const handleSize = () => {
-//     setWindowSize({
-//       width: window.innerWidth,
-//       height: window.innerHeight,
-//     });
-//   };
+  const handleSize = () => {
+    setWindowSize({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+  };
 
-//   addEventListener("resize", handleSize);
+  useEffect(() => {
+    addEventListener("resize", handleSize);
+    return () => removeEventListener("resize", handleSize);
+  }, []);
+  useIsomorphicLayoutEffect(() => {
+    handleSize();
+  }, []);
 
-//   useIsomorphicLayoutEffect(() => {
-//     handleSize();
-//   }, []);
+  return windowSize;
+}
 
-//   return windowSize;
-// }
-
-function splitApps(apps: TroveSmolToken[]) {
+function splitApps(apps: TroveSmolToken[], isMobile: boolean = false) {
   let results = [];
-  let isSeven = true;
+  let isFirst = true;
+  const first = isMobile ? 5 : 7;
+  const second = isMobile ? 4 : 6;
 
   for (let i = 0; i < apps.length; ) {
-    if (isSeven) {
-      results.push(apps.slice(i, i + 7));
-      i += 7;
+    if (isFirst) {
+      results.push(apps.slice(i, i + first));
+      i += first;
     } else {
-      results.push(apps.slice(i, i + 5));
-      i += 5;
+      results.push(apps.slice(i, i + second));
+      i += second;
     }
-    isSeven = !isSeven;
+    isFirst = !isFirst;
   }
 
   return results;
@@ -104,7 +109,7 @@ const FiveColumns = ({
           "--size": `${BOX_HEIGHT}px`,
         } as CSSProperties
       }
-      className="grid grid-cols-[repeat(3,100px)] grid-rows-[100px] xl:grid-cols-[repeat(5,var(--size))] xl:grid-rows-[var(--size)] place-content-center gap-12"
+      className="grid grid-cols-[repeat(4,100px)] grid-rows-[100px] sm:grid-cols-[repeat(6,var(--size))] sm:grid-rows-[var(--size)] place-content-center gap-10 sm:gap-12"
     >
       {apps.map((app) => (
         <Item
@@ -143,7 +148,7 @@ const SevenColumns = ({
           "--size": `${BOX_HEIGHT}px`,
         } as CSSProperties
       }
-      className="grid grid-cols-[repeat(5,100px)] grid-rows-[100px] xl:grid-cols-[repeat(7,var(--size))] xl:grid-rows-[var(--size)] place-content-center gap-12"
+      className="grid grid-cols-[repeat(5,100px)] grid-rows-[100px] sm:grid-cols-[repeat(7,var(--size))] sm:grid-rows-[var(--size)] place-content-center gap-10 sm:gap-12"
     >
       {apps.map((app) => (
         <Item
@@ -180,7 +185,6 @@ const Item = ({
   const d = useTransform(() => {
     const { top } = ref?.getBoundingClientRect() ?? { top: 0 };
     const offsetRelative = parentHeight - top - parentHeight / 2;
-
     return distance(
       {
         x: (ref?.offsetLeft ?? 0) + x.get() + BOX_HEIGHT / 2,
@@ -231,12 +235,11 @@ const Item = ({
 
   return (
     <motion.div
-      initial={false}
       style={{
         scale,
       }}
       ref={attachRef}
-      className="relative outline rounded-full overflow-hidden text-xl outline-neonPink text-white aspect-square"
+      className="relative hover:ring-4  hover:ring-offset-2 hover:ring-offset-black rounded-full overflow-hidden text-xl hover:ring-white/50 text-white aspect-square"
     >
       <motion.img
         src={app.image.uri}
@@ -263,7 +266,9 @@ export default function Gallery() {
     damping: 500,
   });
   const [scope, animate] = useAnimate();
+  const { width: windowWidth } = useWindowSize();
 
+  const isMobile = windowWidth < 640;
   const data = useCustomLoaderData<typeof loader>();
   const [dragRef, attachRef] = useCallbackRef<HTMLDivElement>();
   const [parentRef, attachParentRef] = useCallbackRef<HTMLDivElement>();
@@ -360,8 +365,9 @@ export default function Gallery() {
           >
             <div ref={scope} className="grid gap-16 p-4 touch-none relative">
               {data &&
-                splitApps(data.data).map((apps) => {
-                  if (apps.length === 7) {
+                splitApps(data.data, isMobile).map((apps) => {
+                  const length = isMobile ? 5 : 7;
+                  if (apps.length === length) {
                     return (
                       <SevenColumns
                         key={apps.map((d) => d.tokenId).join(",")}
