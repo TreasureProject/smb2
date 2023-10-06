@@ -212,7 +212,7 @@ const Item = ({
         ref,
         { y: ["99%", "0%"], opacity: [0, 1] },
         {
-          duration: 1,
+          duration: 0.5,
           ease: "easeOut",
         }
       );
@@ -239,15 +239,12 @@ const Item = ({
         scale,
       }}
       ref={attachRef}
-      className="relative hover:ring-4  hover:ring-offset-2 hover:ring-offset-black rounded-full overflow-hidden text-xl hover:ring-white/50 text-white aspect-square"
+      className="relative transition-shadow duration-200 ring-4 ring-offset-2 ring-offset-transparent hover:ring-offset-black rounded-full overflow-hidden text-xl hover:ring-white/50 ring-transparent text-white aspect-square"
     >
       <motion.img
         src={app.image.uri}
         className="w-full h-full select-none touch-none [-moz-user-select:none] [-webkit-user-drag:none]"
       />
-      {/* <motion.span className="text-white absolute z-10 top-0 left-1/2 text-3xl font-bold">
-        {offsetRelative}
-      </motion.span> */}
       <button
         className="absolute inset-0 h-full w-full"
         onClick={() => openModal(app.tokenId)}
