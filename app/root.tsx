@@ -29,9 +29,16 @@ import { useDrag } from "@use-gesture/react";
 import { interpolate } from "popmotion";
 import { useCustomLoaderData } from "./hooks/useCustomLoaderData";
 import { ShaderCanvas } from "./components/GlslCanvas";
+import iconHref from "./components/icons/sprite.svg";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
+  {
+    rel: "preload",
+    href: iconHref,
+    as: "image",
+    type: "image/svg+xml",
+  },
 ];
 
 export const loader = () => {

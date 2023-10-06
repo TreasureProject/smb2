@@ -7,7 +7,6 @@ import {
   useMotionTemplate,
   useAnimate,
   animate as _animate,
-  useMotionValueEvent,
   useIsomorphicLayoutEffect,
 } from "framer-motion";
 import type { CSSProperties } from "react";
@@ -18,7 +17,7 @@ import { fetchSmols } from "~/api";
 import { json } from "@remix-run/node";
 import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
 import { Sheet, SheetContent, SheetHeader } from "~/components/ui/sheet";
-import { animate, interpolate } from "popmotion";
+import { interpolate } from "popmotion";
 
 // this is the height for the visible area on line 201, h-96.
 const BOX_HEIGHT = 200;

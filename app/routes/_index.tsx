@@ -7,7 +7,7 @@ import { Box } from "~/components/Box";
 import TestImg from "../assets/test.png";
 import TestTwoImg from "../assets/test2.png";
 import { Link } from "@remix-run/react";
-import { CallIcon } from "~/components/Icons";
+import { Icon } from "~/components/Icons";
 
 const MotionLink = motion(Link);
 
@@ -136,7 +136,7 @@ export default function Index() {
                 onClick={playSound}
                 className="border bg-gray-200 border-black mt-4"
               >
-                <CallIcon className="w-12 h-12" />
+                <Icon name="call" className="w-12 h-12" />
               </button>
             </Box>
             <Box className="grid-in-w4 bg-sky-300"></Box>
