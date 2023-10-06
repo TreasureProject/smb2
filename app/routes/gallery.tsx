@@ -420,6 +420,7 @@ export default function Gallery() {
 const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
   const [color, setColor] = useState<string | null>(null);
   const [ringing, setRinging] = useState(false);
+  const [seconds, setSeconds] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -441,6 +442,19 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
       return () => clearTimeout(id);
     }
   }, [ringing, smol.tokenId]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      if (!audioRef.current?.paused) {
+        const id = setInterval(() => {
+          setSeconds((s) => s + 1);
+        }, 1000);
+        return () => clearInterval(id);
+      } else {
+        setSeconds(0);
+      }
+    }
+  }, [audioRef.current?.paused]);
 
   return (
     <div className="relative flex flex-col h-full">
@@ -506,9 +520,7 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
             })}
         </div>
         <button
-          onClick={() => {
-            setRinging(true);
-          }}
+          onClick={() => setRinging(true)}
           className="h-12 font-formula font-bold bg-acid inline-flex py-4 border items-center justify-center"
         >
           <MotionIcon
@@ -523,7 +535,11 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
             className="w-8 h-8"
           />
           <span className="ml-1">
-            {ringing ? "Ringing..." : `Call ${smol.tokenId}`}
+            {ringing
+              ? "Ringing..."
+              : audioRef.current && !audioRef.current.paused
+              ? `00:${seconds < 10 ? `0${seconds}` : seconds}`
+              : `Call ${smol.tokenId}`}
           </span>
         </button>
       </div>
