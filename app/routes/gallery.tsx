@@ -176,40 +176,24 @@ const Item = ({
   openModal: (id: string) => void;
 }) => {
   const [ref, attachRef] = useCallbackRef<HTMLDivElement>();
-  const offsetRelative = useTransform(() => {
-    const yValue = Math.abs(y.get());
 
-    const yPlusVisibleArea = yValue + parentHeight;
-
-    const offsetTop = ref?.offsetTop ?? 0;
-
-    if (offsetTop < yValue || offsetTop > yPlusVisibleArea) return 0;
-
-    return offsetTop - yValue;
-  });
   const d = useTransform(() => {
+    const { top } = ref?.getBoundingClientRect() ?? { top: 0 };
+    const offsetRelative = parentHeight - top - parentHeight / 2;
+
     return distance(
       {
         x: (ref?.offsetLeft ?? 0) + x.get() + BOX_HEIGHT / 2,
-        y: offsetRelative.get() + BOX_HEIGHT / 2,
+        y: offsetRelative,
       },
       {
         x: width / 2,
-        y: parentHeight / 2,
+        y: 0,
       }
     );
   });
 
-  const s = useTransform(
-    d,
-    [parentHeight, parentHeight / 2, 0],
-    [0.5, 0.7, 1.5]
-  );
-
-  // useMotionValueEvent(s, "change", (s) => {
-  //   if (app.tokenId === "1353")
-  //     console.log({ s, d: d.get(), x: width / 2, y: parentHeight / 2 });
-  // });
+  const s = useTransform(d, [parentHeight, 0, -parentHeight], [0.3, 1.3, 0.3]);
 
   const scale = useSpring(s, {
     stiffness: 500,
@@ -258,9 +242,9 @@ const Item = ({
         src={app.image.uri}
         className="w-full h-full select-none touch-none [-moz-user-select:none] [-webkit-user-drag:none]"
       />
-      <motion.span className="text-white absolute z-10 top-0 left-1/2 text-3xl font-bold">
+      {/* <motion.span className="text-white absolute z-10 top-0 left-1/2 text-3xl font-bold">
         {offsetRelative}
-      </motion.span>
+      </motion.span> */}
       <button
         className="absolute inset-0 h-full w-full"
         onClick={() => openModal(app.tokenId)}
@@ -294,9 +278,8 @@ export default function Gallery() {
   const width = dragRef?.getBoundingClientRect().width ?? 0;
 
   const parentHeight = parentRef?.getBoundingClientRect().height ?? 0;
-  console.log({ parentHeight });
   useDrag(
-    ({ event, offset: [ox, oy] }) => {
+    ({ offset: [ox, oy] }) => {
       x.set(ox);
 
       if (oy > 0 || Math.abs(oy) > height - parentHeight) return;
