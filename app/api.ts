@@ -25,7 +25,7 @@ export const fetchSmols = async () => {
   const res = await fetch(
     `https://${BASE_URL}.treasure.lol/collection/arb/smol-brains/tokens?${new URLSearchParams(
       {
-        limit: "50",
+        limit: "40",
       }
     )}`,
     {

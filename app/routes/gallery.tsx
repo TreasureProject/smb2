@@ -7,6 +7,7 @@ import {
   useMotionTemplate,
   useAnimate,
   animate as _animate,
+  useMotionValueEvent,
 } from "framer-motion";
 import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
@@ -199,7 +200,16 @@ const Item = ({
     );
   });
 
-  const s = useTransform(d, [parentHeight, parentHeight / 2, 0], [0.5, 0.7, 2]);
+  const s = useTransform(
+    d,
+    [parentHeight, parentHeight / 2, 0],
+    [0.5, 0.7, 1.5]
+  );
+
+  // useMotionValueEvent(s, "change", (s) => {
+  //   if (app.tokenId === "1353")
+  //     console.log({ s, d: d.get(), x: width / 2, y: parentHeight / 2 });
+  // });
 
   const scale = useSpring(s, {
     stiffness: 500,
@@ -248,6 +258,9 @@ const Item = ({
         src={app.image.uri}
         className="w-full h-full select-none touch-none [-moz-user-select:none] [-webkit-user-drag:none]"
       />
+      <motion.span className="text-white absolute z-10 top-0 left-1/2 text-3xl font-bold">
+        {offsetRelative}
+      </motion.span>
       <button
         className="absolute inset-0 h-full w-full"
         onClick={() => openModal(app.tokenId)}
@@ -281,10 +294,9 @@ export default function Gallery() {
   const width = dragRef?.getBoundingClientRect().width ?? 0;
 
   const parentHeight = parentRef?.getBoundingClientRect().height ?? 0;
+  console.log({ parentHeight });
   useDrag(
     ({ event, offset: [ox, oy] }) => {
-      event.preventDefault();
-
       x.set(ox);
 
       if (oy > 0 || Math.abs(oy) > height - parentHeight) return;
@@ -333,7 +345,7 @@ export default function Gallery() {
 
   return (
     <motion.div
-      className="h-full flex flex-col font-mono bg-[url(/img/stars.png)] bg-repeat"
+      className="h-full flex flex-col font-mono bg-[url(/img/stars.png)] bg-repeat brightness-125"
       style={{
         backgroundPosition,
       }}
@@ -357,7 +369,7 @@ export default function Gallery() {
           <div className="z-10 absolute pointer-events-none inset-0 bg-black [-webkit-mask-image:radial-gradient(transparent,black_95%)]"></div>
           <motion.div
             ref={attachRef}
-            className="relative"
+            className="relative touch-none"
             style={{
               y,
               x,
