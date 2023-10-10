@@ -443,7 +443,7 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
       });
 
       const pitchShift = new PitchShift({
-        pitch: gender === "male" ? -5 : 10,
+        pitch: gender === "male" ? -4 : 10,
       }).toDestination();
 
       await loaded();
@@ -512,14 +512,14 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
         style={{
           color: color ?? "white",
         }}
-        className="fill-current z-10 pointer-events-none absolute top-64 -left-12 w-40 h-48"
+        className="fill-current z-10 pointer-events-none absolute top-48 sm:top-72 lg:top-64 -left-12 w-32 h-36 sm:w-40 lg:h-48"
       />
       <Icon
         name="splash"
         style={{
           color: color ?? "white",
         }}
-        className="fill-current z-10 pointer-events-none absolute top-60 -right-12 w-40 h-48"
+        className="fill-current z-10 pointer-events-none absolute top-44 sm:top-[17rem] lg:top-60 -right-12 w-32 h-36 lg:w-40 lg:h-48"
       />
       <div className="p-4 flex gap-4 flex-col h-full relative">
         <div className="gap-2 grid-cols-2 grid flex-1">
@@ -535,8 +535,10 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
                     <p className="text-sm">{data.score.toFixed(2)}%</p>
                   </div>
                   <div className="flex py-2 h-full gap-1 items-center justify-center flex-col">
-                    <p className="text-white/50 text-sm">{data.trait}</p>
-                    <p className="text-lg">{data.value}</p>
+                    <p className="text-white/50 text-xs sm:text-sm">
+                      {data.trait}
+                    </p>
+                    <p className="text-sm sm:text-lg">{data.value}</p>
                   </div>
                 </div>
               );
