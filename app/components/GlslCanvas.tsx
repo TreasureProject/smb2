@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { cn } from "~/utils";
 
 export const ShaderCanvas = (props: {
   frag: string;
@@ -69,12 +70,9 @@ export const ShaderCanvas = (props: {
   }, [props.frag, props.setUniforms]);
 
   return (
-    <div
-      className={props.className}
-      ref={containerRef}
-      style={{ width: "100%", height: "100%" }}
-    >
-      <canvas ref={canvasRef}></canvas>
+    <div className={cn("w-full h-full", props.className)} ref={containerRef}>
+      <div className="absolute inset-0 z-10 bg-intro/90" />
+      <canvas ref={canvasRef} className="relative"></canvas>
     </div>
   );
 };

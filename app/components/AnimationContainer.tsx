@@ -1,18 +1,18 @@
 import { useLocation } from "@remix-run/react";
+import type { HTMLMotionProps } from "framer-motion";
 import { motion } from "framer-motion";
+import { forwardRef } from "react";
 import { cn } from "~/utils";
 
-export const AnimationContainer = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => {
+export const AnimationContainer = forwardRef<
+  HTMLDivElement,
+  HTMLMotionProps<"div">
+>((props, ref) => {
   const { state } = useLocation();
 
   return (
     <motion.div
+      ref={ref}
       style={{
         zIndex: 10,
         position: "absolute",
@@ -29,9 +29,11 @@ export const AnimationContainer = ({
         opacity: 0,
         scale: 0,
       }}
-      className={cn("h-full", className)}
+      className={cn("h-full", props.className)}
     >
-      {children}
+      {props.children}
     </motion.div>
   );
-};
+});
+
+AnimationContainer.displayName = "AnimationContainer";

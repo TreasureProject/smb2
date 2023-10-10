@@ -62,17 +62,6 @@ function AppIcon({ mouseX }: { mouseX: MotionValue }) {
 }
 
 export default function Index() {
-  const [id, setId] = React.useState(0);
-  const audioRef = React.useRef<HTMLAudioElement | null>(null);
-  const playSound = () => {
-    if (audioRef.current && !audioRef.current.paused) return;
-
-    const searchParams = new URLSearchParams({ id: String(id) });
-    const audio = new Audio(`/speech.wav?${searchParams.toString()}`);
-
-    audioRef.current = audio;
-    audio.play();
-  };
   return (
     <>
       <svg width={0} className="hidden">
@@ -113,7 +102,7 @@ export default function Index() {
             </Box>
             <Box
               as="link"
-              to="/smolspace"
+              to="/gallery"
               state={getTransformOrigin}
               className="grid-in-w2 bg-white/10 backdrop-blur-sm"
             >
@@ -123,21 +112,17 @@ export default function Index() {
                 className="aspect-square w-full h-full opacity-[0.85]"
               ></img>
             </Box>
-            <Box className="grid-in-w3 bg-acid flex items-center justify-center flex-col">
-              <input
-                type="number"
-                value={id}
-                className="tracking-wider text-4xl"
-                onChange={(e) => {
-                  setId(Number(e.currentTarget.value));
-                }}
-              />
-              <button
-                onClick={playSound}
-                className="border bg-gray-200 border-black mt-4"
-              >
-                <Icon name="call" className="w-12 h-12" />
-              </button>
+            <Box
+              as="link"
+              to="/news"
+              state={getTransformOrigin}
+              className="grid-in-w3 bg-acid backdrop-blur-sm"
+            >
+              <img
+                src={TestTwoImg}
+                alt="test"
+                className="aspect-square w-full h-full opacity-[0.85]"
+              ></img>
             </Box>
             <Box className="grid-in-w4 bg-sky-300"></Box>
             <Box className="grid-in-w5 bg-purple-300"></Box>

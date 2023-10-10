@@ -5,6 +5,7 @@ import {
   Links,
   LiveReload,
   Meta,
+  Outlet,
   Scripts,
   ScrollRestoration,
   useLocation,
@@ -21,7 +22,6 @@ import {
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import stylesheet from "~/tailwind.css";
-import SmearImg from "~/assets/smear.png";
 import usePartySocket from "partysocket/react";
 import peeImg from "~/assets/pee.png";
 import { cn, getPublicKeys } from "./utils";
@@ -30,6 +30,11 @@ import { interpolate } from "popmotion";
 import { useCustomLoaderData } from "./hooks/useCustomLoaderData";
 import { ShaderCanvas } from "./components/GlslCanvas";
 import iconHref from "./components/icons/sprite.svg";
+import { Icon } from "./components/Icons";
+
+const INITIAL_BLUR_VALUE = 15;
+
+const MotionSvg = motion(Icon);
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -72,7 +77,7 @@ export default function App() {
 
   const isRoot = location.pathname === "/";
   const overflowHide = location.pathname === "/gallery";
-  const blur = useMotionValue(isRoot ? 55 : 0);
+  const blur = useMotionValue(INITIAL_BLUR_VALUE);
   const y = useSpring(0, {
     stiffness: 5000,
     damping: 200,
@@ -101,7 +106,10 @@ export default function App() {
     if (!heightRef.current) {
       heightRef.current = blurValue;
     }
-    const b = interpolate([100, heightRef.current], [0, 55])(blurValue);
+    const b = interpolate(
+      [100, heightRef.current],
+      [0, INITIAL_BLUR_VALUE]
+    )(blurValue);
     blur.set(b);
   });
 
@@ -179,6 +187,9 @@ export default function App() {
     }
   }, [smear.state]);
 
+  const navigation = useLocation();
+
+  console.log({ navigation });
   return (
     <html lang="en">
       <head>
@@ -189,7 +200,7 @@ export default function App() {
       </head>
       <body
         className={cn(
-          "cursor-[url(/img/MiddleFingerCursor.svg),auto] antialiased relative h-[100dvh]",
+          "cursor-[url(/img/MiddleFingerCursor.svg),auto] antialiased relative h-[100dvh] bg-intro",
           isRoot || overflowHide ? "overflow-hidden" : null
         )}
         onMouseMove={({ currentTarget, clientX, clientY }) => {
@@ -200,10 +211,12 @@ export default function App() {
         onMouseDown={(e) => {
           if (smear.state !== "idle") return;
 
+          const { left, top } = e.currentTarget.getBoundingClientRect();
+
           setSmear({
             state: "active",
-            x: e.clientX - e.currentTarget.offsetLeft,
-            y: e.clientY - e.currentTarget.offsetTop,
+            x: e.clientX - left,
+            y: e.clientY - top,
           });
         }}
       >
@@ -215,12 +228,12 @@ export default function App() {
         >
           {/* demo */}
           <button
-            className="absolute text-4xl border-[4px] border-black h-16 px-4 z-10 top-4 left-4 bg-black/10 backdrop-blur-xl"
+            className="absolute text-white text-4xl border-[4px] border-white h-16 px-4 z-10 top-4 left-4 bg-black/10 backdrop-blur-xl"
             onClick={() => {
               ws.send(JSON.stringify({ type: "pee" }));
             }}
           >
-            <span className="tracking-wide">PEE ON ONE OF {users}</span>
+            <span className="tracking-wide">{users} SMOLS ONLINE</span>
           </button>
 
           {/* <motion.button
@@ -290,10 +303,10 @@ export default function App() {
               className="absolute inset-0"
               setUniforms={{
                 u_saturation: 20.0,
-                u_complexity: 3.0,
-                u_twist: 5.0,
-                u_light: 0.0,
-                u_mix: 2.0,
+                u_complexity: 5.0,
+                u_twist: 30.0,
+                u_light: 1.0,
+                u_mix: 0.0,
               }}
               frag={`
             #ifdef GL_ES
@@ -339,11 +352,16 @@ export default function App() {
             }
         `}
             />
+
             <AnimatePresence initial={false} mode="popLayout">
               <motion.div
-                key={useLocation().pathname}
+                style={{
+                  filter: animatedFilter,
+                  transform: "translate3d(0, 0, 0)",
+                }}
+                key={navigation.pathname}
                 initial={false}
-                className="h-full absolute inset-0"
+                className="h-full absolute inset-0 z-10"
                 exit={{
                   scale: 1,
                 }}
@@ -359,46 +377,58 @@ export default function App() {
                 y,
               }}
               ref={introRef}
-              className="absolute h-[100dvh] inset-0 bg-white/50 w-full touch-pan-x"
+              className="absolute h-[100dvh] inset-0 bg-intro/70 w-full touch-pan-x"
             >
               <div className="grid items-center justify-center py-12 max-w-7xl mx-auto h-full">
-                <p className="text-black text-[40rem] leading-[0] select-none">
-                  SMOL
+                <p className="text-white relative text-[20rem] sm:text-[32rem] leading-[0]">
+                  <span className="absolute -top-44 sm:-top-64 rotate-[355deg] font-oakley text-pepe text-2xl sm:text-3xl select-none">
+                    WELCOME BACK
+                  </span>
+                  <span className="select-none">SMOL</span>
                 </p>
-                <motion.div
-                  ref={dragRef}
-                  initial={{
-                    x: "-50%",
-                    y: "50%",
-                  }}
-                  animate={{
-                    x: "-50%",
-                    y: ["10%", "0%"],
-                  }}
-                  transition={{
-                    y: {
-                      duration: 1.5,
-                      ease: "easeOut",
-                      repeat: Infinity,
-                      repeatType: "reverse",
-                    },
-                  }}
-                  className={cn(
-                    "absolute bottom-2 px-4 rounded-xl h-3 bg-gray-400 w-64 left-1/2 touch-none select-none"
-                  )}
-                ></motion.div>
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+                  <Icon
+                    name="chevron-up"
+                    className="w-6 h-6 sm:w-8 sm:h-8 mx-auto select-none text-white/80"
+                  />
+                  <div className="mx-auto select-none w-max text-white/80 text-2xl sm:text-4xl tracking-wide">
+                    SWIPE UP TO UNLOCK
+                  </div>
+                  <motion.div
+                    ref={dragRef}
+                    initial={{
+                      y: "50%",
+                    }}
+                    animate={{
+                      y: ["10%", "0%"],
+                    }}
+                    transition={{
+                      y: {
+                        duration: 1.5,
+                        ease: "easeOut",
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                      },
+                    }}
+                    className={cn(
+                      "px-4 h-12 flex items-center touch-none select-none"
+                    )}
+                  >
+                    <div className="bg-gray-400/80 w-40 sm:w-64 rounded-xl h-2.5 sm:h-4"></div>
+                  </motion.div>
+                </div>
               </div>
             </motion.div>
           )}
           <AnimatePresence>
             {smear.state === "active" && (
-              <motion.img
+              <MotionSvg
                 key="smear"
                 initial={false}
                 animate={{
-                  opacity: 0.3,
-                  x: smear.x - 50,
-                  y: smear.y - 50,
+                  opacity: 1,
+                  left: smear.x - 192,
+                  top: smear.y - 192,
                 }}
                 exit={{
                   opacity: 0,
@@ -407,9 +437,9 @@ export default function App() {
                   duration: 5,
                   ease: "easeOut",
                 }}
-                src={SmearImg}
-                className="absolute w-[100px] h-[100px] rounded-full pointer-events-none"
-              ></motion.img>
+                name="splash"
+                className="absolute z-30 w-96 h-96 text-red-500 pointer-events-none"
+              ></MotionSvg>
             )}
           </AnimatePresence>
         </MotionConfig>

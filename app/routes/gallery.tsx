@@ -8,6 +8,7 @@ import {
   useAnimate,
   animate as _animate,
   useIsomorphicLayoutEffect,
+  useIsPresent,
 } from "framer-motion";
 import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -19,6 +20,7 @@ import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { interpolate } from "popmotion";
 import { Icon } from "~/components/Icons";
+import { AnimationContainer } from "~/components/AnimationContainer";
 
 const MotionIcon = motion(Icon);
 // this is the height for the visible area on line 201, h-96.
@@ -291,6 +293,8 @@ export default function Gallery() {
   const height = dragRef?.getBoundingClientRect().height ?? 0;
   const width = dragRef?.getBoundingClientRect().width ?? 0;
 
+  const isPresent = useIsPresent();
+
   const parentHeight = parentRef?.getBoundingClientRect().height ?? 0;
   useDrag(
     ({ offset: [ox, oy] }) => {
@@ -314,7 +318,7 @@ export default function Gallery() {
   const backgroundPosition = useMotionTemplate`calc(${x} * -0.3px) calc(${y} * -0.3px`;
 
   useEffect(() => {
-    if (parentRef === null) return;
+    if (parentRef === null || !isPresent) return;
     _animate([
       [
         parentRef,
@@ -322,7 +326,7 @@ export default function Gallery() {
           visibility: "visible",
         },
         {
-          duration: 0,
+          duration: 1,
         },
       ],
       [
@@ -331,11 +335,11 @@ export default function Gallery() {
           opacity: [0, 1],
         },
         {
-          duration: 2,
+          duration: 4,
         },
       ],
     ]);
-  }, [animate, parentRef]);
+  }, [animate, isPresent, parentRef]);
 
   const triggerModal = (id: string) =>
     setOpenModal({ isOpen: true, targetTokenId: id });
@@ -344,7 +348,7 @@ export default function Gallery() {
     (d) => d.tokenId === openModal.targetTokenId
   );
   return (
-    <motion.div
+    <AnimationContainer
       className="h-full flex flex-col font-mono bg-[url(/img/stars.png)] bg-repeat brightness-125"
       style={{
         backgroundPosition,
@@ -412,7 +416,7 @@ export default function Gallery() {
           {targetSmol ? <SidePopup smol={targetSmol} /> : null}
         </SheetContent>
       </Sheet>
-    </motion.div>
+    </AnimationContainer>
   );
 }
 
@@ -422,25 +426,20 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
   const [seconds, setSeconds] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    const playSound = () => {
-      if (audioRef.current && !audioRef.current.paused) return;
+  const playSound = () => {
+    if (ringing || (audioRef.current && !audioRef.current.paused)) return;
 
-      const searchParams = new URLSearchParams({ id: String(smol.tokenId) });
-      const audio = new Audio(`/speech.wav?${searchParams.toString()}`);
+    setRinging(true);
 
+    const searchParams = new URLSearchParams({ id: String(smol.tokenId) });
+    const audio = new Audio(`/speech.wav?${searchParams.toString()}`);
+
+    setTimeout(() => {
+      setRinging(false);
       audioRef.current = audio;
       audio.play();
-    };
-
-    if (ringing) {
-      const id = setTimeout(() => {
-        setRinging(false);
-        playSound();
-      }, 2000);
-      return () => clearTimeout(id);
-    }
-  }, [ringing, smol.tokenId]);
+    }, 2000);
+  };
 
   useEffect(() => {
     if (audioRef.current) {
@@ -460,6 +459,7 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
       <img
         src={smol.image.uri}
         crossOrigin="anonymous"
+        className="w-full"
         onLoad={(e) => {
           const canvas = document.createElement("canvas");
           canvas.width = e.currentTarget.width;
@@ -504,7 +504,7 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
             .map((data) => {
               return (
                 <div
-                  key={data.value}
+                  key={`${data.trait}-${data.value}`}
                   className="relative text-white group font-formula font-bold uppercase bg-[#443560]"
                 >
                   <div className="opacity-0 group-hover:opacity-100 absolute grid place-items-center inset-0 h-full w-full bg-[#7237E3] transition-all duration-300">
@@ -519,7 +519,7 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
             })}
         </div>
         <button
-          onClick={() => setRinging(true)}
+          onClick={() => playSound()}
           className="h-12 font-formula font-bold bg-acid inline-flex py-4 border items-center justify-center"
         >
           <MotionIcon

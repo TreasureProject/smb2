@@ -8,7 +8,17 @@ export let loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const targetSmolId = url.searchParams.get("id") || "1";
 
-  const text = `Hello, I am smol ${targetSmolId} you have reached the voicemail of number one six three. I am unavailable to come to my banana phone so please leave a message at the EEEEEE and I will call you back when I am available.`;
+  const data = await fetch(
+    "https://cloudflare-ipfs.com/ipfs/QmVEkguTFq4kZjWBa5XQATk4yesLpNhvfUHkUBMaFhsYsH/voicemail.json"
+  );
+
+  const voicemail = await data.json();
+
+  const targetVoicemail = voicemail[targetSmolId];
+
+  const text =
+    targetVoicemail ??
+    `Hello, I am smol ${targetSmolId} you have reached the voicemail of number one six three. I am unavailable to come to my banana phone so please leave a message at the EEEEEE and I will call you back when I am available.`;
   const filePath = path.join(process.cwd(), "output.wav");
 
   await new Promise((resolve, reject) => {

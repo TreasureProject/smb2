@@ -18,6 +18,7 @@ export default {
         dream: "#12F6FC",
         grayOne: "#919191",
         grayTwo: "#EFF0F0",
+        intro: "#190087",
       },
       gridTemplateAreas: {
         widgets: [

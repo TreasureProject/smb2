@@ -15,6 +15,9 @@
     d="M14 5.02936C16.4312 5.72562 18.3396 7.65944 19 10.1056"
   ></path>
 </symbol>
+<symbol viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up" id="chevron-up">
+  <path d="m18 15-6-6-6 6" ></path>
+</symbol>
 <symbol viewBox="0 0 443 558" fill="currentColor" id="splash">
   <path     d="M217.012 0.793003C216.892 0.993003 216.962 1.133 217.162 1.133C217.362 1.133 217.522 0.983003 217.522 0.793003C217.522 0.583003 217.462 0.453003 217.372 0.453003C217.282 0.453003 217.132 0.593003 217.012 0.793003Z"
     fill="currentColor" ></path>
@@ -4814,6 +4817,10 @@
     fill="currentColor" ></path>
   <path     d="M181.692 350.953C181.412 351.403 181.922 351.903 182.642 351.893C182.982 351.893 183.372 351.683 183.452 351.453C183.552 351.183 183.402 351.103 183.062 351.233C182.752 351.353 182.512 351.273 182.512 351.063C182.512 350.613 181.962 350.543 181.702 350.963L181.692 350.953Z"
     fill="currentColor" ></path>
+</symbol>
+<symbol viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="x">
+  <path d="M18 6 6 18" ></path>
+  <path d="m6 6 12 12" ></path>
 </symbol>
 </defs>
 </svg>
