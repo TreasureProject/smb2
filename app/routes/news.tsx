@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { useLocation, useNavigate } from "@remix-run/react";
-// import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 // import { Icon } from "~/components/Icons";
 
 export default function News() {

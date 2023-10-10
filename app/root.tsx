@@ -77,7 +77,7 @@ export default function App() {
 
   const isRoot = location.pathname === "/";
   const overflowHide = location.pathname === "/gallery";
-  const blur = useMotionValue(INITIAL_BLUR_VALUE);
+  const blur = useMotionValue(isRoot ? INITIAL_BLUR_VALUE : 0);
   const y = useSpring(0, {
     stiffness: 5000,
     damping: 200,
@@ -189,7 +189,6 @@ export default function App() {
 
   const navigation = useLocation();
 
-  console.log({ navigation });
   return (
     <html lang="en">
       <head>

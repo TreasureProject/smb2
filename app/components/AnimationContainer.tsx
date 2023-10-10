@@ -18,6 +18,7 @@ export const AnimationContainer = forwardRef<
         position: "absolute",
         inset: 0,
         transform: "translate3d(0, 0, 0)",
+        ...props.style,
       }}
       initial={{
         scale: 0,

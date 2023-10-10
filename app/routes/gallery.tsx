@@ -11,7 +11,7 @@ import {
   useIsPresent,
 } from "framer-motion";
 import type { CSSProperties } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { distance } from "@popmotion/popcorn";
 import type { TroveSmolToken } from "~/api";
 import { fetchSmols } from "~/api";
@@ -21,6 +21,7 @@ import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { interpolate } from "popmotion";
 import { Icon } from "~/components/Icons";
 import { AnimationContainer } from "~/components/AnimationContainer";
+import { PitchShift, Player, loaded, start } from "tone";
 
 const MotionIcon = motion(Icon);
 // this is the height for the visible area on line 201, h-96.
@@ -425,19 +426,42 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
   const [ringing, setRinging] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const player = useRef<Player | null>(null);
+
+  const gender =
+    smol.metadata.attributes.find((a) => a.trait_type === "Gender")?.value ??
+    "male";
+
+  useEffect(() => {
+    const load = async () => {
+      const searchParams = new URLSearchParams({ id: String(smol.tokenId) });
+
+      player.current = new Player({
+        url: `/speech.wav?${searchParams.toString()}`,
+        loop: false,
+        autostart: false,
+      });
+
+      const pitchShift = new PitchShift({
+        pitch: gender === "male" ? -5 : 10,
+      }).toDestination();
+
+      await loaded();
+      player.current.connect(pitchShift);
+    };
+
+    load();
+  }, [gender, smol.tokenId]);
 
   const playSound = () => {
-    if (ringing || (audioRef.current && !audioRef.current.paused)) return;
+    if (ringing || (player.current && player.current.state === "started"))
+      return;
 
     setRinging(true);
 
-    const searchParams = new URLSearchParams({ id: String(smol.tokenId) });
-    const audio = new Audio(`/speech.wav?${searchParams.toString()}`);
-
     setTimeout(() => {
       setRinging(false);
-      audioRef.current = audio;
-      audio.play();
+      player.current?.start();
     }, 2000);
   };
 
