@@ -36,6 +36,7 @@ export default {
         oakley: ["Oakley", ...defaultTheme.fontFamily.sans],
         mondwest: ["PPMondwest", ...defaultTheme.fontFamily.sans],
         formula: ["PPFormula", ...defaultTheme.fontFamily.sans],
+        lazer: ["Lazer", ...defaultTheme.fontFamily.sans],
       },
       keyframes: {
         "accordion-down": {

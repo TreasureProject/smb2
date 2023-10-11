@@ -73,8 +73,7 @@ export default function App() {
   const dragRef = useRef<HTMLDivElement | null>(null);
   const introRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
-  const [showIntro, setShowIntro] = useState(true);
-
+  const [showIntro, setShowIntro] = useState(location.pathname !== "/news");
   const isRoot = location.pathname === "/";
   const overflowHide = location.pathname === "/gallery";
   const blur = useMotionValue(isRoot ? INITIAL_BLUR_VALUE : 0);
@@ -363,6 +362,7 @@ export default function App() {
                 className="h-full absolute inset-0 z-10"
                 exit={{
                   scale: 1,
+                  opacity: 0,
                 }}
               >
                 <AnimatedOutlet />

@@ -9,12 +9,12 @@ export let loader: LoaderFunction = async ({ request }) => {
   const targetSmolId = url.searchParams.get("id") || "1";
 
   const data = await fetch(
-    "https://cloudflare-ipfs.com/ipfs/QmVEkguTFq4kZjWBa5XQATk4yesLpNhvfUHkUBMaFhsYsH/voicemail.json"
+    `https://cloudflare-ipfs.com/ipfs/Qmae8GCKXTCKz1AipamMyGNbMQiGJgDcVBgAv7pADLkJfg/${targetSmolId}.json`
   );
 
   const voicemail = await data.json();
 
-  const targetVoicemail = voicemail[targetSmolId];
+  const targetVoicemail = voicemail.Voicemail;
 
   const text =
     targetVoicemail ??

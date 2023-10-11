@@ -137,6 +137,15 @@
   src: url("./fonts/PPFormula-NarrowBold.otf") format("opentype");
 }
 
+@font-face {
+  font-family: "Lazer";
+  font-weight: 500;
+  font-display: swap;
+  font-style: normal;
+  font-named-instance: "Regular";
+  src: url("./fonts/Lazer84.ttf") format("truetype");
+}
+
 .box::before {
   content: "";
   pointer-events: none;
