@@ -9,6 +9,7 @@ import {
   animate as _animate,
   useIsomorphicLayoutEffect,
   useIsPresent,
+  useMotionValueEvent,
 } from "framer-motion";
 import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -293,17 +294,22 @@ export default function Gallery() {
     isOpen: false,
     targetTokenId: null,
   });
+  const [page, setPage] = useState(1);
   const height = dragRef?.getBoundingClientRect().height ?? 0;
   const width = dragRef?.getBoundingClientRect().width ?? 0;
 
   const isPresent = useIsPresent();
 
   const parentHeight = parentRef?.getBoundingClientRect().height ?? 0;
+
   useDrag(
     ({ offset: [ox, oy] }) => {
       x.set(ox);
 
-      if (oy > 0 || Math.abs(oy) > height - parentHeight) return;
+      if (oy > 0 || Math.abs(oy) > parentHeight * page) {
+        return;
+      }
+      
       y.set(oy);
     },
     {
@@ -350,6 +356,22 @@ export default function Gallery() {
   const targetSmol = data?.data.find(
     (d) => d.tokenId === openModal.targetTokenId
   );
+
+  const isLoading = useRef(false);
+
+  const loadMore = () => {
+    isLoading.current = true;
+    console.log("loaded more");
+    setPage((curr) => curr + 1);
+    isLoading.current = false;
+  }
+  
+  useMotionValueEvent(y, "change", (value) => {
+    if (Math.abs(value) > ((parentHeight * page) - (parentHeight / 2)) && !isLoading.current) {
+      loadMore();
+    }
+  });
+
   return (
     <AnimationContainer
       className="h-full relative flex flex-col bg-[url(/img/stars.png)] bg-repeat brightness-125"
@@ -386,7 +408,7 @@ export default function Gallery() {
           >
             <div ref={scope} className="grid gap-16 p-4 touch-none relative">
               {data &&
-                splitApps(data.data, isMobile).map((apps) => {
+                splitApps(Array.from({ length: page }).flatMap(() => data.data), isMobile).map((apps) => {
                   const length = isMobile ? 5 : 7;
                   if (apps.length === length) {
                     return (
