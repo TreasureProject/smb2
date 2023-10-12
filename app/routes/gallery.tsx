@@ -23,9 +23,9 @@ import { Icon } from "~/components/Icons";
 import { AnimationContainer } from "~/components/AnimationContainer";
 import { PitchShift, Player, loaded } from "tone";
 import { Link } from "@remix-run/react";
+import { Header } from "~/components/Header";
 
 const MotionIcon = motion(Icon);
-const MotionLink = motion(Link);
 // this is the height for the visible area on line 201, h-96.
 const BOX_HEIGHT = 200;
 
@@ -361,22 +361,7 @@ export default function Gallery() {
         name="splash"
         className="absolute text-pepe bottom-[86%] -right-44 w-96 h-96 pointer-events-none"
       />
-      <div className="w-full bg-[url(/img/pinkBg.avif),url(/img/pinkBg.webp)] [background-position:center_30%]">
-        <header className="h-24 flex items-center mx-auto px-12">
-          <h1 className="[filter:url(#outline)] inline tracking-wider text-7xl text-white">
-            GALLERY
-          </h1>
-          <MotionLink
-            to="/"
-            whileHover={{
-              scale: 1.1,
-            }}
-            className="ml-auto bg-pepe p-3"
-          >
-            <Icon name="back" className="w-4 h-4 stroke-[3]" />
-          </MotionLink>
-        </header>
-      </div>
+      <Header name="gallery" />
       <Sheet
         open={openModal.isOpen}
         onOpenChange={(isOpen) =>
