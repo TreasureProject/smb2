@@ -73,8 +73,8 @@ export default function App() {
   const dragRef = useRef<HTMLDivElement | null>(null);
   const introRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
-  const [showIntro, setShowIntro] = useState(location.pathname !== "/news");
   const isRoot = location.pathname === "/";
+  const [showIntro, setShowIntro] = useState(isRoot);
   const overflowHide = location.pathname === "/gallery";
   const blur = useMotionValue(isRoot ? INITIAL_BLUR_VALUE : 0);
   const y = useSpring(0, {
@@ -89,6 +89,12 @@ export default function App() {
   const animatedFilter = useMotionTemplate`blur(${blur}px) grayscale(${grayscale}%)`;
 
   const heightRef = useRef(0);
+
+  /* these refs track if the user intends to drag or not, so we only show the smear 
+     when they click, not drag.
+  */
+  const isPotentialDrag = useRef(false);
+  const isDragging = useRef(false);
 
   useMotionValueEvent(y, "change", (y) => {
     if (!introRef.current) return;
@@ -202,22 +208,74 @@ export default function App() {
           isRoot || overflowHide ? "overflow-hidden" : null
         )}
         onMouseMove={({ currentTarget, clientX, clientY }) => {
+          if (isPotentialDrag.current) {
+            isDragging.current = true;
+          }
+
           const { left, top } = currentTarget.getBoundingClientRect();
           mouseX.set(clientX - left - 40);
           mouseY.set(clientY - top - 40);
         }}
-        onMouseDown={(e) => {
-          if (smear.state !== "idle") return;
+        onMouseDown={() => (isPotentialDrag.current = true)}
+        onMouseUp={(e) => {
+          if (isPotentialDrag.current && !isDragging.current) {
+            let target = e.target as HTMLElement | null;
 
-          const { left, top } = e.currentTarget.getBoundingClientRect();
+            // only show smear when not interacting with interactive elements
+            while (target != null) {
+              if (
+                target.tagName === "BUTTON" ||
+                target.tagName === "A" ||
+                target.getAttribute("role") === "button"
+              ) {
+                return;
+              }
+              target = target.parentElement;
+            }
 
-          setSmear({
-            state: "active",
-            x: e.clientX - left,
-            y: e.clientY - top,
-          });
+            if (smear.state !== "idle") return;
+
+            const { left, top } = e.currentTarget.getBoundingClientRect();
+
+            setSmear({
+              state: "active",
+              x: e.clientX - left,
+              y: e.clientY - top,
+            });
+          }
+          isPotentialDrag.current = false;
+          isDragging.current = false;
         }}
       >
+        <svg width="0" className="hidden">
+          <defs>
+            <filter id="outline">
+              <feMorphology
+                in="SourceAlpha"
+                result="DILATED"
+                operator="dilate"
+                radius="4"
+              ></feMorphology>
+
+              <feFlood
+                flood-color="#0E072D"
+                flood-opacity="1"
+                result="FUD"
+              ></feFlood>
+              <feComposite
+                in="FUD"
+                in2="DILATED"
+                operator="in"
+                result="OUTLINE"
+              ></feComposite>
+
+              <feMerge>
+                <feMergeNode in="OUTLINE" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+        </svg>
         <MotionConfig
           transition={{
             duration: 0.25,
@@ -225,14 +283,14 @@ export default function App() {
           }}
         >
           {/* demo */}
-          <button
+          {/* <button
             className="absolute text-white text-4xl border-[4px] border-white h-16 px-4 z-10 top-4 left-4 bg-black/10 backdrop-blur-xl"
             onClick={() => {
               ws.send(JSON.stringify({ type: "pee" }));
             }}
           >
             <span className="tracking-wide">{users} SMOLS ONLINE</span>
-          </button>
+          </button> */}
 
           {/* <motion.button
             className="absolute text-7xl border-[8px] border-black h-24 px-4 z-10 bottom-0 right-0 bg-black/10 backdrop-blur-xl"

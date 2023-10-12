@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="0" height="0">
 <defs>
+<symbol viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo-2" id="back">
+  <path d="M9 14 4 9l5-5" ></path>
+  <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11" ></path>
+</symbol>
 <symbol fill="currentColor" viewBox="0 0 24 24" id="call">
   <path     stroke="currentColor"
     stroke-linecap="round"
