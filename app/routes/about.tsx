@@ -34,7 +34,11 @@ export default function About() {
           />
           <motion.div className="flex items-center [perspective:1000px] flex-col">
             <motion.div
-              animate={isAnimating ? { rotateY: 360 } : { rotateY: 0 }}
+              animate={
+                isAnimating
+                  ? { transform: "rotateY(360deg)" }
+                  : { transform: "rotateY(0deg)" }
+              }
               transition={{ duration: 2, ease: [0.27, 0.85, 0.32, 1] }}
               className="relative inline-block [transform-style:preserve-3d]"
             >
