@@ -260,7 +260,7 @@ const Item = ({
     >
       <motion.img
         src={app.image.uri}
-        className="w-full h-full select-none touch-none [-moz-user-select:none] [-webkit-user-drag:none]"
+        className="w-full h-full select-none touch-none [-webkit-user-drag:none]"
       />
       <button
         className="absolute inset-0 h-full w-full"
@@ -375,7 +375,7 @@ export default function Gallery() {
           ref={attachParentRef}
           className="invisible relative grid place-content-center flex-1 overflow-hidden"
         >
-          <div className="z-10 absolute pointer-events-none inset-0 bg-black [-webkit-mask-image:radial-gradient(transparent,black_95%)]"></div>
+          <div className="z-10 absolute pointer-events-none inset-0 bg-black [mask-image:radial-gradient(transparent,black_95%)]"></div>
           <motion.div
             ref={attachRef}
             className="relative touch-none"

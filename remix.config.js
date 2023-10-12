@@ -7,6 +7,7 @@ module.exports = {
   // publicPath: "/build/",
   tailwind: true,
   serverModuleFormat: "cjs",
+  postcss: true,
   future: {
     v2_dev: true,
     v2_errorBoundary: true,

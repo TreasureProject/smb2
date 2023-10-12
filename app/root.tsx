@@ -258,8 +258,8 @@ export default function App() {
               ></feMorphology>
 
               <feFlood
-                flood-color="#0E072D"
-                flood-opacity="1"
+                floodColor="#0E072D"
+                floodOpacity="1"
                 result="FUD"
               ></feFlood>
               <feComposite

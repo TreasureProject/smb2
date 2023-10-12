@@ -45,12 +45,12 @@ export default function About() {
               <MotionIcon
                 {...animationProps}
                 name="smol-smoke"
-                className="contrast-0"
+                className="contrast-0 select-none"
               />
               <MotionIcon
                 {...animationProps}
                 name="smol-smoke"
-                className="absolute top-0 left-0 right-0 bottom-0 [backface-visibility:hidden]"
+                className="absolute top-0 left-0 right-0 bottom-0 [backface-visibility:hidden] select-none"
               />
               <button
                 onClick={() => setIsAnimating(!isAnimating)}
@@ -72,7 +72,7 @@ export default function About() {
                 repeat: Infinity,
                 repeatType: "reverse",
               }}
-              className="bg-black/50 w-48 h-48 rounded-full [transform:rotateX(75deg)]"
+              className="bg-black/50 w-48 h-48 rounded-full [transform:rotateX(75deg)] select-none"
             ></motion.div>
           </motion.div>
         </div>
