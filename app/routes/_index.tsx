@@ -124,7 +124,12 @@ export default function Index() {
                 className="aspect-square w-full h-full opacity-[0.85]"
               ></img>
             </Box>
-            <Box className="grid-in-w4 bg-sky-300"></Box>
+            <Box
+              as="link"
+              to="/about"
+              state={getTransformOrigin}
+              className="grid-in-w4 bg-sky-300"
+            ></Box>
             <Box className="grid-in-w5 bg-purple-300"></Box>
           </div>
         </div>

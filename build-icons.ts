@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import { glob } from "glob";
 import { parse } from "node-html-parser";
+import { optimize } from "svgo";
 
 const cwd = process.cwd();
 const inputDir = path.join(cwd, "svg-icons");
@@ -24,11 +25,17 @@ const main = async () => {
     files,
     inputDir,
   });
+
+  const res = optimize(spritesheetContent, {
+    plugins: ["preset-default"],
+    js2svg: { pretty: true, indent: 2 },
+  });
+
   const typesContent = await generateTypes({
     names: files.map((file) => JSON.stringify(file.replace(/\.svg$/, ""))),
   });
   await writeIfChanged(path.join(outputDir, "name.ts"), typesContent);
-  await writeIfChanged(path.join(outputDir, "sprite.svg"), spritesheetContent);
+  await writeIfChanged(path.join(outputDir, "sprite.svg"), res.data);
 };
 
 main();

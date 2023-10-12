@@ -1,20 +1,8 @@
 import { forwardRef, type SVGProps } from "react";
 import spriteHref from "./icons/sprite.svg";
 import { type IconName } from "./icons/name";
+import { motion } from "framer-motion";
 
-// tranform this to use forwardRef
-// export function Icon({
-//   name,
-//   ...props
-// }: SVGProps<SVGSVGElement> & {
-//   name: IconName;
-// }) {
-//   return (
-//     <svg {...props}>
-//       <use href={`${spriteHref}#${name}`} />
-//     </svg>
-//   );
-// }
 export const Icon = forwardRef<
   SVGSVGElement,
   SVGProps<SVGSVGElement> & {
@@ -25,5 +13,7 @@ export const Icon = forwardRef<
     <use href={`${spriteHref}#${name}`} />
   </svg>
 ));
+
+export const MotionIcon = motion(Icon);
 
 Icon.displayName = "Icon";
