@@ -247,7 +247,7 @@ export default function App() {
           isDragging.current = false;
         }}
       >
-        <svg width="0" className="hidden">
+        <svg width="0" height="0" aria-hidden="true">
           <defs>
             <filter id="outline">
               <feMorphology
