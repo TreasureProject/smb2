@@ -1,7 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { useLocation, useNavigate } from "@remix-run/react";
 import { motion } from "framer-motion";
-import { ClientOnly } from "remix-utils";
+import { ClientOnly } from "remix-utils/client-only";
 // import { Icon } from "~/components/Icons";
 
 export default function News() {
