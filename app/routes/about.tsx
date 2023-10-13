@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { AnimationContainer } from "~/components/AnimationContainer";
 import { Header } from "~/components/Header";
-import { MotionIcon, Icon, Test } from "~/components/Icons";
+import { MotionIcon, Icon } from "~/components/Icons";
 import NewspaperImg from "~/assets/newspaper.png";
 
 const animationProps = {
@@ -82,7 +82,7 @@ export default function About() {
         <div className="relative mx-auto grid max-w-6xl grid-cols-1 grid-rows-1 gap-y-16 pt-16 md:pt-20 lg:grid-cols-12 lg:gap-y-20 lg:px-3 lg:pb-36 lg:pt-20 xl:py-32">
           <div className="relative lg:col-span-5">
             hello world hello world hello world hello world
-            <p className="absolute rounded-3xl bg-pepe px-4 py-2 font-bold font-formula text-base leading-none capsize">
+            <p className="absolute rounded-3xl bg-pepe px-4 py-2 font-black font-formula text-base leading-none capsize">
               THE DAILY
             </p>
             <img src={NewspaperImg} className="h-24 w-24" />

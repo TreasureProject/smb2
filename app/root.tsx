@@ -437,11 +437,13 @@ export default function App() {
               className="absolute inset-0 h-[100dvh] w-full touch-pan-x bg-intro/70"
             >
               <div className="mx-auto grid h-full max-w-7xl items-center justify-center py-12">
-                <p className="relative text-white text-[20rem] leading-[0] sm:text-[32rem]">
-                  <span className="absolute -top-44 rotate-[355deg] select-none text-pepe font-oakley text-2xl sm:-top-64 sm:text-3xl">
+                <p className="relative text-white">
+                  <span className="absolute -top-12 rotate-[355deg] select-none text-pepe font-oakley text-2xl sm:text-3xl">
                     WELCOME BACK
                   </span>
-                  <span className="select-none">SMOL</span>
+                  <p className="select-none font-sans text-[20rem] leading-none capsize sm:text-[32rem]">
+                    SMOL
+                  </p>
                 </p>
                 <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
                   <Icon

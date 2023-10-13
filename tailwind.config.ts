@@ -38,6 +38,7 @@ export default {
         formula: ["PPFormula", ...defaultTheme.fontFamily.sans],
         lazer: ["Lazer", ...defaultTheme.fontFamily.sans],
       },
+      // get values from here: https://seek-oss.github.io/capsize/
       fontMetrics: {
         sans: {
           capHeight: 700,
