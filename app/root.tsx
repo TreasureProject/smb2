@@ -9,7 +9,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLocation,
-  useOutlet,
+  useOutlet
 } from "@remix-run/react";
 import {
   AnimatePresence,
@@ -18,7 +18,7 @@ import {
   useMotionTemplate,
   useMotionValue,
   useMotionValueEvent,
-  useSpring,
+  useSpring
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import stylesheet from "~/tailwind.css";
@@ -42,13 +42,13 @@ export const links: LinksFunction = () => [
     rel: "preload",
     href: iconHref,
     as: "image",
-    type: "image/svg+xml",
-  },
+    type: "image/svg+xml"
+  }
 ];
 
 export const loader = () => {
   return json({
-    ENV: getPublicKeys(process.env),
+    ENV: getPublicKeys(process.env)
   });
 };
 
@@ -65,7 +65,7 @@ export default function App() {
   const [smear, setSmear] = useState({
     state: "idle",
     x: 0,
-    y: 0,
+    y: 0
   });
   const [flicked, setFlicked] = useState(false);
   const mouseX = useMotionValue(0);
@@ -79,11 +79,11 @@ export default function App() {
   const blur = useMotionValue(isRoot ? INITIAL_BLUR_VALUE : 0);
   const y = useSpring(0, {
     stiffness: 5000,
-    damping: 200,
+    damping: 200
   });
   const grayscale = useSpring(0, {
     stiffness: 20,
-    damping: 20,
+    damping: 20
   });
 
   const animatedFilter = useMotionTemplate`blur(${blur}px) grayscale(${grayscale}%)`;
@@ -141,8 +141,8 @@ export default function App() {
       axis: "y",
       target: dragRef,
       pointer: {
-        capture: false,
-      },
+        capture: false
+      }
     }
   );
 
@@ -169,7 +169,7 @@ export default function App() {
     },
     onError(e) {
       console.log("connected");
-    },
+    }
   });
 
   useEffect(() => {
@@ -186,7 +186,7 @@ export default function App() {
         setSmear({
           state: "idle",
           x: 0,
-          y: 0,
+          y: 0
         });
       }, 1000);
     }
@@ -204,7 +204,7 @@ export default function App() {
       </head>
       <body
         className={cn(
-          "cursor-[url(/img/MiddleFingerCursor.svg),auto] antialiased relative h-[100dvh] bg-intro",
+          "relative h-[100dvh] cursor-[url(/img/MiddleFingerCursor.svg),auto] bg-intro antialiased",
           isRoot || overflowHide ? "overflow-hidden" : null
         )}
         onMouseMove={({ currentTarget, clientX, clientY }) => {
@@ -240,7 +240,7 @@ export default function App() {
             setSmear({
               state: "active",
               x: e.clientX - left,
-              y: e.clientY - top,
+              y: e.clientY - top
             });
           }
           isPotentialDrag.current = false;
@@ -279,7 +279,7 @@ export default function App() {
         <MotionConfig
           transition={{
             duration: 0.25,
-            ease: "easeOut",
+            ease: "easeOut"
           }}
         >
           {/* demo */}
@@ -324,36 +324,36 @@ export default function App() {
                 transition={{
                   type: "spring",
                   mass: 0.6,
-                  duration: 1,
+                  duration: 1
                 }}
                 style={{
                   x: mouseX,
                   y: mouseY,
                   position: "absolute",
                   pointerEvents: "none",
-                  zIndex: 9999,
+                  zIndex: 9999
                 }}
                 animate={{
                   opacity: 1,
                   scale: 1,
-                  rotate: [0, 360],
+                  rotate: [0, 360]
                 }}
                 exit={{
                   opacity: 0,
-                  scale: 0,
+                  scale: 0
                 }}
                 src={peeImg}
                 alt="pee"
-                className="w-12 h-auto aspect-square"
+                className="aspect-square h-auto w-12"
               />
             )}
           </AnimatePresence>
           <motion.div
             style={{
               filter: animatedFilter,
-              transform: "translate3d(0, 0, 0)",
+              transform: "translate3d(0, 0, 0)"
             }}
-            className="h-full relative"
+            className="relative h-full"
           >
             <ShaderCanvas
               className="absolute inset-0"
@@ -362,7 +362,7 @@ export default function App() {
                 u_complexity: 5.0,
                 u_twist: 30.0,
                 u_light: 1.0,
-                u_mix: 0.0,
+                u_mix: 0.0
               }}
               frag={`
             #ifdef GL_ES
@@ -413,14 +413,14 @@ export default function App() {
               <motion.div
                 style={{
                   filter: animatedFilter,
-                  transform: "translate3d(0, 0, 0)",
+                  transform: "translate3d(0, 0, 0)"
                 }}
                 key={navigation.pathname}
                 initial={false}
-                className="h-full absolute inset-0 z-10"
+                className="absolute inset-0 z-10 h-full"
                 exit={{
                   scale: 1,
-                  opacity: 0,
+                  opacity: 0
                 }}
               >
                 <AnimatedOutlet />
@@ -431,14 +431,14 @@ export default function App() {
           {isRoot && showIntro && (
             <motion.div
               style={{
-                y,
+                y
               }}
               ref={introRef}
-              className="absolute h-[100dvh] inset-0 bg-intro/70 w-full touch-pan-x"
+              className="absolute inset-0 h-[100dvh] w-full touch-pan-x bg-intro/70"
             >
-              <div className="grid items-center justify-center py-12 max-w-7xl mx-auto h-full">
-                <p className="text-white relative text-[20rem] sm:text-[32rem] leading-[0]">
-                  <span className="absolute -top-44 sm:-top-64 rotate-[355deg] font-oakley text-pepe text-2xl sm:text-3xl select-none">
+              <div className="mx-auto grid h-full max-w-7xl items-center justify-center py-12">
+                <p className="relative text-white text-[20rem] leading-[0] sm:text-[32rem]">
+                  <span className="absolute -top-44 rotate-[355deg] select-none text-pepe font-oakley text-2xl sm:-top-64 sm:text-3xl">
                     WELCOME BACK
                   </span>
                   <span className="select-none">SMOL</span>
@@ -446,32 +446,32 @@ export default function App() {
                 <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
                   <Icon
                     name="chevron-up"
-                    className="w-6 h-6 sm:w-8 sm:h-8 mx-auto select-none text-white/80"
+                    className="mx-auto h-6 w-6 select-none text-white/80 sm:h-8 sm:w-8"
                   />
-                  <div className="mx-auto select-none w-max text-white/80 text-2xl sm:text-4xl tracking-wide">
+                  <div className="mx-auto w-max select-none tracking-wide text-white/80 text-2xl sm:text-4xl">
                     SWIPE UP TO UNLOCK
                   </div>
                   <motion.div
                     ref={dragRef}
                     initial={{
-                      y: "50%",
+                      y: "50%"
                     }}
                     animate={{
-                      y: ["10%", "0%"],
+                      y: ["10%", "0%"]
                     }}
                     transition={{
                       y: {
                         duration: 1.5,
                         ease: "easeOut",
                         repeat: Infinity,
-                        repeatType: "reverse",
-                      },
+                        repeatType: "reverse"
+                      }
                     }}
                     className={cn(
-                      "px-4 h-12 flex items-center touch-none select-none"
+                      "flex h-12 touch-none select-none items-center px-4"
                     )}
                   >
-                    <div className="bg-gray-400/80 w-40 sm:w-64 rounded-xl h-2.5 sm:h-4"></div>
+                    <div className="h-2.5 w-40 rounded-xl bg-gray-400/80 sm:h-4 sm:w-64"></div>
                   </motion.div>
                 </div>
               </div>
@@ -485,17 +485,17 @@ export default function App() {
                 animate={{
                   opacity: 1,
                   left: smear.x - 192,
-                  top: smear.y - 192,
+                  top: smear.y - 192
                 }}
                 exit={{
-                  opacity: 0,
+                  opacity: 0
                 }}
                 transition={{
                   duration: 5,
-                  ease: "easeOut",
+                  ease: "easeOut"
                 }}
                 name="splash"
-                className="absolute z-30 w-96 h-96 text-red-500 pointer-events-none"
+                className="pointer-events-none absolute z-30 h-96 w-96 text-red-500"
               ></MotionSvg>
             )}
           </AnimatePresence>
@@ -503,7 +503,7 @@ export default function App() {
         <ScrollRestoration />
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(data?.ENV)}`,
+            __html: `window.ENV = ${JSON.stringify(data?.ENV)}`
           }}
         />
         <Scripts />

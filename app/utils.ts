@@ -13,7 +13,7 @@ export function getTransformOrigin(node: HTMLAnchorElement | null) {
   const centerX = rect.left + rect.width / 2;
   const centerY = rect.top + rect.height / 2;
   return {
-    transformOrigin: `${centerX}px ${centerY}px`,
+    transformOrigin: `${centerX}px ${centerY}px`
   };
 }
 
@@ -51,7 +51,7 @@ export const formatPercent = (percentage: string | number, rounded = false) => {
   return (
     formatNumber(shouldRound ? Math.round(number) : number, {
       minimumFractionDigits: 0,
-      maximumFractionDigits: shouldRound ? 0 : 2,
+      maximumFractionDigits: shouldRound ? 0 : 2
     }) + "%"
   );
 };

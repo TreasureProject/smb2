@@ -9,8 +9,8 @@ export const Header = ({ name }: { name: string }) => {
   const [hovered, setHovered] = useState(false);
   return (
     <div className="w-full bg-[url(/img/pinkBg.avif),url(/img/pinkBg.webp)] [background-position:center_30%]">
-      <header className="h-24 flex items-center mx-auto px-12">
-        <h1 className="[filter:url(#outline)] uppercase inline tracking-wider text-7xl text-white">
+      <header className="mx-auto flex h-24 items-center px-12">
+        <h1 className="inline uppercase tracking-wider text-white text-7xl [filter:url(#outline)]">
           {name}
         </h1>
         <MotionLink
@@ -21,7 +21,7 @@ export const Header = ({ name }: { name: string }) => {
           onMouseLeave={() => setHovered(false)}
           className="ml-auto bg-pepe p-3"
         >
-          <Icon name="back" className="w-4 h-4 stroke-[3]" />
+          <Icon name="back" className="h-4 w-4 stroke-[3]" />
         </MotionLink>
       </header>
     </div>

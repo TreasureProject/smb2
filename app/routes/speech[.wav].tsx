@@ -53,8 +53,8 @@ export let loader: LoaderFunction = async ({ request }) => {
         "Content-Range": `bytes ${start}-${end}/${fileSize}`,
         "Accept-Ranges": "bytes",
         "Content-Length": String(chunksize),
-        "Content-Type": "audio/wav",
-      },
+        "Content-Type": "audio/wav"
+      }
     });
   } else {
     const fileBuffer = await fs.readFile(filePath);
@@ -63,8 +63,8 @@ export let loader: LoaderFunction = async ({ request }) => {
     return new Response(fileBuffer, {
       headers: {
         "Content-Length": String(fileSize),
-        "Content-Type": "audio/wav",
-      },
+        "Content-Type": "audio/wav"
+      }
     });
   }
 };

@@ -23,44 +23,44 @@ export default function News() {
                 style={{
                   transform: "translate3d(0, 0, 0)",
                   left: "50%",
-                  top: "50%",
+                  top: "50%"
                 }}
                 initial={{
                   scale: 0,
                   opacity: 0,
                   left: "50%",
                   top: "50%",
-                  transform: "translate(0%, -999%)",
+                  transform: "translate(0%, -999%)"
                 }}
                 animate={{
                   scale: 1,
                   opacity: 1,
-                  transform: "translate(-50%, -50%)",
+                  transform: "translate(-50%, -50%)"
                 }}
                 exit={{
                   opacity: 0,
                   scale: 0,
-                  transform: "translate(0, 999%)",
+                  transform: "translate(0, 999%)"
                 }}
                 transition={{ duration: 0.6, ease: "easeInOut" }}
-                className="fixed z-50 h-2/3 w-full border border-vroom gap-12 max-w-xs sm:max-w-2xl bg-grayTwo shadow-lg md:w-full flex flex-col"
+                className="fixed z-50 flex h-2/3 w-full max-w-xs flex-col gap-12 border border-vroom bg-grayTwo shadow-lg sm:max-w-2xl md:w-full"
               >
-                <Dialog.Title className="ml-8 mt-4 -mb-14 font-chad font-bold italic text-7xl flex flex-col before:content-[''] before:top-0 before:bottom-0 before:border-l before:border-rage before:block before:absolute before:left-6">
+                <Dialog.Title className="-mb-14 ml-8 mt-4 flex flex-col font-bold italic font-chad text-7xl before:absolute before:bottom-0 before:left-6 before:top-0 before:block before:border-l before:border-rage before:content-['']">
                   <span className="text-xl">What's</span>
                   <span>Next</span>
                 </Dialog.Title>
                 <div className="absolute right-0 top-6 [perspective:500px]">
-                  <div className="relative flex font-lazer flex-col px-4 py-2 bg-pepe before:left-0 before:absolute before:w-full before:block before:bg-gray-500 before:-bottom-0.5 before:h-4 before:skew-y-3 before:-z-10 after:-z-10 after:absolute after:left-full after:block after:h-full after:content-[''] after:top-0 after:w-4 after:bg-[#CACF20] after:[transform-origin:center_left] after:[transform:rotateY(70deg)_skewY(20deg)]">
+                  <div className="relative flex flex-col bg-pepe px-4 py-2 font-lazer before:absolute before:-bottom-0.5 before:left-0 before:-z-10 before:block before:h-4 before:w-full before:skew-y-3 before:bg-gray-500 after:absolute after:left-full after:top-0 after:-z-10 after:block after:h-full after:w-4 after:bg-[#CACF20] after:content-[''] after:[transform-origin:center_left] after:[transform:rotateY(70deg)_skewY(20deg)]">
                     <span className="text-xs">LAST UPDATED:</span>
                     <span className="text-2xl">10/06/2023</span>
                   </div>
                 </div>
                 <div className="flex-[1_1_0] overflow-y-auto">
-                  <ul className="flex relative flex-col font-bold text-fud font-mono before:content-[''] before:top-0 before:bottom-0 before:border-l before:border-rage before:block before:absolute before:left-6">
-                    <li className="pb-[1.2rem] px-8"></li>
-                    <li className="border-t border-vroom py-[1.2rem] px-8"></li>
+                  <ul className="relative flex flex-col font-bold text-fud font-mono before:absolute before:bottom-0 before:left-6 before:top-0 before:block before:border-l before:border-rage before:content-['']">
+                    <li className="px-8 pb-[1.2rem]"></li>
+                    <li className="border-t border-vroom px-8 py-[1.2rem]"></li>
                     {Array.from({ length: 20 }).map((_, i) => (
-                      <li key={i} className="border-t border-vroom py-2 px-8">
+                      <li key={i} className="border-t border-vroom px-8 py-2">
                         Lorem ipsum dolor sit amet consectetur
                       </li>
                     ))}

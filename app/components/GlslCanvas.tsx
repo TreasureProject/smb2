@@ -70,7 +70,7 @@ export const ShaderCanvas = (props: {
   }, [props.frag, props.setUniforms]);
 
   return (
-    <div className={cn("w-full h-full", props.className)} ref={containerRef}>
+    <div className={cn("h-full w-full", props.className)} ref={containerRef}>
       <div className="absolute inset-0 z-10 bg-intro/90" />
       <canvas ref={canvasRef} className="relative"></canvas>
     </div>

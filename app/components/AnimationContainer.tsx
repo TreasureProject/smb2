@@ -18,17 +18,17 @@ export const AnimationContainer = forwardRef<
         position: "absolute",
         inset: 0,
         transform: "translate3d(0, 0, 0)",
-        ...props.style,
+        ...props.style
       }}
       initial={{
         scale: 0,
         opacity: 0,
-        transformOrigin: state?.transformOrigin || "50% 50%",
+        transformOrigin: state?.transformOrigin || "50% 50%"
       }}
       animate={{ scale: 1, left: 0, top: 0, opacity: 1 }}
       exit={{
         opacity: 0,
-        scale: 0,
+        scale: 0
       }}
       className={cn("h-full", props.className)}
     >

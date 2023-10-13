@@ -35,13 +35,13 @@ export const fetchSmols = async () => {
   const res = await fetch(
     `https://${BASE_URL}.treasure.lol/collection/arb/smol-brains/tokens?${new URLSearchParams(
       {
-        limit: "40",
+        limit: "40"
       }
     )}`,
     {
       headers: {
-        "X-API-Key": process.env.PUBLIC_TROVE_API_KEY,
-      },
+        "X-API-Key": process.env.PUBLIC_TROVE_API_KEY
+      }
     }
   );
 

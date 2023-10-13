@@ -8,7 +8,7 @@ import {
   useAnimate,
   animate as _animate,
   useIsomorphicLayoutEffect,
-  useIsPresent,
+  useIsPresent
 } from "framer-motion";
 import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -37,14 +37,14 @@ const filterTraits = [
   "Hat",
   "Naked",
   "Mouth",
-  "Gender",
+  "Gender"
 ];
 
 export const loader = async () => {
   const res = await fetchSmols();
 
   return json({
-    data: res,
+    data: res
   });
 };
 
@@ -56,13 +56,13 @@ type WindowSize = {
 export function useWindowSize(): WindowSize {
   const [windowSize, setWindowSize] = useState<WindowSize>({
     width: 0,
-    height: 0,
+    height: 0
   });
 
   const handleSize = () => {
     setWindowSize({
       width: window.innerWidth,
-      height: window.innerHeight,
+      height: window.innerHeight
     });
   };
 
@@ -110,7 +110,7 @@ const FiveColumns = ({
   y,
   x,
   parentHeight,
-  openModal,
+  openModal
 }: {
   apps: TroveSmolToken[];
   width: number;
@@ -123,10 +123,10 @@ const FiveColumns = ({
     <div
       style={
         {
-          "--size": `${BOX_HEIGHT}px`,
+          "--size": `${BOX_HEIGHT}px`
         } as CSSProperties
       }
-      className="grid grid-cols-[repeat(4,100px)] grid-rows-[100px] sm:grid-cols-[repeat(6,var(--size))] sm:grid-rows-[var(--size)] place-content-center gap-10 sm:gap-12"
+      className="grid grid-cols-[repeat(4,100px)] grid-rows-[100px] place-content-center gap-10 sm:grid-cols-[repeat(6,var(--size))] sm:grid-rows-[var(--size)] sm:gap-12"
     >
       {apps.map((app) => (
         <Item
@@ -149,7 +149,7 @@ const SevenColumns = ({
   y,
   x,
   parentHeight,
-  openModal,
+  openModal
 }: {
   apps: TroveSmolToken[];
   width: number;
@@ -162,10 +162,10 @@ const SevenColumns = ({
     <div
       style={
         {
-          "--size": `${BOX_HEIGHT}px`,
+          "--size": `${BOX_HEIGHT}px`
         } as CSSProperties
       }
-      className="grid grid-cols-[repeat(5,100px)] grid-rows-[100px] sm:grid-cols-[repeat(7,var(--size))] sm:grid-rows-[var(--size)] place-content-center gap-10 sm:gap-12"
+      className="grid grid-cols-[repeat(5,100px)] grid-rows-[100px] place-content-center gap-10 sm:grid-cols-[repeat(7,var(--size))] sm:grid-rows-[var(--size)] sm:gap-12"
     >
       {apps.map((app) => (
         <Item
@@ -188,7 +188,7 @@ const Item = ({
   y,
   x,
   parentHeight,
-  openModal,
+  openModal
 }: {
   app: TroveSmolToken;
   width: number;
@@ -205,11 +205,11 @@ const Item = ({
     return distance(
       {
         x: (ref?.offsetLeft ?? 0) + x.get() + BOX_HEIGHT / 2,
-        y: offsetRelative,
+        y: offsetRelative
       },
       {
         x: width / 2,
-        y: 0,
+        y: 0
       }
     );
   });
@@ -219,7 +219,7 @@ const Item = ({
   const scale = useSpring(s, {
     stiffness: 500,
     damping: 100,
-    mass: 0.1,
+    mass: 0.1
   });
 
   useEffect(() => {
@@ -230,20 +230,20 @@ const Item = ({
         { y: ["99%", "0%"], opacity: [0, 1] },
         {
           duration: 0.5,
-          ease: "easeOut",
+          ease: "easeOut"
         }
       );
 
       _animate(
         ref,
         {
-          y: ["0%", "5%", "0%"],
+          y: ["0%", "5%", "0%"]
         },
         {
           duration: interpolate([0.5, 0.8, 1.4], [6, 4, 2])(s.get()),
           ease: "easeOut",
           repeat: Infinity,
-          repeatType: "reverse",
+          repeatType: "reverse"
         }
       );
     };
@@ -253,14 +253,14 @@ const Item = ({
   return (
     <motion.div
       style={{
-        scale,
+        scale
       }}
       ref={attachRef}
-      className="relative transition-shadow duration-200 ring-4 ring-offset-2 ring-offset-transparent hover:ring-offset-black rounded-full overflow-hidden text-xl hover:ring-white/50 ring-transparent text-white aspect-square"
+      className="relative aspect-square overflow-hidden rounded-full text-white ring-4 ring-transparent ring-offset-2 ring-offset-transparent transition-shadow duration-200 text-xl hover:ring-white/50 hover:ring-offset-black"
     >
       <motion.img
         src={app.image.uri}
-        className="w-full h-full select-none touch-none [-webkit-user-drag:none]"
+        className="h-full w-full touch-none select-none [-webkit-user-drag:none]"
       />
       <button
         className="absolute inset-0 h-full w-full"
@@ -273,11 +273,11 @@ const Item = ({
 export default function Gallery() {
   const y = useSpring(0, {
     stiffness: 5000,
-    damping: 500,
+    damping: 500
   });
   const x = useSpring(0, {
     stiffness: 5000,
-    damping: 500,
+    damping: 500
   });
   const [scope, animate] = useAnimate();
   const { width: windowWidth } = useWindowSize();
@@ -291,7 +291,7 @@ export default function Gallery() {
     targetTokenId: string | null;
   }>({
     isOpen: false,
-    targetTokenId: null,
+    targetTokenId: null
   });
   const height = dragRef?.getBoundingClientRect().height ?? 0;
   const width = dragRef?.getBoundingClientRect().width ?? 0;
@@ -314,7 +314,7 @@ export default function Gallery() {
       bounds: { left: -0, right: 0 },
 
       rubberband: true,
-      filterTaps: true,
+      filterTaps: true
     }
   );
 
@@ -326,21 +326,21 @@ export default function Gallery() {
       [
         parentRef,
         {
-          visibility: "visible",
+          visibility: "visible"
         },
         {
-          duration: 1,
-        },
+          duration: 1
+        }
       ],
       [
         parentRef,
         {
-          opacity: [0, 1],
+          opacity: [0, 1]
         },
         {
-          duration: 4,
-        },
-      ],
+          duration: 4
+        }
+      ]
     ]);
   }, [animate, isPresent, parentRef]);
 
@@ -352,14 +352,14 @@ export default function Gallery() {
   );
   return (
     <AnimationContainer
-      className="h-full relative flex flex-col bg-[url(/img/stars.png)] bg-repeat brightness-125"
+      className="relative flex h-full flex-col bg-[url(/img/stars.png)] bg-repeat brightness-125"
       style={{
-        backgroundPosition,
+        backgroundPosition
       }}
     >
       <Icon
         name="splash"
-        className="absolute text-pepe bottom-[86%] -right-44 w-96 h-96 pointer-events-none"
+        className="pointer-events-none absolute -right-44 bottom-[86%] h-96 w-96 text-pepe"
       />
       <Header name="gallery" />
       <Sheet
@@ -367,24 +367,24 @@ export default function Gallery() {
         onOpenChange={(isOpen) =>
           setOpenModal((modal) => ({
             ...modal,
-            isOpen,
+            isOpen
           }))
         }
       >
         <div
           ref={attachParentRef}
-          className="invisible relative grid place-content-center flex-1 overflow-hidden"
+          className="invisible relative grid flex-1 place-content-center overflow-hidden"
         >
-          <div className="z-10 absolute pointer-events-none inset-0 bg-black [mask-image:radial-gradient(transparent,black_95%)]"></div>
+          <div className="pointer-events-none absolute inset-0 z-10 bg-black [mask-image:radial-gradient(transparent,black_95%)]"></div>
           <motion.div
             ref={attachRef}
             className="relative touch-none"
             style={{
               y,
-              x,
+              x
             }}
           >
-            <div ref={scope} className="grid gap-16 p-4 touch-none relative">
+            <div ref={scope} className="relative grid touch-none gap-16 p-4">
               {data &&
                 splitApps(data.data, isMobile).map((apps) => {
                   const length = isMobile ? 5 : 7;
@@ -417,7 +417,7 @@ export default function Gallery() {
             </div>
           </motion.div>
         </div>
-        <SheetContent className="bg-[#1C122F] overflow-hidden">
+        <SheetContent className="overflow-hidden bg-[#1C122F]">
           {targetSmol ? <SidePopup smol={targetSmol} /> : null}
         </SheetContent>
       </Sheet>
@@ -443,11 +443,11 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
       player.current = new Player({
         url: `/speech.wav?${searchParams.toString()}`,
         loop: false,
-        autostart: false,
+        autostart: false
       });
 
       const pitchShift = new PitchShift({
-        pitch: gender === "male" ? -4 : 10,
+        pitch: gender === "male" ? -4 : 10
       }).toDestination();
 
       await loaded();
@@ -483,7 +483,7 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
   }, [audioRef.current?.paused]);
 
   return (
-    <div className="relative flex flex-col h-full">
+    <div className="relative flex h-full flex-col">
       <img
         src={smol.image.uri}
         crossOrigin="anonymous"
@@ -514,31 +514,31 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
       <Icon
         name="splash"
         style={{
-          color: color ?? "white",
+          color: color ?? "white"
         }}
-        className="fill-current z-10 pointer-events-none absolute top-48 sm:top-72 lg:top-64 -left-12 w-32 h-36 sm:w-40 lg:h-48"
+        className="pointer-events-none absolute -left-12 top-48 z-10 h-36 w-32 fill-current sm:top-72 sm:w-40 lg:top-64 lg:h-48"
       />
       <Icon
         name="splash"
         style={{
-          color: color ?? "white",
+          color: color ?? "white"
         }}
-        className="fill-current z-10 pointer-events-none absolute top-44 sm:top-[17rem] lg:top-60 -right-12 w-32 h-36 lg:w-40 lg:h-48"
+        className="pointer-events-none absolute -right-12 top-44 z-10 h-36 w-32 fill-current sm:top-[17rem] lg:top-60 lg:h-48 lg:w-40"
       />
-      <div className="p-4 flex gap-4 flex-col h-full relative">
-        <div className="gap-2 grid-cols-2 grid flex-1">
+      <div className="relative flex h-full flex-col gap-4 p-4">
+        <div className="grid flex-1 grid-cols-2 gap-2">
           {smol.rarity.scoreBreakdown
             .filter((data) => filterTraits.includes(data.trait))
             .map((data) => {
               return (
                 <div
                   key={`${data.trait}-${data.value}`}
-                  className="relative text-white group font-formula font-bold uppercase bg-[#443560]"
+                  className="group relative bg-[#443560] font-bold uppercase text-white font-formula"
                 >
-                  <div className="opacity-0 group-hover:opacity-100 absolute grid place-items-center inset-0 h-full w-full bg-[#7237E3] transition-all duration-300">
+                  <div className="absolute inset-0 grid h-full w-full place-items-center bg-[#7237E3] opacity-0 transition-all duration-300 group-hover:opacity-100">
                     <p className="text-sm">{data.score.toFixed(2)}%</p>
                   </div>
-                  <div className="flex py-2 h-full gap-1 items-center justify-center flex-col">
+                  <div className="flex h-full flex-col items-center justify-center gap-1 py-2">
                     <p className="text-white/50 text-xs sm:text-sm">
                       {data.trait}
                     </p>
@@ -550,18 +550,18 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
         </div>
         <button
           onClick={() => playSound()}
-          className="h-12 font-formula font-bold bg-acid inline-flex py-4 border items-center justify-center"
+          className="inline-flex h-12 items-center justify-center border bg-acid py-4 font-bold font-formula"
         >
           <MotionIcon
             animate={
               ringing
                 ? {
-                    rotate: 360,
+                    rotate: 360
                   }
                 : undefined
             }
             name="call"
-            className="w-8 h-8"
+            className="h-8 w-8"
           />
           <span className="ml-1">
             {ringing

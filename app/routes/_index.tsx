@@ -14,7 +14,7 @@ const MotionLink = motion(Link);
 export const meta: V2_MetaFunction = () => {
   return [
     { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { name: "description", content: "Welcome to Remix!" }
   ];
 };
 
@@ -25,7 +25,7 @@ function Dock() {
     <Box
       onMouseMove={(e) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Infinity)}
-      className="mx-auto flex h-28 items-end gap-4 px-6 pb-7 overflow-visible bg-neonPink"
+      className="mx-auto flex h-28 items-end gap-4 overflow-visible bg-neonPink px-6 pb-7"
     >
       {[...Array(8).keys()].map((i) => (
         <AppIcon mouseX={mouseX} key={i} />
@@ -52,11 +52,11 @@ function AppIcon({ mouseX }: { mouseX: MotionValue }) {
       to="/smolspace"
       style={{
         // @ts-ignore
-        width,
+        width
       }}
-      className="aspect-square h-auto w-16 z-10 relative"
+      className="relative z-10 aspect-square h-auto w-16"
     >
-      <img src={TestImg} className="w-full h-full rounded-md bg-neonPink"></img>
+      <img src={TestImg} className="h-full w-full rounded-md bg-neonPink"></img>
     </MotionLink>
   );
 }
@@ -85,55 +85,55 @@ export default function Index() {
           </filter>
         </defs>
       </svg>
-      <div className="h-full relative flex flex-col">
-        <div className="flex flex-1 relative items-center max-w-7xl gap-12 mx-auto h-full">
-          <div className="grid grid-areas-widgets grid-cols-[repeat(7,100px)] grid-rows-4 gap-8">
+      <div className="relative flex h-full flex-col">
+        <div className="relative mx-auto flex h-full max-w-7xl flex-1 items-center gap-12">
+          <div className="grid grid-cols-[repeat(7,100px)] grid-rows-4 gap-8 grid-areas-widgets">
             <Box
               as="link"
               to="/smolspace"
               state={getTransformOrigin}
-              className="grid-in-w1 bg-white/10 backdrop-blur-sm"
+              className="bg-white/10 backdrop-blur-sm grid-in-w1"
             >
               <img
                 src={TestImg}
                 alt="test"
-                className="aspect-square w-full h-full opacity-[0.85]"
+                className="aspect-square h-full w-full opacity-[0.85]"
               ></img>
             </Box>
             <Box
               as="link"
               to="/gallery"
               state={getTransformOrigin}
-              className="grid-in-w2 bg-white/10 backdrop-blur-sm"
+              className="bg-white/10 backdrop-blur-sm grid-in-w2"
             >
               <img
                 src={TestTwoImg}
                 alt="test"
-                className="aspect-square w-full h-full opacity-[0.85]"
+                className="aspect-square h-full w-full opacity-[0.85]"
               ></img>
             </Box>
             <Box
               as="link"
               to="/news"
               state={getTransformOrigin}
-              className="grid-in-w3 bg-acid backdrop-blur-sm"
+              className="bg-acid backdrop-blur-sm grid-in-w3"
             >
               <img
                 src={TestTwoImg}
                 alt="test"
-                className="aspect-square w-full h-full opacity-[0.85]"
+                className="aspect-square h-full w-full opacity-[0.85]"
               ></img>
             </Box>
             <Box
               as="link"
               to="/about"
               state={getTransformOrigin}
-              className="grid-in-w4 bg-sky-300"
+              className="bg-sky-300 grid-in-w4"
             ></Box>
-            <Box className="grid-in-w5 bg-purple-300"></Box>
+            <Box className="bg-purple-300 grid-in-w5"></Box>
           </div>
         </div>
-        <div className="basis-64 mx-auto flex items-center">
+        <div className="mx-auto flex basis-64 items-center">
           <Dock />
         </div>
       </div>
