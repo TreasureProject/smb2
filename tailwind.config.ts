@@ -38,6 +38,22 @@ export default {
         formula: ["PPFormula", ...defaultTheme.fontFamily.sans],
         lazer: ["Lazer", ...defaultTheme.fontFamily.sans],
       },
+      fontMetrics: {
+        sans: {
+          capHeight: 700,
+          ascent: 800,
+          descent: 200,
+          lineGap: 24,
+          unitsPerEm: 1000,
+        },
+        formula: {
+          capHeight: 826,
+          ascent: 906,
+          descent: 306,
+          lineGap: 24,
+          unitsPerEm: 1000,
+        },
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -57,5 +73,6 @@ export default {
   plugins: [
     require("@savvywombat/tailwindcss-grid-areas"),
     require("tailwindcss-animate"),
+    require("tailwindcss-capsize"),
   ],
 } satisfies Config;
