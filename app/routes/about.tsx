@@ -6,6 +6,7 @@ import {
   useSpring,
   useMotionValue
 } from "framer-motion";
+import type { HTMLAttributes } from "react";
 import { useEffect, useRef, useState } from "react";
 import { AnimationContainer } from "~/components/AnimationContainer";
 import { Header } from "~/components/Header";
@@ -13,12 +14,19 @@ import { MotionIcon, Icon } from "~/components/Icons";
 import NewspaperImg from "~/assets/newspaper.png";
 import GameCoverImg from "~/assets/game-cover.png";
 import GameCoverBgImg from "~/assets/graphic.png";
-import VectorImg from "~/assets/vector.png";
 import SmolBrainsTextImg from "~/assets/Text.png";
 import type { LinksFunction } from "@remix-run/node";
 import stylesheet from "atropos/atropos.min.css";
 import Atropos from "atropos/react";
 import { cn } from "~/utils";
+
+// Smol Document Assets
+import SmolBgImg from "~/assets/smol-brain/BG.png";
+import EEEImg from "~/assets/smol-brain/EEE.png";
+import LogoImg from "~/assets/smol-brain/Logo.png";
+import ShadowImg from "~/assets/smol-brain/Shadow.png";
+import SmolImg from "~/assets/smol-brain/Smol.png";
+import TreasureTagImg from "~/assets/smol-brain/TreasureTag.png";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet }
@@ -196,13 +204,12 @@ const Document = ({ i }: { i: number }) => {
           shadowScale={0.85}
           className="relative w-96 flex-none snap-start pl-8 [backface-visibility:hidden]"
         >
-          <img src={GameCoverImg} alt="" />
-          <img
-            src={VectorImg}
-            className="pointer-events-none absolute left-0 top-0 z-10 h-48 w-48 max-w-none object-contain [transform-style:preserve-3d]"
-            data-atropos-offset="5"
-            alt=""
-          />
+          <img src={SmolBgImg} alt="" />
+          {/* <AtroposImg src={SmolBgImg} data-atropos-offset="5" alt="" /> */}
+          <AtroposImg src={EEEImg} data-atropos-offset="1" alt="" />
+          <AtroposImg src={LogoImg} data-atropos-offset="3" alt="" />
+          <AtroposImg src={SmolImg} data-atropos-offset="2" alt="" />
+          <AtroposImg src={TreasureTagImg} alt="" />
           <button
             onClick={() => setFront(!front)}
             className="absolute inset-0 h-full w-full"
@@ -222,6 +229,26 @@ const Document = ({ i }: { i: number }) => {
     </div>
   );
 };
+
+const AtroposImg = ({
+  src,
+  className,
+  alt,
+  ...props
+}: {
+  src: string;
+  alt: string;
+} & HTMLAttributes<HTMLImageElement>) => (
+  <img
+    src={src}
+    alt={alt}
+    className={cn(
+      "pointer-events-none absolute inset-0 h-full w-full max-w-none object-contain [transform-style:preserve-3d]",
+      className
+    )}
+    {...props}
+  />
+);
 
 const SmolXDarkbright = () => {
   const [shakeCount, setShakeCount] = useState(0);
