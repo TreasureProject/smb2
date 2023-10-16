@@ -4,7 +4,8 @@ import {
   useMotionTemplate,
   animate,
   useSpring,
-  useMotionValue
+  useMotionValue,
+  AnimatePresence
 } from "framer-motion";
 import type { HTMLAttributes } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -12,7 +13,7 @@ import { AnimationContainer } from "~/components/AnimationContainer";
 import { Header } from "~/components/Header";
 import { MotionIcon, Icon } from "~/components/Icons";
 import NewspaperImg from "~/assets/newspaper.png";
-import GameCoverImg from "~/assets/game-cover.png";
+import HammerImg from "~/assets/hammer.png";
 import GameCoverBgImg from "~/assets/graphic.png";
 import SmolBrainsTextImg from "~/assets/Text.png";
 import type { LinksFunction } from "@remix-run/node";
@@ -260,6 +261,9 @@ const SmolXDarkbright = () => {
     mass: 12
   });
   const z = useMotionValue(10);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const [leave, setLeave] = useState(false);
 
   useEffect(() => {
     animate(
@@ -298,8 +302,55 @@ const SmolXDarkbright = () => {
     })();
   }, [_animate, scope, shakeCount, z]);
 
+  console.log(leave);
+
   return (
-    <section className="relative bg-[url(/img/pattern.png)] bg-cover bg-no-repeat">
+    <section
+      className="relative bg-[url(/img/pattern.png)] bg-cover bg-no-repeat"
+      onMouseMove={({ currentTarget, clientX, clientY }) => {
+        const { left, top } = currentTarget.getBoundingClientRect();
+        mouseX.set(clientX - left - 40);
+        mouseY.set(clientY - top - 40);
+      }}
+      onMouseEnter={() => setLeave(false)}
+      onMouseLeave={() => {
+        setLeave(true);
+      }}
+    >
+      <AnimatePresence>
+        {shakeCount !== 3 && !leave ? (
+          <motion.img
+            transition={{
+              type: "spring",
+              mass: 0.6,
+              duration: 1
+            }}
+            style={{
+              x: mouseX,
+              y: mouseY,
+              position: "absolute",
+              pointerEvents: "none",
+              zIndex: 9999
+            }}
+            animate={{
+              rotate: [0, 50],
+              transition: {
+                duration: 0.5,
+                repeat: Infinity,
+                repeatType: "reverse",
+                ease: "easeOut"
+              }
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0
+            }}
+            src={HammerImg}
+            alt="hammer"
+            className="aspect-square h-auto w-12"
+          />
+        ) : null}
+      </AnimatePresence>
       <motion.button
         style={{ x, zIndex: z }}
         onClick={() => {
