@@ -1,11 +1,20 @@
-import { motion, useAnimate } from "framer-motion";
+import {
+  motion,
+  useAnimate,
+  useMotionTemplate,
+  animate,
+  useSpring,
+  useMotionValue
+} from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { AnimationContainer } from "~/components/AnimationContainer";
 import { Header } from "~/components/Header";
 import { MotionIcon, Icon } from "~/components/Icons";
 import NewspaperImg from "~/assets/newspaper.png";
 import GameCoverImg from "~/assets/game-cover.png";
+import GameCoverBgImg from "~/assets/graphic.png";
 import VectorImg from "~/assets/vector.png";
+import SmolBrainsTextImg from "~/assets/Text.png";
 import type { LinksFunction } from "@remix-run/node";
 import stylesheet from "atropos/atropos.min.css";
 import Atropos from "atropos/react";
@@ -132,20 +141,6 @@ const Documents = () => {
         >
           {[...Array(10)].map((_, i) => (
             <Document i={i} key={i} />
-            // <motion.div key={i}>
-            //   <Atropos
-            //     shadowScale={0.85}
-            //     className="w-96 flex-none snap-start rounded-lg pl-8"
-            //   >
-            //     <img src={GameCoverImg} alt="" />
-            //     <img
-            //       src={VectorImg}
-            //       className="pointer-events-none absolute left-0 top-0 z-10 h-full w-full max-w-none object-contain [transform-style:preserve-3d]"
-            //       data-atropos-offset="5"
-            //       alt=""
-            //     />
-            //   </Atropos>
-            // </motion.div>
           ))}
         </div>
       </div>
@@ -192,7 +187,10 @@ const Document = ({ i }: { i: number }) => {
             front ? "pl-8" : "pr-8"
           )}
         >
-          <div className="h-full bg-gray-500"></div>
+          <img
+            className="h-full w-full [transform:scaleX(-1)]"
+            src={GameCoverBgImg}
+          ></img>
         </div>
         <Atropos
           shadowScale={0.85}
@@ -222,6 +220,120 @@ const Document = ({ i }: { i: number }) => {
         )}
       </motion.div>
     </div>
+  );
+};
+
+const SmolXDarkbright = () => {
+  const [shakeCount, setShakeCount] = useState(0);
+  const [scope, _animate] = useAnimate();
+  // fast shaking and gradually slow down
+  const x = useSpring(0, {
+    stiffness: 5000,
+    damping: 500,
+    mass: 12
+  });
+  const z = useMotionValue(10);
+
+  useEffect(() => {
+    animate(
+      x,
+      [shakeCount * 50, shakeCount * -50, shakeCount * 70, shakeCount * -70, 0],
+      {
+        duration: 0.3
+      }
+    );
+  }, [shakeCount, x]);
+
+  useEffect(() => {
+    if (shakeCount !== 3) return;
+    let delayForSecondAnimation = -0.75;
+
+    animate(z, 0, {
+      delay: 0.55
+    });
+
+    (async () => {
+      await _animate([
+        [
+          scope.current,
+          { y: ["-100%", "-50%"] },
+          { duration: 1, ease: "easeInOut" }
+        ],
+        [
+          scope.current,
+          {
+            scale: [0.25, 1],
+            y: ["-50%", "0%"]
+          },
+          { duration: 1, ease: "easeInOut", delay: delayForSecondAnimation }
+        ]
+      ]);
+    })();
+  }, [_animate, scope, shakeCount, z]);
+
+  return (
+    <section className="relative bg-[url(/img/pattern.png)] bg-cover bg-no-repeat">
+      <motion.button
+        style={{ x, zIndex: z }}
+        onClick={() => {
+          if (shakeCount < 3) setShakeCount(shakeCount + 1);
+        }}
+        className="absolute -inset-x-12 inset-y-0 bg-troll/95 [mask-composite:exclude] [mask-image:url(/img/crack.png),linear-gradient(#fff_0_0)] [mask-position:50%_25%] [mask-repeat:no-repeat]"
+      >
+        <span className="sr-only">Toggle shake animation</span>
+      </motion.button>
+      <motion.img
+        style={{
+          x: "-50%",
+          y: "-100%",
+          scale: 0.25
+        }}
+        src={SmolBrainsTextImg}
+        ref={scope}
+        className="absolute left-1/2 top-1/2 h-48"
+        alt=""
+      />
+      <div className="pointer-events-none relative z-30">
+        <div>test</div>
+        <div>test</div>
+
+        <div>test</div>
+
+        <div>test</div>
+
+        <div>test</div>
+
+        <div>test</div>
+        <div>test</div>
+
+        <div>test</div>
+
+        <div>test</div>
+
+        <div>test</div>
+
+        <div>test</div>
+        <div>test</div>
+        <div>test</div>
+
+        <div>test</div>
+
+        <div>test</div>
+
+        <div>test</div>
+
+        <div>test</div>
+        <div>test</div>
+
+        <div>test</div>
+
+        <div>test</div>
+
+        <div>test</div>
+
+        <div>test</div>
+      </div>
+    </section>
   );
 };
 
@@ -269,6 +381,7 @@ export default function About() {
         </div>
       </section>
       <Documents />
+      <SmolXDarkbright />
     </AnimationContainer>
   );
 }
