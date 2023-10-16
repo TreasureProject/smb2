@@ -5,7 +5,6 @@ import {
   Links,
   LiveReload,
   Meta,
-  Outlet,
   Scripts,
   ScrollRestoration,
   useLocation,
@@ -31,6 +30,7 @@ import { useCustomLoaderData } from "./hooks/useCustomLoaderData";
 import { ShaderCanvas } from "./components/GlslCanvas";
 import iconHref from "./components/icons/sprite.svg";
 import { Icon } from "./components/Icons";
+import { ResponsiveProvider } from "./res-context";
 
 const INITIAL_BLUR_VALUE = 15;
 
@@ -276,14 +276,15 @@ export default function App() {
             </filter>
           </defs>
         </svg>
-        <MotionConfig
-          transition={{
-            duration: 0.25,
-            ease: "easeOut"
-          }}
-        >
-          {/* demo */}
-          {/* <button
+        <ResponsiveProvider>
+          <MotionConfig
+            transition={{
+              duration: 0.25,
+              ease: "easeOut"
+            }}
+          >
+            {/* demo */}
+            {/* <button
             className="absolute text-white text-4xl border-[4px] border-white h-16 px-4 z-10 top-4 left-4 bg-black/10 backdrop-blur-xl"
             onClick={() => {
               ws.send(JSON.stringify({ type: "pee" }));
@@ -292,7 +293,7 @@ export default function App() {
             <span className="tracking-wide">{users} SMOLS ONLINE</span>
           </button> */}
 
-          {/* <motion.button
+            {/* <motion.button
             className="absolute text-7xl border-[8px] border-black h-24 px-4 z-10 bottom-0 right-0 bg-black/10 backdrop-blur-xl"
             layout
             layoutId="button"
@@ -318,53 +319,53 @@ export default function App() {
             </motion.span>
           </motion.button> */}
 
-          <AnimatePresence initial={false}>
-            {flicked && (
-              <motion.img
-                transition={{
-                  type: "spring",
-                  mass: 0.6,
-                  duration: 1
-                }}
-                style={{
-                  x: mouseX,
-                  y: mouseY,
-                  position: "absolute",
-                  pointerEvents: "none",
-                  zIndex: 9999
-                }}
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                  rotate: [0, 360]
-                }}
-                exit={{
-                  opacity: 0,
-                  scale: 0
-                }}
-                src={peeImg}
-                alt="pee"
-                className="aspect-square h-auto w-12"
-              />
-            )}
-          </AnimatePresence>
-          <motion.div
-            style={{
-              filter: animatedFilter,
-              transform: "translate3d(0, 0, 0)"
-            }}
-            className="relative h-full"
-          >
-            <ShaderCanvas
-              className="absolute inset-0"
-              setUniforms={{
-                u_saturation: 20.0,
-                u_complexity: 5.0,
-                u_twist: 30.0,
-                u_light: 1.0,
-                u_mix: 0.0
+            <AnimatePresence initial={false}>
+              {flicked && (
+                <motion.img
+                  transition={{
+                    type: "spring",
+                    mass: 0.6,
+                    duration: 1
+                  }}
+                  style={{
+                    x: mouseX,
+                    y: mouseY,
+                    position: "absolute",
+                    pointerEvents: "none",
+                    zIndex: 9999
+                  }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    rotate: [0, 360]
+                  }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0
+                  }}
+                  src={peeImg}
+                  alt="pee"
+                  className="aspect-square h-auto w-12"
+                />
+              )}
+            </AnimatePresence>
+            <motion.div
+              style={{
+                filter: animatedFilter,
+                transform: "translate3d(0, 0, 0)"
               }}
-              frag={`
+              className="relative h-full"
+            >
+              <ShaderCanvas
+                className="absolute inset-0"
+                setUniforms={{
+                  u_saturation: 20.0,
+                  u_complexity: 5.0,
+                  u_twist: 30.0,
+                  u_light: 1.0,
+                  u_mix: 0.0
+                }}
+                frag={`
             #ifdef GL_ES
             precision mediump float;
             #endif
@@ -407,101 +408,102 @@ export default function App() {
               gl_FragColor = vec4(color, 1.0);
             }
         `}
-            />
+              />
 
-            <AnimatePresence initial={false} mode="popLayout">
+              <AnimatePresence initial={false} mode="popLayout">
+                <motion.div
+                  style={{
+                    filter: animatedFilter,
+                    transform: "translate3d(0, 0, 0)"
+                  }}
+                  key={navigation.pathname}
+                  initial={false}
+                  className="absolute inset-0 z-10 h-full"
+                  exit={{
+                    scale: 1,
+                    opacity: 0
+                  }}
+                >
+                  <AnimatedOutlet />
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
+            {/* Only show the intro on the root page */}
+            {isRoot && showIntro && (
               <motion.div
                 style={{
-                  filter: animatedFilter,
-                  transform: "translate3d(0, 0, 0)"
+                  y
                 }}
-                key={navigation.pathname}
-                initial={false}
-                className="absolute inset-0 z-10 h-full"
-                exit={{
-                  scale: 1,
-                  opacity: 0
-                }}
+                ref={introRef}
+                className="absolute inset-0 h-[100dvh] w-full touch-pan-x bg-intro/70"
               >
-                <AnimatedOutlet />
-              </motion.div>
-            </AnimatePresence>
-          </motion.div>
-          {/* Only show the intro on the root page */}
-          {isRoot && showIntro && (
-            <motion.div
-              style={{
-                y
-              }}
-              ref={introRef}
-              className="absolute inset-0 h-[100dvh] w-full touch-pan-x bg-intro/70"
-            >
-              <div className="mx-auto grid h-full max-w-7xl items-center justify-center py-12">
-                <p className="relative text-white">
-                  <span className="absolute -top-12 rotate-[355deg] select-none text-pepe font-oakley text-2xl sm:text-3xl">
-                    WELCOME BACK
-                  </span>
-                  <p className="select-none font-sans text-[20rem] leading-none capsize sm:text-[32rem]">
-                    SMOL
+                <div className="mx-auto grid h-full max-w-7xl items-center justify-center py-12">
+                  <p className="relative text-white">
+                    <span className="absolute -top-12 rotate-[355deg] select-none text-pepe font-oakley text-2xl sm:text-3xl">
+                      WELCOME BACK
+                    </span>
+                    <p className="select-none font-sans text-[20rem] leading-none capsize sm:text-[32rem]">
+                      SMOL
+                    </p>
                   </p>
-                </p>
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-                  <Icon
-                    name="chevron-up"
-                    className="mx-auto h-6 w-6 select-none text-white/80 sm:h-8 sm:w-8"
-                  />
-                  <div className="mx-auto w-max select-none tracking-wide text-white/80 text-2xl sm:text-4xl">
-                    SWIPE UP TO UNLOCK
+                  <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+                    <Icon
+                      name="chevron-up"
+                      className="mx-auto h-6 w-6 select-none text-white/80 sm:h-8 sm:w-8"
+                    />
+                    <div className="mx-auto w-max select-none tracking-wide text-white/80 text-2xl sm:text-4xl">
+                      SWIPE UP TO UNLOCK
+                    </div>
+                    <motion.div
+                      ref={dragRef}
+                      initial={{
+                        y: "50%"
+                      }}
+                      animate={{
+                        y: ["10%", "0%"]
+                      }}
+                      transition={{
+                        y: {
+                          duration: 1.5,
+                          ease: "easeOut",
+                          repeat: Infinity,
+                          repeatType: "reverse"
+                        }
+                      }}
+                      className={cn(
+                        "flex h-12 touch-none select-none items-center px-4"
+                      )}
+                    >
+                      <div className="h-2.5 w-40 rounded-xl bg-gray-400/80 sm:h-4 sm:w-64"></div>
+                    </motion.div>
                   </div>
-                  <motion.div
-                    ref={dragRef}
-                    initial={{
-                      y: "50%"
-                    }}
-                    animate={{
-                      y: ["10%", "0%"]
-                    }}
-                    transition={{
-                      y: {
-                        duration: 1.5,
-                        ease: "easeOut",
-                        repeat: Infinity,
-                        repeatType: "reverse"
-                      }
-                    }}
-                    className={cn(
-                      "flex h-12 touch-none select-none items-center px-4"
-                    )}
-                  >
-                    <div className="h-2.5 w-40 rounded-xl bg-gray-400/80 sm:h-4 sm:w-64"></div>
-                  </motion.div>
                 </div>
-              </div>
-            </motion.div>
-          )}
-          <AnimatePresence>
-            {smear.state === "active" && (
-              <MotionSvg
-                key="smear"
-                initial={false}
-                animate={{
-                  opacity: 1,
-                  left: smear.x - 192,
-                  top: smear.y - 192
-                }}
-                exit={{
-                  opacity: 0
-                }}
-                transition={{
-                  duration: 5,
-                  ease: "easeOut"
-                }}
-                name="splash"
-                className="pointer-events-none absolute z-30 h-96 w-96 text-red-500"
-              ></MotionSvg>
+              </motion.div>
             )}
-          </AnimatePresence>
-        </MotionConfig>
+            <AnimatePresence>
+              {smear.state === "active" && (
+                <MotionSvg
+                  key="smear"
+                  initial={false}
+                  animate={{
+                    opacity: 1,
+                    left: smear.x - 192,
+                    top: smear.y - 192
+                  }}
+                  exit={{
+                    opacity: 0
+                  }}
+                  transition={{
+                    duration: 5,
+                    ease: "easeOut"
+                  }}
+                  name="splash"
+                  className="pointer-events-none absolute z-30 h-96 w-96 text-red-500"
+                ></MotionSvg>
+              )}
+            </AnimatePresence>
+          </MotionConfig>
+        </ResponsiveProvider>
         <ScrollRestoration />
         <script
           dangerouslySetInnerHTML={{

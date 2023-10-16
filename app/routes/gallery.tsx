@@ -7,7 +7,6 @@ import {
   useMotionTemplate,
   useAnimate,
   animate as _animate,
-  useIsomorphicLayoutEffect,
   useIsPresent
 } from "framer-motion";
 import type { CSSProperties } from "react";
@@ -22,8 +21,8 @@ import { interpolate } from "popmotion";
 import { Icon } from "~/components/Icons";
 import { AnimationContainer } from "~/components/AnimationContainer";
 import { PitchShift, Player, loaded } from "tone";
-import { Link } from "@remix-run/react";
 import { Header } from "~/components/Header";
+import { useResponsive } from "~/res-context";
 
 const MotionIcon = motion(Icon);
 // this is the height for the visible area on line 201, h-96.
@@ -47,35 +46,6 @@ export const loader = async () => {
     data: res
   });
 };
-
-type WindowSize = {
-  width: number;
-  height: number;
-};
-
-export function useWindowSize(): WindowSize {
-  const [windowSize, setWindowSize] = useState<WindowSize>({
-    width: 0,
-    height: 0
-  });
-
-  const handleSize = () => {
-    setWindowSize({
-      width: window.innerWidth,
-      height: window.innerHeight
-    });
-  };
-
-  useEffect(() => {
-    addEventListener("resize", handleSize);
-    return () => removeEventListener("resize", handleSize);
-  }, []);
-  useIsomorphicLayoutEffect(() => {
-    handleSize();
-  }, []);
-
-  return windowSize;
-}
 
 function splitApps(apps: TroveSmolToken[], isMobile: boolean = false) {
   let results = [];
@@ -280,9 +250,7 @@ export default function Gallery() {
     damping: 500
   });
   const [scope, animate] = useAnimate();
-  const { width: windowWidth } = useWindowSize();
-
-  const isMobile = windowWidth < 640;
+  const { isMobile } = useResponsive();
   const data = useCustomLoaderData<typeof loader>();
   const [dragRef, attachRef] = useCallbackRef<HTMLDivElement>();
   const [parentRef, attachParentRef] = useCallbackRef<HTMLDivElement>();

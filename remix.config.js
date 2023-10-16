@@ -5,8 +5,8 @@ module.exports = {
   // assetsBuildDirectory: "public/build",
   // serverBuildPath: "build/index.js",
   // publicPath: "/build/",
-  serverDependenciesToBundle: ["remix-utils/client-only"],
+  serverDependenciesToBundle: ["remix-utils/client-only", "atropos/react"],
   tailwind: true,
   serverModuleFormat: "cjs",
-  postcss: true,
+  postcss: true
 };
