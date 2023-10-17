@@ -41,6 +41,7 @@ import Shadow from "./assets/Shadow.png";
 import DarkbrightSmol from "./assets/Smol.png";
 
 import { DraggableWindow } from "~/components/DraggableWindow";
+import { useResponsive } from "~/res-context";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet }
@@ -74,13 +75,15 @@ const useIsSafari = () => {
 const AnimatedSticker = () => {
   const [isAnimating, setIsAnimating] = useState(false);
 
+  const { isMobile } = useResponsive();
+
   return (
-    <div className="absolute -bottom-32 right-0 flex">
+    <div className="absolute -bottom-32 -right-12 flex sm:right-0">
       <Icon
         name="tag"
-        className="bottom-1/2 h-40 w-40 translate-x-[35%] translate-y-[90%]"
+        className="relative z-10 h-24 w-24 translate-x-[85%] translate-y-[120%] sm:h-40 sm:w-40 sm:translate-x-[35%] sm:translate-y-[90%]"
       />
-      <motion.div className="flex flex-col items-center [perspective:1000px]">
+      <motion.div className="relative flex flex-col items-center [perspective:1000px]">
         <motion.div
           animate={
             isAnimating
@@ -88,17 +91,17 @@ const AnimatedSticker = () => {
               : { transform: "rotateY(0deg)" }
           }
           transition={{ duration: 2, ease: [0.27, 0.85, 0.32, 1] }}
-          className="relative inline-block [transform-style:preserve-3d]"
+          className="relative z-10 inline-block [transform-style:preserve-3d]"
         >
           <MotionIcon
             {...animationProps}
             name="smol-smoke"
-            className="select-none contrast-0"
+            className="h-24 w-auto select-none contrast-0 sm:h-auto"
           />
           <MotionIcon
             {...animationProps}
             name="smol-smoke"
-            className="absolute bottom-0 left-0 right-0 top-0 select-none [backface-visibility:hidden]"
+            className="absolute inset-0 h-24 w-auto select-none [backface-visibility:hidden] sm:h-auto"
           />
           <button
             onClick={() => setIsAnimating(!isAnimating)}
@@ -109,10 +112,9 @@ const AnimatedSticker = () => {
         </motion.div>
 
         <motion.div
-          initial={{ width: "13rem", height: "13rem" }}
           animate={{
-            width: ["13rem", "12rem"],
-            height: ["13rem", "12rem"]
+            width: isMobile ? ["10rem", "9rem"] : ["13rem", "12rem"],
+            height: isMobile ? ["10rem", "9rem"] : ["13rem", "12rem"]
           }}
           transition={{
             duration: 1.5,
@@ -120,7 +122,7 @@ const AnimatedSticker = () => {
             repeat: Infinity,
             repeatType: "reverse"
           }}
-          className="h-48 w-48 select-none rounded-full bg-black/50 [transform:rotateX(75deg)]"
+          className="relative select-none rounded-full bg-black/50 [transform:rotateX(75deg)]"
         ></motion.div>
       </motion.div>
     </div>
@@ -135,7 +137,7 @@ const Documents = () => {
       <div className="relative mx-auto max-w-6xl p-16">
         <div className="flex w-min flex-col">
           <div className="flex gap-4">
-            <p className="font-normal text-white font-sans text-9xl leading-none capsize">
+            <p className="font-normal text-white font-sans text-7xl leading-none capsize sm:text-9xl">
               DOCUMENTS
             </p>
             <div className="flex items-start gap-4">
@@ -149,7 +151,7 @@ const Documents = () => {
                 className="bg-pepe p-2 hover:bg-pepe/90"
               >
                 <span className="sr-only">View all documents</span>
-                <Icon name="left-arrow" className="h-9 w-9" />
+                <Icon name="left-arrow" className="h-6 w-6 sm:h-9 sm:w-9" />
               </button>
               <button
                 onClick={() => {
@@ -159,7 +161,10 @@ const Documents = () => {
                 className="bg-pepe p-2 hover:bg-pepe/90"
               >
                 <span className="sr-only">View all documents</span>
-                <Icon name="left-arrow" className="h-9 w-9 rotate-180" />
+                <Icon
+                  name="left-arrow"
+                  className="h-6 w-6 rotate-180 sm:h-9 sm:w-9"
+                />
               </button>
             </div>
           </div>
@@ -204,7 +209,8 @@ const Document = ({ i }: { i: number }) => {
     }
   }, [scope, animate, front]);
   return (
-    <div className="[perspective:1000px]">
+    <div className="w-64 flex-shrink-0 [perspective:1000px] sm:w-96">
+      {/* TODO: fix the first one affecting layout when rotating */}
       <motion.div
         animate={
           front
@@ -217,7 +223,7 @@ const Document = ({ i }: { i: number }) => {
         <div
           ref={scope}
           className={cn(
-            "pointer-events-none absolute right-0 top-0 h-full w-96 select-none",
+            "pointer-events-none absolute right-0 top-0 h-full w-full flex-none select-none",
             front ? "pl-8" : "pr-8"
           )}
         >
@@ -229,7 +235,7 @@ const Document = ({ i }: { i: number }) => {
         </div>
         <Atropos
           shadowScale={0.85}
-          className="relative w-96 flex-none snap-start pl-8 [backface-visibility:hidden]"
+          className="relative h-full w-full flex-none snap-start pl-8 [backface-visibility:hidden]"
         >
           <img src={SmolBgImg} alt="" />
           {/* <AtroposImg src={SmolBgImg} data-atropos-offset="5" alt="" /> */}
@@ -369,18 +375,30 @@ const SmolXDarkbright = () => {
         <DraggableWindow parentRef={parentRef} className="right-24 top-2">
           <img
             src={isSafari ? Meme1Fallback : Meme1}
-            className="aspect-square h-48 w-full"
+            className="aspect-square h-24 w-24 sm:h-48 sm:w-full"
             alt=""
           />
         </DraggableWindow>
         <DraggableWindow parentRef={parentRef} className="bottom-2 left-2">
-          <img src={Planet1} className="aspect-square h-48 w-full" alt="" />
+          <img
+            src={Planet1}
+            className="aspect-square h-24 w-24 sm:h-48 sm:w-full"
+            alt=""
+          />
         </DraggableWindow>
         <DraggableWindow parentRef={parentRef} className="left-24 top-2">
-          <img src={Planet2} className="aspect-square h-48 w-full" alt="" />
+          <img
+            src={Planet2}
+            className="aspect-square h-24 w-24 sm:h-48 sm:w-full"
+            alt=""
+          />
         </DraggableWindow>
         <DraggableWindow parentRef={parentRef} className="bottom-16 right-2">
-          <img src={Planet3} className="aspect-square h-48 w-full" alt="" />
+          <img
+            src={Planet3}
+            className="aspect-square h-24 w-24 sm:h-48 sm:w-full"
+            alt=""
+          />
         </DraggableWindow>
         <AnimatePresence>
           {shakeCount !== 3 && !leave ? (
@@ -419,6 +437,7 @@ const SmolXDarkbright = () => {
             />
           ) : null}
         </AnimatePresence>
+        {/* TODO: desktop safari has a weird z-index bug. works on mobile though */}
         <motion.button
           style={{
             x,
@@ -446,14 +465,14 @@ const SmolXDarkbright = () => {
         <img
           src={DarkbrightSmol}
           alt="smol"
-          className="absolute bottom-12 left-1/2 z-40 translate-x-[60%]"
+          className="absolute bottom-12 left-1/2 z-40 h-auto w-24 translate-x-[60%] sm:w-auto"
         />
         <motion.div
           style={{
             maskImage: animatedMaskedImage,
             WebkitMaskImage: animatedMaskedImage
           }}
-          className="absolute -bottom-6 left-1/2 z-30 h-36 w-36 select-none rounded-full bg-black/50 [transform:translate(35%,0)_rotateX(75deg)]"
+          className="absolute -bottom-6 left-1/2 z-30 h-36 w-36 select-none rounded-full bg-black/50 [transform:translate(20%,0)_rotateX(75deg)] sm:[transform:translate(35%,0)_rotateX(75deg)]"
         />
         <img
           src={Vector}
@@ -476,9 +495,7 @@ const SmolXDarkbright = () => {
             WebkitMaskImage: animatedMaskedImage
           }}
           src={Shadow}
-          className="absolute -bottom-6 
-          left-1/2
-          z-30 -translate-x-1/2 [mask-image:linear-gradient(black,transparent_80%)]"
+          className="absolute bottom-3 left-1/2 z-30 -translate-x-1/2 [mask-image:linear-gradient(black,transparent_80%)] sm:-bottom-6"
           alt="Shadow"
         />
         <motion.div
@@ -517,7 +534,7 @@ export default function About() {
     <AnimationContainer className="flex flex-col overflow-x-hidden">
       <Header name="about" />
       <section className="relative bg-[radial-gradient(rgba(114,55,227,0.00)_0%,#5B26C1_100%)]">
-        <div className="relative mx-auto grid max-w-6xl grid-cols-1 grid-rows-1 place-items-center gap-y-16 py-32 lg:grid-cols-12 lg:gap-y-20">
+        <div className="relative mx-auto grid max-w-6xl grid-cols-1 grid-rows-1 place-items-center gap-y-16 py-24 sm:py-32 lg:grid-cols-12 lg:gap-y-20">
           <div className="relative lg:col-span-5">
             <p className="absolute -top-7 z-20 -rotate-6 rounded-3xl bg-pepe px-4 pb-2.5 pt-2 font-black font-formula text-base leading-none capsize">
               THE DAILY
@@ -527,7 +544,7 @@ export default function About() {
               className="absolute -top-14 left-14 z-10 h-24 w-24"
               alt="newspaper"
             />
-            <p className="relative text-white font-sans text-[28rem] leading-none capsize">
+            <p className="relative text-white font-sans text-[20rem] leading-none capsize sm:text-[28rem]">
               SMOL
             </p>
           </div>
@@ -544,12 +561,12 @@ export default function About() {
       <section className="relative bg-pepe py-4">
         <div className="relative flex">
           <div className="flex w-full animate-marquee">
-            <p className="font-medium font-formula text-base leading-none capsize">
+            <p className="flex-shrink-0 font-medium font-formula text-sm leading-none capsize sm:text-base">
               NEWS ALERT! THE DAILY SMOLS HAVE BEEN HACKED BY UNKNOWN GROUP.
             </p>
           </div>
-          <div className="absolute top-0 ml-4 flex w-full animate-marquee2">
-            <p className="font-medium font-formula text-base leading-none capsize">
+          <div className="absolute top-0 ml-48 flex w-full animate-marquee2 sm:ml-4">
+            <p className="flex-shrink-0 font-medium font-formula text-sm leading-none capsize sm:text-base">
               NEWS ALERT! THE DAILY SMOLS HAVE BEEN HACKED BY UNKNOWN GROUP.
             </p>
           </div>
