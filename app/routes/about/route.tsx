@@ -5,29 +5,42 @@ import {
   animate,
   useSpring,
   useMotionValue,
-  AnimatePresence
+  AnimatePresence,
+  useTransform
 } from "framer-motion";
-import type { HTMLAttributes } from "react";
+import type { CSSProperties, HTMLAttributes } from "react";
 import { useEffect, useRef, useState } from "react";
 import { AnimationContainer } from "~/components/AnimationContainer";
 import { Header } from "~/components/Header";
 import { MotionIcon, Icon } from "~/components/Icons";
-import NewspaperImg from "~/assets/newspaper.png";
-import HammerImg from "~/assets/hammer.png";
-import GameCoverBgImg from "~/assets/graphic.png";
-import SmolBrainsTextImg from "~/assets/Text.png";
+import NewspaperImg from "./assets/newspaper.png";
+import HammerImg from "./assets/hammer.png";
+import GameCoverBgImg from "./assets/graphic.png";
+import SmolBrainsTextImg from "./assets/Text.png";
 import type { LinksFunction } from "@remix-run/node";
 import stylesheet from "atropos/atropos.min.css";
 import Atropos from "atropos/react";
 import { cn } from "~/utils";
 
 // Smol Document Assets
-import SmolBgImg from "~/assets/smol-brain/BG.png";
-import EEEImg from "~/assets/smol-brain/EEE.png";
-import LogoImg from "~/assets/smol-brain/Logo.png";
-import ShadowImg from "~/assets/smol-brain/Shadow.png";
-import SmolImg from "~/assets/smol-brain/Smol.png";
-import TreasureTagImg from "~/assets/smol-brain/TreasureTag.png";
+import SmolBgImg from "./assets/smol-brain/BG.png";
+import EEEImg from "./assets/smol-brain/EEE.png";
+import LogoImg from "./assets/smol-brain/Logo.png";
+import SmolImg from "./assets/smol-brain/Smol.png";
+import TreasureTagImg from "./assets/smol-brain/TreasureTag.png";
+
+import Meme1 from "./assets/meme1.avif";
+import Meme1Fallback from "./assets/meme1.png";
+import Planet1 from "./assets/Planet_1.png";
+import Planet2 from "./assets/Planet_2.png";
+import Planet3 from "./assets/Planet_3.png";
+import DarkBrightDesktop from "./assets/Desktop.png";
+import Wire from "./assets/Wire.png";
+import Vector from "./assets/Vector.png";
+import Shadow from "./assets/Shadow.png";
+import DarkbrightSmol from "./assets/Smol.png";
+
+import { DraggableWindow } from "~/components/DraggableWindow";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet }
@@ -44,6 +57,18 @@ const animationProps = {
       repeatType: "reverse"
     }
   }
+};
+
+const useIsSafari = () => {
+  const [isSafari, setIsSafari] = useState(false);
+
+  useEffect(() => {
+    const userAgent = window.navigator.userAgent;
+    const isSafariBrowser = /^((?!chrome|android).)*safari/i.test(userAgent);
+    setIsSafari(isSafariBrowser);
+  }, []);
+
+  return isSafari;
 };
 
 const AnimatedSticker = () => {
@@ -199,6 +224,7 @@ const Document = ({ i }: { i: number }) => {
           <img
             className="h-full w-full [transform:scaleX(-1)]"
             src={GameCoverBgImg}
+            alt="game cover"
           ></img>
         </div>
         <Atropos
@@ -254,7 +280,7 @@ const AtroposImg = ({
 const SmolXDarkbright = () => {
   const [shakeCount, setShakeCount] = useState(0);
   const [scope, _animate] = useAnimate();
-  // fast shaking and gradually slow down
+  const parentRef = useRef<HTMLDivElement | null>(null);
   const x = useSpring(0, {
     stiffness: 5000,
     damping: 500,
@@ -263,7 +289,21 @@ const SmolXDarkbright = () => {
   const z = useMotionValue(10);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const [leave, setLeave] = useState(false);
+  const [leave, setLeave] = useState(true);
+  const [unplug, setUnplug] = useState(false);
+
+  // need this because safari doesn't support animated avif
+  const isSafari = useIsSafari();
+
+  const grayscale = useSpring(0, {
+    stiffness: 20,
+    damping: 20
+  });
+
+  const maskedPercent = useTransform(() => 100 - grayscale.get());
+
+  const animatedMaskedImage = useMotionTemplate`linear-gradient(black, transparent ${maskedPercent}%)`;
+  const animatedFilter = useMotionTemplate`grayscale(${grayscale}%)`;
 
   useEffect(() => {
     animate(
@@ -280,33 +320,36 @@ const SmolXDarkbright = () => {
     let delayForSecondAnimation = -0.75;
 
     animate(z, 0, {
-      delay: 0.55
+      delay: 0.3
     });
 
-    (async () => {
-      await _animate([
-        [
-          scope.current,
-          { y: ["-100%", "-50%"] },
-          { duration: 1, ease: "easeInOut" }
-        ],
-        [
-          scope.current,
-          {
-            scale: [0.25, 1],
-            y: ["-50%", "0%"]
-          },
-          { duration: 1, ease: "easeInOut", delay: delayForSecondAnimation }
-        ]
-      ]);
-    })();
+    _animate([
+      [scope.current, { opacity: 1 }],
+      [
+        scope.current,
+        { y: ["-150%", "-110%"] },
+        { duration: 1, ease: "easeInOut" }
+      ],
+      [
+        scope.current,
+        {
+          scale: [0.25, 1],
+          y: ["-110%", "-60%"]
+        },
+        { duration: 1, ease: "easeInOut", delay: delayForSecondAnimation }
+      ]
+    ]);
   }, [_animate, scope, shakeCount, z]);
-
-  console.log(leave);
 
   return (
     <section
-      className="relative bg-[url(/img/pattern.png)] bg-cover bg-no-repeat"
+      ref={parentRef}
+      style={
+        {
+          "--mask-image-url": `url(/img/crack${shakeCount}.svg)`
+        } as CSSProperties
+      }
+      className="relative min-h-[50rem] overflow-hidden"
       onMouseMove={({ currentTarget, clientX, clientY }) => {
         const { left, top } = currentTarget.getBoundingClientRect();
         mouseX.set(clientX - left - 40);
@@ -317,100 +360,154 @@ const SmolXDarkbright = () => {
         setLeave(true);
       }}
     >
-      <AnimatePresence>
-        {shakeCount !== 3 && !leave ? (
-          <motion.img
-            transition={{
-              type: "spring",
-              mass: 0.6,
-              duration: 1
-            }}
-            style={{
-              x: mouseX,
-              y: mouseY,
-              position: "absolute",
-              pointerEvents: "none",
-              zIndex: 9999
-            }}
-            animate={{
-              rotate: [0, 50],
-              transition: {
-                duration: 0.5,
-                repeat: Infinity,
-                repeatType: "reverse",
-                ease: "easeOut"
-              }
-            }}
-            exit={{
-              opacity: 0,
-              scale: 0
-            }}
-            src={HammerImg}
-            alt="hammer"
-            className="aspect-square h-auto w-12"
-          />
-        ) : null}
-      </AnimatePresence>
-      <motion.button
-        style={{ x, zIndex: z }}
-        onClick={() => {
-          if (shakeCount < 3) setShakeCount(shakeCount + 1);
-        }}
-        className="absolute -inset-x-12 inset-y-0 bg-troll/95 [mask-composite:exclude] [mask-image:url(/img/crack.png),linear-gradient(#fff_0_0)] [mask-position:50%_25%] [mask-repeat:no-repeat]"
-      >
-        <span className="sr-only">Toggle shake animation</span>
-      </motion.button>
-      <motion.img
+      <motion.div
         style={{
-          x: "-50%",
-          y: "-100%",
-          scale: 0.25
+          filter: animatedFilter
         }}
-        src={SmolBrainsTextImg}
-        ref={scope}
-        className="absolute left-1/2 top-1/2 h-48"
-        alt=""
-      />
-      <div className="pointer-events-none relative z-30">
-        <div>test</div>
-        <div>test</div>
+        className="h-full bg-[url(/img/pattern.png)] bg-cover bg-no-repeat"
+      >
+        <DraggableWindow parentRef={parentRef} className="right-24 top-2">
+          <img
+            src={isSafari ? Meme1Fallback : Meme1}
+            className="aspect-square h-48 w-full"
+            alt=""
+          />
+        </DraggableWindow>
+        <DraggableWindow parentRef={parentRef} className="bottom-2 left-2">
+          <img src={Planet1} className="aspect-square h-48 w-full" alt="" />
+        </DraggableWindow>
+        <DraggableWindow parentRef={parentRef} className="left-24 top-2">
+          <img src={Planet2} className="aspect-square h-48 w-full" alt="" />
+        </DraggableWindow>
+        <DraggableWindow parentRef={parentRef} className="bottom-16 right-2">
+          <img src={Planet3} className="aspect-square h-48 w-full" alt="" />
+        </DraggableWindow>
+        <AnimatePresence>
+          {shakeCount !== 3 && !leave ? (
+            <motion.img
+              transition={{
+                type: "spring",
+                mass: 0.6,
+                duration: 1
+              }}
+              initial={{
+                scale: 1
+              }}
+              style={{
+                x: mouseX,
+                y: mouseY,
+                position: "absolute",
+                pointerEvents: "none",
+                zIndex: 9999
+              }}
+              animate={{
+                rotate: [0, 50],
+                transition: {
+                  duration: 0.5,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  ease: "easeOut"
+                }
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0
+              }}
+              src={HammerImg}
+              alt="hammer"
+              className="aspect-square h-auto w-12"
+            />
+          ) : null}
+        </AnimatePresence>
+        <motion.button
+          style={{
+            x,
+            zIndex: z
+          }}
+          onClick={() => {
+            if (shakeCount < 3) setShakeCount(shakeCount + 1);
+          }}
+          className="absolute -inset-x-12 inset-y-0 bg-troll/95 [mask-composite:exclude] [mask-image:var(--mask-image-url),linear-gradient(#fff_0_0)] [mask-position:50%_30%] [mask-repeat:no-repeat]"
+        >
+          <span className="sr-only">Toggle shake animation</span>
+        </motion.button>
+        <motion.img
+          style={{
+            x: "-50%",
+            y: "-100%",
+            scale: 0.25,
+            opacity: 0
+          }}
+          src={SmolBrainsTextImg}
+          ref={scope}
+          className="absolute left-1/2 top-1/2 h-48"
+          alt=""
+        />
+        <img
+          src={DarkbrightSmol}
+          alt="smol"
+          className="absolute bottom-12 left-1/2 z-40 translate-x-[60%]"
+        />
+        <motion.div
+          style={{
+            maskImage: animatedMaskedImage,
+            WebkitMaskImage: animatedMaskedImage
+          }}
+          className="absolute -bottom-6 left-1/2 z-30 h-36 w-36 select-none rounded-full bg-black/50 [transform:translate(35%,0)_rotateX(75deg)]"
+        />
+        <img
+          src={Vector}
+          aria-hidden="true"
+          alt="paint splatter"
+          className="absolute left-1/2 top-1/2 h-72 -translate-x-1/2 -translate-y-[60%]"
+        />
 
-        <div>test</div>
+        {/* neon pink light */}
+        <div className="absolute bottom-16 left-1/2 z-20 h-80 w-80 -translate-x-1/2 bg-neonPink [mask-composite:exclude] [-webkit-mask-composite:destination-out] [mask-image:radial-gradient(transparent_10%,#000_70%),linear-gradient(#fff_0_0)]" />
 
-        <div>test</div>
-
-        <div>test</div>
-
-        <div>test</div>
-        <div>test</div>
-
-        <div>test</div>
-
-        <div>test</div>
-
-        <div>test</div>
-
-        <div>test</div>
-        <div>test</div>
-        <div>test</div>
-
-        <div>test</div>
-
-        <div>test</div>
-
-        <div>test</div>
-
-        <div>test</div>
-        <div>test</div>
-
-        <div>test</div>
-
-        <div>test</div>
-
-        <div>test</div>
-
-        <div>test</div>
-      </div>
+        <img
+          src={DarkBrightDesktop}
+          alt="darkbright desktop"
+          className="absolute bottom-20 left-1/2 z-30 -translate-x-1/2"
+        />
+        <motion.img
+          style={{
+            maskImage: animatedMaskedImage,
+            WebkitMaskImage: animatedMaskedImage
+          }}
+          src={Shadow}
+          className="absolute -bottom-6 
+          left-1/2
+          z-30 -translate-x-1/2 [mask-image:linear-gradient(black,transparent_80%)]"
+          alt="Shadow"
+        />
+        <motion.div
+          initial={false}
+          animate={{
+            bottom: "-3.5rem",
+            x: "-80%",
+            y: unplug ? "2.5rem" : "0rem"
+          }}
+          className="absolute left-1/2 z-30 -translate-x-1/2"
+        >
+          <img src={Wire} alt="wire" />
+          <button
+            className="absolute inset-0 h-full w-full"
+            onClick={() =>
+              setUnplug((u) => {
+                if (u) {
+                  grayscale.set(0);
+                } else {
+                  grayscale.set(100);
+                }
+                return !u;
+              })
+            }
+          >
+            <span className="sr-only">Toggle plug animation</span>
+          </button>
+        </motion.div>
+      </motion.div>
     </section>
   );
 };
@@ -446,12 +543,12 @@ export default function About() {
       </section>
       <section className="relative bg-pepe py-4">
         <div className="relative flex">
-          <div className="animate-marquee flex w-full">
+          <div className="flex w-full animate-marquee">
             <p className="font-medium font-formula text-base leading-none capsize">
               NEWS ALERT! THE DAILY SMOLS HAVE BEEN HACKED BY UNKNOWN GROUP.
             </p>
           </div>
-          <div className="animate-marquee2 absolute top-0 ml-4 flex w-full">
+          <div className="absolute top-0 ml-4 flex w-full animate-marquee2">
             <p className="font-medium font-formula text-base leading-none capsize">
               NEWS ALERT! THE DAILY SMOLS HAVE BEEN HACKED BY UNKNOWN GROUP.
             </p>
