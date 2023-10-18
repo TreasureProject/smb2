@@ -47,12 +47,26 @@ export default {
           lineGap: 24,
           unitsPerEm: 2048
         },
+        mono: {
+          capHeight: 1024,
+          ascent: 1390,
+          descent: 332,
+          lineGap: 24,
+          unitsPerEm: 2048
+        },
         formula: {
           capHeight: 826,
           ascent: 906,
           descent: 306,
           lineGap: 24,
           unitsPerEm: 1000
+        },
+        mondwest: {
+          capHeight: 1310,
+          ascent: 1884,
+          descent: 532,
+          lineGap: 24,
+          unitsPerEm: 2048
         }
       },
 

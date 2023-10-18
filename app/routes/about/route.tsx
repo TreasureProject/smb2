@@ -40,6 +40,8 @@ import Vector from "./assets/Vector.png";
 import Shadow from "./assets/Shadow.png";
 import DarkbrightSmol from "./assets/Smol.png";
 
+import TwerkSmol from "./assets/twerkSmol.png";
+
 import { DraggableWindow } from "~/components/DraggableWindow";
 import { useResponsive } from "~/res-context";
 
@@ -529,6 +531,154 @@ const SmolXDarkbright = () => {
   );
 };
 
+const WhatTheFuck = () => {
+  return (
+    <section className="relative">
+      <div className="grid grid-cols-1 xl:grid-cols-2">
+        <div className="bg-rage py-24">
+          <div className="mx-auto flex w-max flex-col space-y-6 pr-20">
+            <p className="rotate-3 pl-16 font-bold text-white font-mondwest text-7xl leading-none capsize">
+              what the
+            </p>
+            <p className="relative rotate-3 pl-48 font-bold text-pepe font-mondwest text-7xl leading-none capsize">
+              <Icon
+                name="fuck"
+                className="absolute -bottom-6 left-2 -m-3 h-28 w-48 -rotate-3 bg-[url(/img/Splat.png)] bg-center bg-no-repeat p-3  [background-size:130%]"
+              />
+              is a
+            </p>
+            <p className="relative text-pepe font-sans text-[20rem] leading-none capsize">
+              <Icon
+                name="exclamationMark"
+                className="absolute -right-24 top-12 h-20 w-12"
+              />
+              <Icon
+                name="questionMark"
+                className="absolute -right-20 -top-16 w-16"
+              />
+              <img
+                src={TwerkSmol}
+                className="absolute -right-24 bottom-0 h-auto w-40"
+                alt="smol twerking"
+              />
+              HUMAN
+            </p>
+          </div>
+        </div>
+        <div className="bg-pepe">
+          <WhatTheFuckScrollSection />
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const messages = [
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+];
+
+const WhatTheFuckScrollSection = () => {
+  let [activeIndex, setActiveIndex] = useState(0);
+  let slideContainerRef = useRef<HTMLDivElement | null>(null);
+  let slideRefs = useRef<HTMLDivElement[]>([]);
+
+  useEffect(() => {
+    let observer = new window.IntersectionObserver(
+      (entries) => {
+        for (let entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveIndex(
+              slideRefs.current.indexOf(entry.target as HTMLDivElement)
+            );
+            break;
+          }
+        }
+      },
+      {
+        root: slideContainerRef.current,
+        threshold: 0.6
+      }
+    );
+
+    for (let slide of slideRefs.current) {
+      if (slide) {
+        observer.observe(slide);
+      }
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [slideContainerRef, slideRefs]);
+  return (
+    <div className="flex h-full flex-col p-16">
+      <div
+        ref={slideContainerRef}
+        className="-mb-4 flex flex-1 snap-x snap-mandatory -space-x-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-4 [scrollbar-width:none] sm:-space-x-6 [&::-webkit-scrollbar]:hidden"
+      >
+        {messages.map((message, messageIndex) => (
+          <div
+            key={messageIndex}
+            ref={(ref) => ref && (slideRefs.current[messageIndex] = ref)}
+            className="w-full flex-none snap-center px-4 sm:px-6"
+          >
+            <p className="font-bold font-mono text-4xl leading-none capsize">
+              {message}
+            </p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-6 flex items-center justify-between gap-3">
+        <p className="font-lazer text-4xl">
+          {activeIndex + 1}/{messages.length}
+        </p>
+        <div className="flex gap-4">
+          <button
+            onClick={() => {
+              if (activeIndex === 0) return;
+
+              slideRefs.current[activeIndex - 1].scrollIntoView({
+                block: "nearest",
+                inline: "nearest"
+              });
+            }}
+            className="bg-black p-2"
+          >
+            <span className="sr-only">go to slide {activeIndex - 1}</span>
+            <Icon
+              name="left-arrow"
+              className="h-6 w-6 text-pepe sm:h-9 sm:w-9"
+            />
+          </button>
+          <button
+            onClick={() => {
+              const ref = slideRefs.current[activeIndex + 1];
+
+              if (!ref) return;
+
+              ref.scrollIntoView({
+                block: "nearest",
+                inline: "nearest"
+              });
+            }}
+            className="bg-black p-2"
+          >
+            <span className="sr-only">go to slide {activeIndex + 1}</span>
+            <Icon
+              name="left-arrow"
+              className="h-6 w-6 rotate-180 text-pepe sm:h-9 sm:w-9"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function About() {
   return (
     <AnimationContainer className="flex flex-col overflow-x-hidden">
@@ -573,6 +723,7 @@ export default function About() {
         </div>
       </section>
       <Documents />
+      <WhatTheFuck />
       <SmolXDarkbright />
     </AnimationContainer>
   );
