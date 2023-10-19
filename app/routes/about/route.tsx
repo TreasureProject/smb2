@@ -822,7 +822,7 @@ export default function About() {
       </section>
       <footer
         aria-labelledby="footer-heading"
-        className="relative overflow-hidden bg-[linear-gradient(90deg,#7237E3,#1938F2_25%)] px-4 py-6"
+        className="relative overflow-hidden bg-[linear-gradient(90deg,#7237E3,#1938F2_25%)] px-4 pb-4 pt-8"
       >
         <h2 id="footer-heading" className="sr-only">
           Footer
