@@ -322,6 +322,7 @@ const Document = ({ i }: { i: number }) => {
         </div>
         <Atropos
           shadowScale={0.85}
+          innerClassName="shadow-[0px_10px_10px_5px_rgba(0,0,0,0.1)]"
           className="relative h-full w-full flex-none snap-start pl-8 [backface-visibility:hidden]"
         >
           <img src={SmolBgImg} alt="" />
