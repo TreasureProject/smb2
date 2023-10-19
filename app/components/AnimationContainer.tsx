@@ -14,10 +14,10 @@ export const AnimationContainer = forwardRef<
     <motion.div
       ref={ref}
       style={{
-        zIndex: 10,
-        position: "absolute",
-        inset: 0,
-        transform: "translate3d(0, 0, 0)",
+        // zIndex: 10,
+        // position: "absolute",
+        // inset: 0,
+        // transform: "translate3d(0, 0, 0)",
         ...props.style
       }}
       initial={{
@@ -25,12 +25,12 @@ export const AnimationContainer = forwardRef<
         opacity: 0,
         transformOrigin: state?.transformOrigin || "50% 50%"
       }}
-      animate={{ scale: 1, left: 0, top: 0, opacity: 1 }}
+      animate={{ scale: 1, opacity: 1 }}
       exit={{
         opacity: 0,
         scale: 0
       }}
-      className={cn("h-full", props.className)}
+      className={cn("min-h-full", props.className)}
     >
       {props.children}
     </motion.div>
