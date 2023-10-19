@@ -796,7 +796,7 @@ export default function About() {
           </div>
         </div>
       </section>
-      <section className="relative bg-pepe py-4">
+      <section className="relative z-10 bg-pepe py-4 shadow-[0px_6px_0px_0px_rgba(0,0,0,0.25)]">
         <div className="relative flex">
           <div className="flex w-full animate-marquee">
             <p className="flex-shrink-0 font-medium font-formula text-sm leading-none capsize sm:text-base">
