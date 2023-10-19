@@ -822,7 +822,7 @@ export default function About() {
       </section>
       <footer
         aria-labelledby="footer-heading"
-        className="relative overflow-hidden bg-[linear-gradient(90deg,#7237E3,#1938F2_25%)] px-4 pt-6"
+        className="relative overflow-hidden bg-[linear-gradient(90deg,#7237E3,#1938F2_25%)] px-4 py-6"
       >
         <h2 id="footer-heading" className="sr-only">
           Footer
@@ -841,7 +841,7 @@ export default function About() {
           ))}
         </div>
         {/* SMOLSMOL pattern */}
-        <div className="absolute inset-x-0 -bottom-4 h-10" aria-hidden="true">
+        <div className="absolute inset-x-0 bottom-0 h-10" aria-hidden="true">
           <Icon name="SMOLSMOL" className="h-full w-full" />
         </div>
         <div className="xl:grid xl:grid-cols-6">
@@ -921,7 +921,7 @@ export default function About() {
           </div>
         </div>
 
-        <div className="mb-8 mt-6 flex items-center justify-between bg-acid p-4">
+        <div className="relative z-10 mt-6 flex items-center justify-between bg-acid p-4">
           <p className="mt-0 font-bold font-mono text-base leading-5 capsize md:text-2xl">
             SMOL © 2021-2023 Treasure
           </p>
