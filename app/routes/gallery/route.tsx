@@ -87,8 +87,7 @@ const FiveColumns = ({
   y,
   x,
   parentHeight,
-  openModal,
-  boxHeight
+  openModal
 }: {
   apps: TroveSmolToken[];
   width: number;
@@ -96,13 +95,12 @@ const FiveColumns = ({
   x: MotionValue<number>;
   parentHeight: number;
   openModal: (id: string) => void;
-  boxHeight: number;
 }) => {
   return (
     <div
       style={
         {
-          "--size": `${boxHeight}px`
+          "--size": `${BOX_HEIGHT}px`
         } as CSSProperties
       }
       className="grid grid-cols-[repeat(4,100px)] grid-rows-[100px] place-content-center gap-10 sm:grid-cols-[repeat(6,var(--size))] sm:grid-rows-[var(--size)] sm:gap-12"
@@ -116,7 +114,6 @@ const FiveColumns = ({
           width={width}
           y={y}
           openModal={openModal}
-          boxHeight={boxHeight}
         />
       ))}
     </div>
@@ -129,8 +126,7 @@ const SevenColumns = ({
   y,
   x,
   parentHeight,
-  openModal,
-  boxHeight
+  openModal
 }: {
   apps: TroveSmolToken[];
   width: number;
@@ -138,13 +134,12 @@ const SevenColumns = ({
   x: MotionValue<number>;
   parentHeight: number;
   openModal: (id: string) => void;
-  boxHeight: number;
 }) => {
   return (
     <div
       style={
         {
-          "--size": `${boxHeight}px`
+          "--size": `${BOX_HEIGHT}px`
         } as CSSProperties
       }
       className="grid grid-cols-[repeat(5,100px)] grid-rows-[100px] place-content-center gap-10 sm:grid-cols-[repeat(7,var(--size))] sm:grid-rows-[var(--size)] sm:gap-12"
@@ -158,7 +153,6 @@ const SevenColumns = ({
           width={width}
           y={y}
           openModal={openModal}
-          boxHeight={boxHeight}
         />
       ))}
     </div>
@@ -171,8 +165,7 @@ const Item = ({
   y,
   x,
   parentHeight,
-  openModal,
-  boxHeight
+  openModal
 }: {
   app: TroveSmolToken;
   width: number;
@@ -180,7 +173,6 @@ const Item = ({
   x: MotionValue<number>;
   parentHeight: number;
   openModal: (id: string) => void;
-  boxHeight: number;
 }) => {
   const [ref, attachRef] = useCallbackRef<HTMLDivElement>();
   const d = useTransform(() => {
@@ -188,7 +180,7 @@ const Item = ({
     const offsetRelative = parentHeight - top - parentHeight / 2;
     return distance(
       {
-        x: (ref?.offsetLeft ?? 0) + x.get() + boxHeight / 2,
+        x: (ref?.offsetLeft ?? 0) + x.get() + BOX_HEIGHT / 2,
         y: offsetRelative
       },
       {
@@ -328,7 +320,6 @@ const GalleryInner = ({
         {data &&
           splitApps(data, isMobile).map((apps) => {
             const length = isMobile ? 5 : 7;
-            const boxHeight = isMobile ? BOX_HEIGHT / 2 : BOX_HEIGHT;
             if (apps.length === length) {
               return (
                 <SevenColumns
@@ -339,7 +330,6 @@ const GalleryInner = ({
                   x={x}
                   parentHeight={parentHeight}
                   openModal={triggerModal}
-                  boxHeight={boxHeight}
                 />
               );
             } else {
@@ -352,7 +342,6 @@ const GalleryInner = ({
                   x={x}
                   parentHeight={parentHeight}
                   openModal={triggerModal}
-                  boxHeight={boxHeight}
                 />
               );
             }

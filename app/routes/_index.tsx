@@ -1,15 +1,11 @@
 import type { MetaFunction } from "@remix-run/node";
-import type { MotionValue } from "framer-motion";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import React, { useRef } from "react";
+import React from "react";
 import { getTransformOrigin } from "~/utils";
 import { Box } from "~/components/Box";
 import TestImg from "../assets/test.webp";
 import TestTwoImg from "../assets/test2.webp";
-import { Link } from "@remix-run/react";
-import { Icon } from "~/components/Icons";
 
-const MotionLink = motion(Link);
+// const MotionLink = motion(Link);
 
 export const meta: MetaFunction = () => {
   return [
@@ -18,48 +14,48 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-function Dock() {
-  let mouseX = useMotionValue(Infinity);
+// function Dock() {
+//   let mouseX = useMotionValue(Infinity);
 
-  return (
-    <Box
-      onMouseMove={(e) => mouseX.set(e.pageX)}
-      onMouseLeave={() => mouseX.set(Infinity)}
-      className="mx-auto flex h-28 items-end gap-4 overflow-visible bg-neonPink px-6 pb-7"
-    >
-      {[...Array(8).keys()].map((i) => (
-        <AppIcon mouseX={mouseX} key={i} />
-      ))}
-    </Box>
-  );
-}
+//   return (
+//     <Box
+//       onMouseMove={(e) => mouseX.set(e.pageX)}
+//       onMouseLeave={() => mouseX.set(Infinity)}
+//       className="mx-auto flex h-28 items-end gap-4 overflow-visible bg-neonPink px-6 pb-7"
+//     >
+//       {[...Array(8).keys()].map((i) => (
+//         <AppIcon mouseX={mouseX} key={i} />
+//       ))}
+//     </Box>
+//   );
+// }
 
-function AppIcon({ mouseX }: { mouseX: MotionValue }) {
-  let ref = useRef<HTMLImageElement>(null);
+// function AppIcon({ mouseX }: { mouseX: MotionValue }) {
+//   let ref = useRef<HTMLImageElement>(null);
 
-  let distance = useTransform(mouseX, (val) => {
-    let bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
+//   let distance = useTransform(mouseX, (val) => {
+//     let bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
 
-    return val - bounds.x - bounds.width / 2;
-  });
+//     return val - bounds.x - bounds.width / 2;
+//   });
 
-  let widthSync = useTransform(distance, [-150, 0, 150], [64, 112, 64]);
-  let width = useSpring(widthSync, { mass: 0.1, stiffness: 150, damping: 12 });
+//   let widthSync = useTransform(distance, [-150, 0, 150], [64, 112, 64]);
+//   let width = useSpring(widthSync, { mass: 0.1, stiffness: 150, damping: 12 });
 
-  return (
-    <MotionLink
-      ref={ref}
-      to="/smolspace"
-      style={{
-        // @ts-ignore
-        width
-      }}
-      className="relative z-10 aspect-square h-auto w-16"
-    >
-      <img src={TestImg} className="h-full w-full rounded-md bg-neonPink"></img>
-    </MotionLink>
-  );
-}
+//   return (
+//     <MotionLink
+//       ref={ref}
+//       to="/smolspace"
+//       style={{
+//         // @ts-ignore
+//         width
+//       }}
+//       className="relative z-10 aspect-square h-auto w-16"
+//     >
+//       <img src={TestImg} className="h-full w-full rounded-md bg-neonPink"></img>
+//     </MotionLink>
+//   );
+// }
 
 export default function Index() {
   return (
