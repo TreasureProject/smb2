@@ -1,17 +1,17 @@
-import type { V2_MetaFunction } from "@remix-run/node";
+import type { MetaFunction } from "@remix-run/node";
 import type { MotionValue } from "framer-motion";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import React, { useRef } from "react";
 import { getTransformOrigin } from "~/utils";
 import { Box } from "~/components/Box";
-import TestImg from "../assets/test.png";
-import TestTwoImg from "../assets/test2.png";
+import TestImg from "../assets/test.webp";
+import TestTwoImg from "../assets/test2.webp";
 import { Link } from "@remix-run/react";
 import { Icon } from "~/components/Icons";
 
 const MotionLink = motion(Link);
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [
     { title: "New Remix App" },
     { name: "description", content: "Welcome to Remix!" }
@@ -85,58 +85,59 @@ export default function Index() {
           </filter>
         </defs>
       </svg>
-      <div className="relative flex h-full flex-col">
-        <div className="relative mx-auto flex h-full max-w-7xl flex-1 items-center gap-12">
-          <div className="grid grid-cols-[repeat(7,100px)] grid-rows-4 gap-8 grid-areas-widgets">
-            <Box
-              as="link"
-              to="/smolspace"
-              state={getTransformOrigin}
-              className="bg-white/10 backdrop-blur-sm grid-in-w1"
-            >
-              <img
-                src={TestImg}
-                alt="test"
-                className="aspect-square h-full w-full opacity-[0.85]"
-              ></img>
-            </Box>
-            <Box
-              as="link"
-              to="/gallery"
-              state={getTransformOrigin}
-              className="bg-white/10 backdrop-blur-sm grid-in-w2"
-            >
-              <img
-                src={TestTwoImg}
-                alt="test"
-                className="aspect-square h-full w-full opacity-[0.85]"
-              ></img>
-            </Box>
-            <Box
-              as="link"
-              to="/news"
-              state={getTransformOrigin}
-              className="bg-acid backdrop-blur-sm grid-in-w3"
-            >
-              <img
-                src={TestTwoImg}
-                alt="test"
-                className="aspect-square h-full w-full opacity-[0.85]"
-              ></img>
-            </Box>
-            <Box
-              as="link"
-              to="/about"
-              state={getTransformOrigin}
-              className="bg-sky-300 grid-in-w4"
-            ></Box>
-            <Box className="bg-purple-300 grid-in-w5"></Box>
-          </div>
-        </div>
-        <div className="mx-auto flex basis-64 items-center">
-          <Dock />
+      <div className="relative mx-auto flex h-full max-w-5xl flex-1 items-center px-8 sm:px-12">
+        <div className="grid gap-8 grid-areas-widgets [grid-auto-columns:1fr] [grid-auto-rows:1fr]">
+          <Box
+            as="link"
+            to="/smolspace"
+            state={getTransformOrigin}
+            className="bg-white/10 backdrop-blur-sm grid-in-w1"
+          >
+            <img
+              src={TestImg}
+              alt="test"
+              className="aspect-square h-full w-full opacity-[0.85]"
+            ></img>
+          </Box>
+          <Box
+            as="link"
+            to="/gallery"
+            state={getTransformOrigin}
+            className="bg-white/10 backdrop-blur-sm grid-in-w2"
+          >
+            <img
+              src={TestTwoImg}
+              alt="test"
+              className="aspect-square h-full w-full opacity-[0.85]"
+            ></img>
+          </Box>
+          <Box
+            as="link"
+            to="/news"
+            state={getTransformOrigin}
+            className="bg-acid backdrop-blur-sm grid-in-w3"
+          >
+            <img
+              src={TestTwoImg}
+              alt="test"
+              className="aspect-square h-full w-full opacity-[0.85]"
+            ></img>
+          </Box>
+          <Box
+            as="link"
+            to="/about"
+            state={getTransformOrigin}
+            className="bg-sky-300 grid-in-w4"
+          ></Box>
+          <Box className="bg-purple-300 grid-in-w5"></Box>
+          <Box className="grid-in-w6 bg-purple-300"></Box>
+          <Box className="grid-in-w7 bg-purple-300"></Box>
+          <Box className="grid-in-w8 bg-purple-300"></Box>
         </div>
       </div>
+      {/* <div className="mx-auto flex basis-64 items-center">
+          <Dock />
+        </div> */}
     </>
   );
 }

@@ -22,7 +22,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import stylesheet from "~/tailwind.css";
 import usePartySocket from "partysocket/react";
-import peeImg from "~/assets/pee.png";
+import peeImg from "~/assets/pee.webp";
 import { cn, getPublicKeys } from "./utils";
 import { useDrag } from "@use-gesture/react";
 import { interpolate } from "popmotion";
@@ -120,8 +120,6 @@ export default function App() {
 
   useDrag(
     ({ event, down, movement: [, my] }) => {
-      event.preventDefault();
-
       if (my > 0 || !introRef.current) return;
       const isAboveCenter =
         my + introRef.current?.getBoundingClientRect().height / 2 < 0;
@@ -469,9 +467,9 @@ export default function App() {
                     <span className="absolute -top-12 rotate-[355deg] select-none text-pepe font-oakley text-2xl sm:text-3xl">
                       WELCOME BACK
                     </span>
-                    <p className="select-none font-sans text-[20rem] leading-none capsize sm:text-[32rem]">
+                    <span className="select-none font-sans text-[20rem] leading-none capsize sm:text-[32rem]">
                       SMOL
-                    </p>
+                    </span>
                   </p>
                   <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
                     <Icon

@@ -13,40 +13,41 @@ import { useEffect, useRef, useState } from "react";
 import { AnimationContainer } from "~/components/AnimationContainer";
 import { Header } from "~/components/Header";
 import { MotionIcon, Icon } from "~/components/Icons";
-import NewspaperImg from "./assets/newspaper.png";
-import HammerImg from "./assets/hammer.png";
-import GameCoverBgImg from "./assets/graphic.png";
-import SmolBrainsTextImg from "./assets/Text.png";
+import NewspaperImg from "./assets/newspaper.webp";
+import HammerImg from "./assets/hammer.webp";
+import GameCoverBgImg from "./assets/graphic.webp";
+import SmolBrainsTextImg from "./assets/Text.webp";
 import type { LinksFunction } from "@remix-run/node";
 import stylesheet from "atropos/atropos.min.css";
 import Atropos from "atropos/react";
 import { cn } from "~/utils";
 
 // Smol Document Assets
-import SmolBgImg from "./assets/smol-brain/BG.png";
-import EEEImg from "./assets/smol-brain/EEE.png";
-import LogoImg from "./assets/smol-brain/Logo.png";
-import SmolImg from "./assets/smol-brain/Smol.png";
-import TreasureTagImg from "./assets/smol-brain/TreasureTag.png";
+import SmolBgImg from "./assets/smol-brain/BG.webp";
+import EEEImg from "./assets/smol-brain/EEE.webp";
+import LogoImg from "./assets/smol-brain/Logo.webp";
+import SmolImg from "./assets/smol-brain/Smol.webp";
+import TreasureTagImg from "./assets/smol-brain/TreasureTag.webp";
 
 import Meme1 from "./assets/meme1.avif";
-import Meme1Fallback from "./assets/meme1.png";
-import Planet1 from "./assets/Planet_1.png";
-import Planet2 from "./assets/Planet_2.png";
-import Planet3 from "./assets/Planet_3.png";
-import DarkBrightDesktop from "./assets/Desktop.png";
-import Wire from "./assets/Wire.png";
-import Vector from "./assets/Vector.png";
-import Shadow from "./assets/Shadow.png";
-import DarkbrightSmol from "./assets/Smol.png";
-import Tag from "./assets/Tag.png";
+import Meme1Fallback from "./assets/meme1.webp";
+import Planet1 from "./assets/Planet_1.webp";
+import Planet2 from "./assets/Planet_2.webp";
+import Planet3 from "./assets/Planet_3.webp";
+import DarkBrightDesktop from "./assets/Desktop.webp";
+import Wire from "./assets/Wire.webp";
+import Vector from "./assets/Vector.webp";
+import Shadow from "./assets/Shadow.webp";
+import DarkbrightSmol from "./assets/Smol.webp";
+import Tag from "./assets/Tag.webp";
 
-import peeImg from "~/assets/pee.png";
+import peeImg from "~/assets/pee.webp";
 
-import TwerkSmol from "./assets/twerkSmol.png";
+import TwerkSmol from "./assets/twerkSmol.webp";
 
 import { DraggableWindow } from "~/components/DraggableWindow";
 import { useResponsive } from "~/res-context";
+import { Shine } from "~/components/Shine";
 
 const navigation = {
   collections: [
@@ -185,6 +186,7 @@ const AnimatedSticker = () => {
             name="smol-smoke"
             className="h-24 w-auto select-none contrast-0 sm:h-auto"
           />
+
           <MotionIcon
             {...animationProps}
             name="smol-smoke"
@@ -458,7 +460,7 @@ const SmolXDarkbright = () => {
         style={{
           filter: animatedFilter
         }}
-        className="h-full bg-[url(/img/pattern.png)] bg-cover bg-no-repeat"
+        className="h-full bg-[url(/img/pattern.webp)] bg-cover bg-no-repeat"
       >
         <DraggableWindow parentRef={parentRef} className="right-24 top-2">
           <img
@@ -632,7 +634,7 @@ const WhatTheFuck = () => {
             <p className="relative rotate-3 pl-48 font-bold text-pepe font-mondwest text-7xl leading-none capsize">
               <Icon
                 name="fuck"
-                className="absolute -bottom-6 left-2 -m-3 h-28 w-48 -rotate-3 bg-[url(/img/Splat.png)] bg-center bg-no-repeat p-3  [background-size:130%]"
+                className="absolute -bottom-6 left-2 -m-3 h-28 w-48 -rotate-3 bg-[url(/img/splat.webp)] bg-center bg-no-repeat p-3  [background-size:130%]"
               />
               is a
             </p>
@@ -645,11 +647,17 @@ const WhatTheFuck = () => {
                 name="question-mark"
                 className="absolute -right-20 -top-16 w-16"
               />
-              <img
-                src={TwerkSmol}
-                className="absolute -right-24 bottom-0 h-auto w-40"
-                alt="smol twerking"
-              />
+              <Shine
+                puffyness="3"
+                lightColor="#95F22A"
+                className="absolute -right-24 bottom-0"
+              >
+                <img
+                  src={TwerkSmol}
+                  className="h-auto w-40"
+                  alt="smol twerking"
+                />
+              </Shine>
               HUMAN
             </p>
           </div>
