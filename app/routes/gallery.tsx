@@ -118,6 +118,12 @@ const FiveColumns = memo(
         ))}
       </div>
     );
+  },
+  (prev, next) => {
+    const prevApps = prev.apps.map((d) => d.tokenId).join(",");
+    const nextApps = next.apps.map((d) => d.tokenId).join(",");
+
+    return prevApps === nextApps;
   }
 );
 
@@ -159,6 +165,12 @@ const SevenColumns = memo(
         ))}
       </div>
     );
+  },
+  (prev, next) => {
+    const prevApps = prev.apps.map((d) => d.tokenId).join(",");
+    const nextApps = next.apps.map((d) => d.tokenId).join(",");
+
+    return prevApps === nextApps;
   }
 );
 
