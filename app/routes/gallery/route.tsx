@@ -10,7 +10,7 @@ import {
   useMotionValueEvent
 } from "framer-motion";
 import type { CSSProperties } from "react";
-import { memo, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { distance } from "@popmotion/popcorn";
 import type { TroveSmolToken } from "~/api";
 import { fetchSmols } from "~/api";
@@ -81,99 +81,89 @@ function useCallbackRef<TValue = unknown>(): [
   return useState<TValue | null>(null);
 }
 
-const FiveColumns = memo(
-  ({
-    apps,
-    width,
-    y,
-    x,
-    parentHeight,
-    openModal
-  }: {
-    apps: TroveSmolToken[];
-    width: number;
-    y: MotionValue<number>;
-    x: MotionValue<number>;
-    parentHeight: number;
-    openModal: (id: string) => void;
-  }) => {
-    return (
-      <div
-        style={
-          {
-            "--size": `${BOX_HEIGHT}px`
-          } as CSSProperties
-        }
-        className="grid grid-cols-[repeat(4,100px)] grid-rows-[100px] place-content-center gap-10 sm:grid-cols-[repeat(6,var(--size))] sm:grid-rows-[var(--size)] sm:gap-12"
-      >
-        {apps.map((app) => (
-          <Item
-            parentHeight={parentHeight}
-            x={x}
-            key={app.tokenId}
-            app={app}
-            width={width}
-            y={y}
-            openModal={openModal}
-          />
-        ))}
-      </div>
-    );
-  },
-  (prev, next) => {
-    const prevApps = prev.apps.map((d) => d.tokenId).join(",");
-    const nextApps = next.apps.map((d) => d.tokenId).join(",");
+const FiveColumns = ({
+  apps,
+  width,
+  y,
+  x,
+  parentHeight,
+  openModal,
+  boxHeight
+}: {
+  apps: TroveSmolToken[];
+  width: number;
+  y: MotionValue<number>;
+  x: MotionValue<number>;
+  parentHeight: number;
+  openModal: (id: string) => void;
+  boxHeight: number;
+}) => {
+  return (
+    <div
+      style={
+        {
+          "--size": `${boxHeight}px`
+        } as CSSProperties
+      }
+      className="grid grid-cols-[repeat(4,100px)] grid-rows-[100px] place-content-center gap-10 sm:grid-cols-[repeat(6,var(--size))] sm:grid-rows-[var(--size)] sm:gap-12"
+    >
+      {apps.map((app) => (
+        <Item
+          parentHeight={parentHeight}
+          x={x}
+          key={app.tokenId}
+          app={app}
+          width={width}
+          y={y}
+          openModal={openModal}
+          boxHeight={boxHeight}
+        />
+      ))}
+    </div>
+  );
+};
 
-    return prevApps === nextApps;
-  }
-);
-
-const SevenColumns = memo(
-  ({
-    apps,
-    width,
-    y,
-    x,
-    parentHeight,
-    openModal
-  }: {
-    apps: TroveSmolToken[];
-    width: number;
-    y: MotionValue<number>;
-    x: MotionValue<number>;
-    parentHeight: number;
-    openModal: (id: string) => void;
-  }) => {
-    return (
-      <div
-        style={
-          {
-            "--size": `${BOX_HEIGHT}px`
-          } as CSSProperties
-        }
-        className="grid grid-cols-[repeat(5,100px)] grid-rows-[100px] place-content-center gap-10 sm:grid-cols-[repeat(7,var(--size))] sm:grid-rows-[var(--size)] sm:gap-12"
-      >
-        {apps.map((app) => (
-          <Item
-            parentHeight={parentHeight}
-            x={x}
-            key={app.tokenId}
-            app={app}
-            width={width}
-            y={y}
-            openModal={openModal}
-          />
-        ))}
-      </div>
-    );
-  },
-  (prev, next) => {
-    const prevApps = prev.apps.map((d) => d.tokenId).join(",");
-    const nextApps = next.apps.map((d) => d.tokenId).join(",");
-
-    return prevApps === nextApps;
-  }
-);
+const SevenColumns = ({
+  apps,
+  width,
+  y,
+  x,
+  parentHeight,
+  openModal,
+  boxHeight
+}: {
+  apps: TroveSmolToken[];
+  width: number;
+  y: MotionValue<number>;
+  x: MotionValue<number>;
+  parentHeight: number;
+  openModal: (id: string) => void;
+  boxHeight: number;
+}) => {
+  return (
+    <div
+      style={
+        {
+          "--size": `${boxHeight}px`
+        } as CSSProperties
+      }
+      className="grid grid-cols-[repeat(5,100px)] grid-rows-[100px] place-content-center gap-10 sm:grid-cols-[repeat(7,var(--size))] sm:grid-rows-[var(--size)] sm:gap-12"
+    >
+      {apps.map((app) => (
+        <Item
+          parentHeight={parentHeight}
+          x={x}
+          key={app.tokenId}
+          app={app}
+          width={width}
+          y={y}
+          openModal={openModal}
+          boxHeight={boxHeight}
+        />
+      ))}
+    </div>
+  );
+};
 
 const Item = ({
   app,
@@ -181,7 +171,8 @@ const Item = ({
   y,
   x,
   parentHeight,
-  openModal
+  openModal,
+  boxHeight
 }: {
   app: TroveSmolToken;
   width: number;
@@ -189,6 +180,7 @@ const Item = ({
   x: MotionValue<number>;
   parentHeight: number;
   openModal: (id: string) => void;
+  boxHeight: number;
 }) => {
   const [ref, attachRef] = useCallbackRef<HTMLDivElement>();
   const d = useTransform(() => {
@@ -196,7 +188,7 @@ const Item = ({
     const offsetRelative = parentHeight - top - parentHeight / 2;
     return distance(
       {
-        x: (ref?.offsetLeft ?? 0) + x.get() + BOX_HEIGHT / 2,
+        x: (ref?.offsetLeft ?? 0) + x.get() + boxHeight / 2,
         y: offsetRelative
       },
       {
@@ -336,6 +328,7 @@ const GalleryInner = ({
         {data &&
           splitApps(data, isMobile).map((apps) => {
             const length = isMobile ? 5 : 7;
+            const boxHeight = isMobile ? BOX_HEIGHT / 2 : BOX_HEIGHT;
             if (apps.length === length) {
               return (
                 <SevenColumns
@@ -346,6 +339,7 @@ const GalleryInner = ({
                   x={x}
                   parentHeight={parentHeight}
                   openModal={triggerModal}
+                  boxHeight={boxHeight}
                 />
               );
             } else {
@@ -358,6 +352,7 @@ const GalleryInner = ({
                   x={x}
                   parentHeight={parentHeight}
                   openModal={triggerModal}
+                  boxHeight={boxHeight}
                 />
               );
             }
@@ -387,6 +382,7 @@ export default function Gallery() {
   const isPresent = useIsPresent();
 
   const parentHeight = parentRef?.getBoundingClientRect().height ?? 0;
+
   useDrag(
     ({ offset: [ox, oy] }) => {
       x.set(ox);
