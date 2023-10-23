@@ -31,11 +31,15 @@ export type TroveSmolToken = {
   };
 };
 
-export const fetchSmols = async () => {
+const LIMIT = "40";
+
+export const fetchSmols = async (page: number) => {
+  const offset = page * Number(LIMIT);
   const res = await fetch(
     `https://${BASE_URL}.treasure.lol/collection/arb/smol-brains/tokens?${new URLSearchParams(
       {
-        limit: "40"
+        offset: String(offset),
+        limit: LIMIT
       }
     )}`,
     {

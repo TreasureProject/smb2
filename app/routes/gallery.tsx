@@ -5,15 +5,16 @@ import {
   useSpring,
   useTransform,
   useMotionTemplate,
-  useAnimate,
   animate as _animate,
-  useIsPresent
+  useIsPresent,
+  useMotionValueEvent
 } from "framer-motion";
 import type { CSSProperties } from "react";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { distance } from "@popmotion/popcorn";
 import type { TroveSmolToken } from "~/api";
 import { fetchSmols } from "~/api";
+import type { LoaderFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
@@ -23,6 +24,7 @@ import { AnimationContainer } from "~/components/AnimationContainer";
 import { PitchShift, Player, loaded } from "tone";
 import { Header } from "~/components/Header";
 import { useResponsive } from "~/res-context";
+import { useFetcher } from "@remix-run/react";
 
 const MotionIcon = motion(Icon);
 // this is the height for the visible area on line 201, h-96.
@@ -39,11 +41,15 @@ const filterTraits = [
   "Gender"
 ];
 
-export const loader = async () => {
-  const res = await fetchSmols();
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const url = new URL(request.url);
+  const page = url.searchParams.get("page") ?? "0";
+
+  const res = await fetchSmols(Number(page));
 
   return json({
-    data: res
+    data: res,
+    page: Number(page)
   });
 };
 
@@ -74,83 +80,87 @@ function useCallbackRef<TValue = unknown>(): [
   return useState<TValue | null>(null);
 }
 
-const FiveColumns = ({
-  apps,
-  width,
-  y,
-  x,
-  parentHeight,
-  openModal
-}: {
-  apps: TroveSmolToken[];
-  width: number;
-  y: MotionValue<number>;
-  x: MotionValue<number>;
-  parentHeight: number;
-  openModal: (id: string) => void;
-}) => {
-  return (
-    <div
-      style={
-        {
-          "--size": `${BOX_HEIGHT}px`
-        } as CSSProperties
-      }
-      className="grid grid-cols-[repeat(4,100px)] grid-rows-[100px] place-content-center gap-10 sm:grid-cols-[repeat(6,var(--size))] sm:grid-rows-[var(--size)] sm:gap-12"
-    >
-      {apps.map((app) => (
-        <Item
-          parentHeight={parentHeight}
-          x={x}
-          key={app.tokenId}
-          app={app}
-          width={width}
-          y={y}
-          openModal={openModal}
-        />
-      ))}
-    </div>
-  );
-};
+const FiveColumns = memo(
+  ({
+    apps,
+    width,
+    y,
+    x,
+    parentHeight,
+    openModal
+  }: {
+    apps: TroveSmolToken[];
+    width: number;
+    y: MotionValue<number>;
+    x: MotionValue<number>;
+    parentHeight: number;
+    openModal: (id: string) => void;
+  }) => {
+    return (
+      <div
+        style={
+          {
+            "--size": `${BOX_HEIGHT}px`
+          } as CSSProperties
+        }
+        className="grid grid-cols-[repeat(4,100px)] grid-rows-[100px] place-content-center gap-10 sm:grid-cols-[repeat(6,var(--size))] sm:grid-rows-[var(--size)] sm:gap-12"
+      >
+        {apps.map((app) => (
+          <Item
+            parentHeight={parentHeight}
+            x={x}
+            key={app.tokenId}
+            app={app}
+            width={width}
+            y={y}
+            openModal={openModal}
+          />
+        ))}
+      </div>
+    );
+  }
+);
 
-const SevenColumns = ({
-  apps,
-  width,
-  y,
-  x,
-  parentHeight,
-  openModal
-}: {
-  apps: TroveSmolToken[];
-  width: number;
-  y: MotionValue<number>;
-  x: MotionValue<number>;
-  parentHeight: number;
-  openModal: (id: string) => void;
-}) => {
-  return (
-    <div
-      style={
-        {
-          "--size": `${BOX_HEIGHT}px`
-        } as CSSProperties
-      }
-      className="grid grid-cols-[repeat(5,100px)] grid-rows-[100px] place-content-center gap-10 sm:grid-cols-[repeat(7,var(--size))] sm:grid-rows-[var(--size)] sm:gap-12"
-    >
-      {apps.map((app) => (
-        <Item
-          parentHeight={parentHeight}
-          x={x}
-          key={app.tokenId}
-          app={app}
-          width={width}
-          y={y}
-          openModal={openModal}
-        />
-      ))}
-    </div>
-  );
-};
+const SevenColumns = memo(
+  ({
+    apps,
+    width,
+    y,
+    x,
+    parentHeight,
+    openModal
+  }: {
+    apps: TroveSmolToken[];
+    width: number;
+    y: MotionValue<number>;
+    x: MotionValue<number>;
+    parentHeight: number;
+    openModal: (id: string) => void;
+  }) => {
+    return (
+      <div
+        style={
+          {
+            "--size": `${BOX_HEIGHT}px`
+          } as CSSProperties
+        }
+        className="grid grid-cols-[repeat(5,100px)] grid-rows-[100px] place-content-center gap-10 sm:grid-cols-[repeat(7,var(--size))] sm:grid-rows-[var(--size)] sm:gap-12"
+      >
+        {apps.map((app) => (
+          <Item
+            parentHeight={parentHeight}
+            x={x}
+            key={app.tokenId}
+            app={app}
+            width={width}
+            y={y}
+            openModal={openModal}
+          />
+        ))}
+      </div>
+    );
+  }
+);
 
 const Item = ({
   app,
@@ -168,7 +178,6 @@ const Item = ({
   openModal: (id: string) => void;
 }) => {
   const [ref, attachRef] = useCallbackRef<HTMLDivElement>();
-
   const d = useTransform(() => {
     const { top } = ref?.getBoundingClientRect() ?? { top: 0 };
     const offsetRelative = parentHeight - top - parentHeight / 2;
@@ -240,6 +249,114 @@ const Item = ({
   );
 };
 
+const GalleryInner = ({
+  width,
+  parentHeight,
+  x,
+  y
+}: {
+  width: number;
+  parentHeight: number;
+  x: MotionValue<number>;
+  y: MotionValue<number>;
+}) => {
+  const initialData = useCustomLoaderData<typeof loader>();
+  const [data, setData] = useState(initialData?.data);
+  const fetcher = useFetcher<typeof loader>();
+  const { isMobile } = useResponsive();
+  const loadedPages = useRef<number[]>([]);
+  const [openModal, setOpenModal] = useState<{
+    isOpen: boolean;
+    targetTokenId: string | null;
+  }>({
+    isOpen: false,
+    targetTokenId: null
+  });
+
+  const page = fetcher.data
+    ? fetcher.data.page + 1
+    : (initialData?.page || 0) + 1;
+
+  const isLoading = useRef(false);
+
+  useEffect(() => {
+    if (fetcher.data) {
+      setData((d) => {
+        return [...(d ?? []), ...(fetcher.data?.data ?? [])];
+      });
+    }
+  }, [fetcher.data]);
+
+  const loadMore = () => {
+    if (loadedPages.current.includes(page)) return;
+    isLoading.current = true;
+    fetcher.load(`/gallery?page=${page}`);
+    loadedPages.current.push(page);
+    isLoading.current = false;
+  };
+
+  useMotionValueEvent(y, "change", (value) => {
+    if (
+      Math.abs(value) > parentHeight * page - parentHeight / 2 &&
+      !isLoading.current
+    ) {
+      loadMore();
+    }
+  });
+
+  const triggerModal = (id: string) =>
+    setOpenModal({ isOpen: true, targetTokenId: id });
+
+  const targetSmol = data?.find((d) => d.tokenId === openModal.targetTokenId);
+
+  return (
+    <Sheet
+      open={openModal.isOpen}
+      onOpenChange={(isOpen) =>
+        setOpenModal((modal) => ({
+          ...modal,
+          isOpen
+        }))
+      }
+    >
+      <div className="relative grid touch-none gap-16 p-4">
+        {data &&
+          splitApps(data, isMobile).map((apps) => {
+            const length = isMobile ? 5 : 7;
+            if (apps.length === length) {
+              return (
+                <SevenColumns
+                  key={apps.map((d) => d.tokenId).join(",")}
+                  apps={apps}
+                  width={width}
+                  y={y}
+                  x={x}
+                  parentHeight={parentHeight}
+                  openModal={triggerModal}
+                />
+              );
+            } else {
+              return (
+                <FiveColumns
+                  key={apps.map((d) => d.tokenId).join(",")}
+                  apps={apps}
+                  width={width}
+                  y={y}
+                  x={x}
+                  parentHeight={parentHeight}
+                  openModal={triggerModal}
+                />
+              );
+            }
+          })}
+      </div>
+      <SheetContent className="overflow-hidden bg-[#1C122F]">
+        {targetSmol ? <SidePopup smol={targetSmol} /> : null}
+      </SheetContent>
+    </Sheet>
+  );
+};
+
 export default function Gallery() {
   const y = useSpring(0, {
     stiffness: 5000,
@@ -249,19 +366,9 @@ export default function Gallery() {
     stiffness: 5000,
     damping: 500
   });
-  const [scope, animate] = useAnimate();
-  const { isMobile } = useResponsive();
-  const data = useCustomLoaderData<typeof loader>();
   const [dragRef, attachRef] = useCallbackRef<HTMLDivElement>();
   const [parentRef, attachParentRef] = useCallbackRef<HTMLDivElement>();
-  const [openModal, setOpenModal] = useState<{
-    isOpen: boolean;
-    targetTokenId: string | null;
-  }>({
-    isOpen: false,
-    targetTokenId: null
-  });
-  const height = dragRef?.getBoundingClientRect().height ?? 0;
+
   const width = dragRef?.getBoundingClientRect().width ?? 0;
 
   const isPresent = useIsPresent();
@@ -270,8 +377,7 @@ export default function Gallery() {
   useDrag(
     ({ offset: [ox, oy] }) => {
       x.set(ox);
-
-      if (oy > 0 || Math.abs(oy) > height - parentHeight) return;
+      if (oy > 0) return;
       y.set(oy);
     },
     {
@@ -310,14 +416,8 @@ export default function Gallery() {
         }
       ]
     ]);
-  }, [animate, isPresent, parentRef]);
+  }, [isPresent, parentRef]);
 
-  const triggerModal = (id: string) =>
-    setOpenModal({ isOpen: true, targetTokenId: id });
-
-  const targetSmol = data?.data.find(
-    (d) => d.tokenId === openModal.targetTokenId
-  );
   return (
     <AnimationContainer
       className="relative flex h-full flex-col bg-[url(/img/stars.png)] bg-repeat brightness-125"
@@ -330,65 +430,23 @@ export default function Gallery() {
         className="pointer-events-none absolute -right-44 bottom-[86%] h-96 w-96 text-pepe"
       />
       <Header name="gallery" />
-      <Sheet
-        open={openModal.isOpen}
-        onOpenChange={(isOpen) =>
-          setOpenModal((modal) => ({
-            ...modal,
-            isOpen
-          }))
-        }
+
+      <div
+        ref={attachParentRef}
+        className="invisible relative grid flex-1 justify-center overflow-hidden"
       >
-        <div
-          ref={attachParentRef}
-          className="invisible relative grid flex-1 place-content-center overflow-hidden"
+        <div className="pointer-events-none absolute inset-0 z-10 bg-black [mask-image:radial-gradient(transparent,black_95%)]"></div>
+        <motion.div
+          ref={attachRef}
+          className="relative touch-none"
+          style={{
+            y,
+            x
+          }}
         >
-          <div className="pointer-events-none absolute inset-0 z-10 bg-black [mask-image:radial-gradient(transparent,black_95%)]"></div>
-          <motion.div
-            ref={attachRef}
-            className="relative touch-none"
-            style={{
-              y,
-              x
-            }}
-          >
-            <div ref={scope} className="relative grid touch-none gap-16 p-4">
-              {data &&
-                splitApps(data.data, isMobile).map((apps) => {
-                  const length = isMobile ? 5 : 7;
-                  if (apps.length === length) {
-                    return (
-                      <SevenColumns
-                        key={apps.map((d) => d.tokenId).join(",")}
-                        apps={apps}
-                        width={width}
-                        y={y}
-                        x={x}
-                        parentHeight={parentHeight}
-                        openModal={triggerModal}
-                      />
-                    );
-                  } else {
-                    return (
-                      <FiveColumns
-                        key={apps.map((d) => d.tokenId).join(",")}
-                        apps={apps}
-                        width={width}
-                        y={y}
-                        x={x}
-                        parentHeight={parentHeight}
-                        openModal={triggerModal}
-                      />
-                    );
-                  }
-                })}
-            </div>
-          </motion.div>
-        </div>
-        <SheetContent className="overflow-hidden bg-[#1C122F]">
-          {targetSmol ? <SidePopup smol={targetSmol} /> : null}
-        </SheetContent>
-      </Sheet>
+          <GalleryInner width={width} parentHeight={parentHeight} x={x} y={y} />
+        </motion.div>
+      </div>
     </AnimationContainer>
   );
 }
