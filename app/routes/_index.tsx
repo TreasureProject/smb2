@@ -10,8 +10,9 @@ import News from "../assets/news.webp";
 import Tv from "../assets/tv.webp";
 import Fashion from "../assets/fashion.webp";
 import Spotlight from "../assets/spotlight.webp";
-import { useAnimate } from "framer-motion";
+import { AnimatePresence, motion, useAnimate } from "framer-motion";
 import { useKonami } from "~/contexts/konami";
+import SmolMusicVideo from "~/assets/smol-musicvideo.mp4";
 
 // const MotionLink = motion(Link);
 
@@ -68,6 +69,7 @@ export const meta: MetaFunction = () => {
 export default function Index() {
   const [scope, _animate] = useAnimate();
   const { activated } = useKonami();
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
   React.useEffect(() => {
     const animation = _animate(
       "a",
@@ -91,8 +93,35 @@ export default function Index() {
     return () => animation.cancel();
   }, [_animate, activated]);
 
+  React.useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (!activated) {
+      video.pause();
+      video.currentTime = 0;
+    } else {
+      video.play();
+    }
+  }, [activated]);
+
   return (
     <>
+      <AnimatePresence>
+        {activated && (
+          <motion.video
+            playsInline
+            ref={videoRef}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            loop
+            className="absolute inset-0 h-full w-full object-fill"
+          >
+            <source src={SmolMusicVideo} type="video/mp4" />
+          </motion.video>
+        )}
+      </AnimatePresence>
       <svg width={0} className="hidden">
         <defs>
           <filter id="rgb-split">

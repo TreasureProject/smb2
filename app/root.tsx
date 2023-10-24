@@ -35,6 +35,7 @@ import iconHref from "./components/icons/sprite.svg";
 import { Icon } from "./components/Icons";
 import { ResponsiveProvider } from "./contexts/responsive";
 import { KonamiProvider, useKonami } from "./contexts/konami";
+import SmolMusicVideo from "~/assets/smol-musicvideo.mp4";
 
 import NProgress from "nprogress";
 
@@ -430,6 +431,7 @@ function AppInner() {
               />
             )}
           </AnimatePresence>
+
           <motion.div
             style={{
               filter: animatedFilter,
