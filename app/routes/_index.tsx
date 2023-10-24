@@ -2,8 +2,14 @@ import type { MetaFunction } from "@remix-run/node";
 import React from "react";
 import { getTransformOrigin } from "~/utils";
 import { Box } from "~/components/Box";
-import TestImg from "../assets/test.webp";
-import TestTwoImg from "../assets/test2.webp";
+import Frens from "../assets/frens.webp";
+import Art from "../assets/art.webp";
+import Gallery from "../assets/gallery.webp";
+import Goals from "../assets/goals.webp";
+import News from "../assets/news.webp";
+import Tv from "../assets/tv.webp";
+import Fashion from "../assets/fashion.webp";
+import Spotlight from "../assets/spotlight.webp";
 
 // const MotionLink = motion(Link);
 
@@ -81,17 +87,17 @@ export default function Index() {
           </filter>
         </defs>
       </svg>
-      <div className="relative mx-auto flex h-full max-w-5xl flex-1 items-center px-8 sm:px-12">
-        <div className="grid gap-8 grid-areas-widgets [grid-auto-columns:1fr] [grid-auto-rows:1fr]">
+      <div className="relative mx-auto flex h-full max-w-5xl items-center justify-center px-8 sm:px-12">
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-6 sm:grid-rows-[130px_min-content_min-content_min-content]">
           <Box
             as="link"
-            to="/smolspace"
+            to="/news"
             state={getTransformOrigin}
-            className="bg-white/10 backdrop-blur-sm grid-in-w1"
+            className="bg-white/10 backdrop-blur-sm sm:col-start-1 sm:col-end-3 sm:row-start-1 sm:row-end-2"
           >
             <img
-              src={TestImg}
-              alt="test"
+              src={News}
+              alt="News"
               className="aspect-square h-full w-full opacity-[0.85]"
             ></img>
           </Box>
@@ -99,11 +105,58 @@ export default function Index() {
             as="link"
             to="/gallery"
             state={getTransformOrigin}
-            className="bg-white/10 backdrop-blur-sm grid-in-w2"
+            className="bg-white/10 backdrop-blur-sm sm:col-start-3 sm:col-end-4 sm:row-start-1 sm:row-end-2"
           >
             <img
-              src={TestTwoImg}
-              alt="test"
+              src={Gallery}
+              alt="gallery"
+              className="aspect-square h-full w-full opacity-[0.85]"
+            ></img>
+          </Box>
+          <Box
+            as="link"
+            to="/art"
+            state={getTransformOrigin}
+            className="bg-white/10 backdrop-blur-sm sm:col-start-4 sm:col-end-5 sm:row-start-1 sm:row-end-2"
+          >
+            <img
+              src={Art}
+              alt="art"
+              className="aspect-square h-full w-full opacity-[0.85]"
+            ></img>
+          </Box>
+          <Box
+            as="link"
+            to="/spotlight"
+            state={getTransformOrigin}
+            className="bg-white/10 sm:col-start-5 sm:col-end-7 sm:row-start-1 sm:row-end-3"
+          >
+            <img
+              src={Spotlight}
+              alt="spotlight"
+              className="aspect-square h-full w-full opacity-[0.85]"
+            ></img>
+          </Box>
+          <Box
+            as="a"
+            href="https://shop.smolverse.lol/"
+            className="bg-white/10 backdrop-blur-sm sm:col-start-1 sm:col-end-3 sm:row-start-2 sm:row-end-5"
+          >
+            <img
+              src={Fashion}
+              alt="fashion"
+              className="aspect-square h-full w-full opacity-[0.85]"
+            ></img>
+          </Box>
+          <Box
+            as="link"
+            to="/tv"
+            state={getTransformOrigin}
+            className="bg-white/10 backdrop-blur-sm sm:col-start-3 sm:col-end-5 sm:row-start-2 sm:row-end-5"
+          >
+            <img
+              src={Tv}
+              alt="tv"
               className="aspect-square h-full w-full opacity-[0.85]"
             ></img>
           </Box>
@@ -111,24 +164,26 @@ export default function Index() {
             as="link"
             to="/news"
             state={getTransformOrigin}
-            className="bg-acid backdrop-blur-sm grid-in-w3"
+            className="bg-white/10 backdrop-blur-sm sm:col-start-5 sm:col-end-6 sm:row-start-3 sm:row-end-5"
           >
             <img
-              src={TestTwoImg}
-              alt="test"
+              src={Goals}
+              alt="goals"
               className="aspect-square h-full w-full opacity-[0.85]"
             ></img>
           </Box>
           <Box
             as="link"
-            to="/about"
+            to="/smolspace"
             state={getTransformOrigin}
-            className="bg-sky-300 grid-in-w4"
-          ></Box>
-          <Box className="bg-purple-300 grid-in-w5"></Box>
-          <Box className="grid-in-w6 bg-purple-300"></Box>
-          <Box className="grid-in-w7 bg-purple-300"></Box>
-          <Box className="grid-in-w8 bg-purple-300"></Box>
+            className="bg-white/10 backdrop-blur-sm sm:col-start-6 sm:col-end-7 sm:row-start-3 sm:row-end-5"
+          >
+            <img
+              src={Frens}
+              alt="frens"
+              className="aspect-square h-full w-full opacity-[0.85]"
+            ></img>
+          </Box>
         </div>
       </div>
       {/* <div className="mx-auto flex basis-64 items-center">

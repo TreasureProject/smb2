@@ -8,7 +8,9 @@ import {
   Scripts,
   ScrollRestoration,
   useLocation,
-  useOutlet
+  useOutlet,
+  useNavigation,
+  useFetchers
 } from "@remix-run/react";
 import {
   AnimatePresence,
@@ -19,7 +21,7 @@ import {
   useMotionValueEvent,
   useSpring
 } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import stylesheet from "~/tailwind.css";
 import usePartySocket from "partysocket/react";
 import peeImg from "~/assets/pee.webp";
@@ -31,6 +33,7 @@ import { ShaderCanvas } from "./components/GlslCanvas";
 import iconHref from "./components/icons/sprite.svg";
 import { Icon } from "./components/Icons";
 import { ResponsiveProvider } from "./res-context";
+import NProgress from "nprogress";
 
 const INITIAL_BLUR_VALUE = 15;
 
@@ -53,6 +56,38 @@ export const loader = () => {
 };
 
 export const shouldRevalidate: ShouldRevalidateFunction = () => false;
+
+function useNProgress() {
+  let transition = useNavigation();
+
+  let fetchers = useFetchers();
+
+  /**
+   * This gets the state of every fetcher active on the app and combine it with
+   * the state of the global transition (Link and Form), then use them to
+   * determine if the app is idle or if it's loading.
+   * Here we consider both loading and submitting as loading.
+   */
+  let state = useMemo<"idle" | "loading">(
+    function getGlobalState() {
+      let states = [
+        transition.state,
+        ...fetchers.map((fetcher) => fetcher.state)
+      ];
+      if (states.every((state) => state === "idle")) return "idle";
+      return "loading";
+    },
+    [transition.state, fetchers]
+  );
+
+  useEffect(() => {
+    // and when it's something else it means it's either submitting a form or
+    // waiting for the loaders of the next location so we start it
+    if (state === "loading") NProgress.start();
+    // when the state is idle then we can to complete the progress bar
+    if (state === "idle") NProgress.done();
+  }, [state]);
+}
 
 function AnimatedOutlet() {
   const [outlet] = useState(useOutlet());
@@ -191,6 +226,8 @@ export default function App() {
   }, [smear.state]);
 
   const navigation = useLocation();
+
+  useNProgress();
 
   return (
     <html lang="en">

@@ -1,5 +1,6 @@
 import { Link } from "@remix-run/react";
 import type { RemixLinkProps } from "@remix-run/react/dist/components";
+import type { AnchorHTMLAttributes } from "react";
 import { useState } from "react";
 import { cn } from "~/utils";
 
@@ -12,7 +13,7 @@ type Props =
     } & React.HTMLAttributes<HTMLButtonElement>)
   | ({
       as: "a";
-    } & React.HTMLAttributes<HTMLAnchorElement>)
+    } & AnchorHTMLAttributes<HTMLAnchorElement>)
   | ({
       as: "link";
       state: (node: HTMLAnchorElement | null) => any;
@@ -42,9 +43,9 @@ export const Box = (props: Props) => {
     );
   }
   if (as === "a") {
-    const { className: _, as: __, ...rest } = props;
+    const { className: _, as: __, target: ___, ...rest } = props;
     return (
-      <a className={className} {...rest}>
+      <a className={className} target="_blank" {...rest}>
         {children}
       </a>
     );
