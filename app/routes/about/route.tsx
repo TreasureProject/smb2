@@ -46,7 +46,7 @@ import peeImg from "~/assets/pee.webp";
 import TwerkSmol from "./assets/twerkSmol.webp";
 
 import { DraggableWindow } from "~/components/DraggableWindow";
-import { useResponsive } from "~/res-context";
+import { useResponsive } from "~/contexts/responsive";
 import { Shine } from "~/components/Shine";
 
 const navigation = {

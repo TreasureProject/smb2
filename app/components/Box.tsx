@@ -1,8 +1,11 @@
 import { Link } from "@remix-run/react";
 import type { RemixLinkProps } from "@remix-run/react/dist/components";
+import { motion } from "framer-motion";
 import type { AnchorHTMLAttributes } from "react";
 import { useState } from "react";
 import { cn } from "~/utils";
+
+const MotionLink = motion(Link);
 
 type Props =
   | ({

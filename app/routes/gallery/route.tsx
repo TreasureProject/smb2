@@ -23,7 +23,7 @@ import { Icon } from "~/components/Icons";
 import { AnimationContainer } from "~/components/AnimationContainer";
 import { PitchShift, Player, loaded } from "tone";
 import { Header } from "~/components/Header";
-import { useResponsive } from "~/res-context";
+import { useResponsive } from "~/contexts/responsive";
 import { useFetcher } from "@remix-run/react";
 import PurpleMonke from "./assets/purpleMonke.webp";
 

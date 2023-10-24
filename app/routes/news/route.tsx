@@ -50,7 +50,7 @@ export default function News() {
                   <span>Next</span>
                   <img
                     src={PencilMonke}
-                    className="absolute bottom-2 left-40 h-auto w-12"
+                    className="absolute -bottom-4 left-32 h-auto w-24"
                     alt="Pencil Monke"
                   />
                 </Dialog.Title>

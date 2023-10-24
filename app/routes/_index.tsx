@@ -10,6 +10,8 @@ import News from "../assets/news.webp";
 import Tv from "../assets/tv.webp";
 import Fashion from "../assets/fashion.webp";
 import Spotlight from "../assets/spotlight.webp";
+import { useAnimate } from "framer-motion";
+import { useKonami } from "~/contexts/konami";
 
 // const MotionLink = motion(Link);
 
@@ -64,6 +66,31 @@ export const meta: MetaFunction = () => {
 // }
 
 export default function Index() {
+  const [scope, _animate] = useAnimate();
+  const { activated } = useKonami();
+  React.useEffect(() => {
+    const animation = _animate(
+      "a",
+      {
+        x: [0, -10, 10, -10, 10, 0],
+        y: [0, -5, 5, -5, 5, 0]
+      },
+      {
+        duration: 0.5,
+        ease: "easeInOut",
+        times: [0, 0.2, 0.4, 0.6, 0.8, 1],
+        repeat: Infinity,
+        repeatType: "reverse"
+      }
+    );
+
+    if (!activated) {
+      animation.cancel();
+    }
+
+    return () => animation.cancel();
+  }, [_animate, activated]);
+
   return (
     <>
       <svg width={0} className="hidden">
@@ -88,7 +115,10 @@ export default function Index() {
         </defs>
       </svg>
       <div className="relative mx-auto flex h-full max-w-5xl items-center justify-center px-8 sm:px-12">
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-6 sm:grid-rows-[130px_min-content_min-content_min-content]">
+        <div
+          ref={scope}
+          className="grid grid-cols-2 gap-8 sm:grid-cols-6 sm:grid-rows-[130px_min-content_min-content_min-content]"
+        >
           <Box
             as="link"
             to="/news"
@@ -115,7 +145,7 @@ export default function Index() {
           </Box>
           <Box
             as="link"
-            to="/art"
+            to="/about"
             state={getTransformOrigin}
             className="bg-white/10 backdrop-blur-sm sm:col-start-4 sm:col-end-5 sm:row-start-1 sm:row-end-2"
           >

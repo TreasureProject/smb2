@@ -31,7 +31,7 @@ export type TroveSmolToken = {
   };
 };
 
-const LIMIT = "40";
+const LIMIT = "117";
 
 export const fetchSmols = async (page: number) => {
   const offset = page * Number(LIMIT);
