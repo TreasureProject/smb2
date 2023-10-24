@@ -1,4 +1,4 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import React from "react";
 import { getTransformOrigin } from "~/utils";
 import { Box } from "~/components/Box";
@@ -22,6 +22,15 @@ export const meta: MetaFunction = () => {
     { name: "description", content: "Welcome to Remix!" }
   ];
 };
+
+export const links: LinksFunction = () => [
+  {
+    rel: "preload",
+    href: SmolMusicVideo,
+    as: "video",
+    type: "video/mp4"
+  }
+];
 
 // function Dock() {
 //   let mouseX = useMotionValue(Infinity);
@@ -110,6 +119,7 @@ export default function Index() {
       <AnimatePresence>
         {activated && (
           <motion.video
+            preload="auto"
             playsInline
             ref={videoRef}
             initial={{ opacity: 0 }}
