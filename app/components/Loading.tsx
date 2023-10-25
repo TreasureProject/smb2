@@ -1,0 +1,149 @@
+export const Loading = ({ className }: { className?: string }) => (
+  <svg
+    width="138"
+    height="98"
+    viewBox="0 0 138 98"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    <path
+      d="M14.2462 69.4883H0.499756V83.2569H14.2462V69.4883Z"
+      fill="currentColor"
+    />
+    <path
+      d="M69.2396 55.7124H55.4932V69.481H69.2396V55.7124Z"
+      fill="currentColor"
+    />
+    <path
+      d="M110.486 55.7124H96.7397V69.481H110.486V55.7124Z"
+      fill="currentColor"
+    />
+    <path
+      d="M28.0001 28.1678H14.2537V41.9364H28.0001V28.1678Z"
+      fill="currentColor"
+    >
+      <animateTransform
+        attributeType="xml"
+        attributeName="transform"
+        type="translate"
+        values="0,0; 10,0; 0,0"
+        keyTimes="0; 0.5; 1"
+        keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+        dur="0.8s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path
+      d="M28.0001 14.3993H14.2537V28.1679H28.0001V14.3993Z"
+      fill="currentColor"
+    >
+      <animateTransform
+        attributeType="xml"
+        attributeName="transform"
+        type="translate"
+        values="0,0; 10,0; 0,0"
+        keyTimes="0; 0.5; 1"
+        keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+        dur="0.8s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path
+      d="M28.0001 0.630676H14.2537V14.3993H28.0001V0.630676Z"
+      fill="currentColor"
+    >
+      <animateTransform
+        attributeType="xml"
+        attributeName="transform"
+        type="translate"
+        values="0,0; 10,0; 0,0"
+        keyTimes="0; 0.5; 1"
+        keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+        dur="0.8s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path
+      d="M96.7399 28.1678H82.9934V41.9364H96.7399V28.1678Z"
+      fill="currentColor"
+    >
+      <animateTransform
+        attributeType="xml"
+        attributeName="transform"
+        type="translate"
+        values="0,0; 10,0; 0,0"
+        keyTimes="0; 0.5; 1"
+        keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+        dur="0.8s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path
+      d="M96.7399 14.3993H82.9934V28.1679H96.7399V14.3993Z"
+      fill="currentColor"
+    >
+      <animateTransform
+        attributeType="xml"
+        attributeName="transform"
+        type="translate"
+        values="0,0; 10,0; 0,0"
+        keyTimes="0; 0.5; 1"
+        keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+        dur="0.8s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path
+      d="M96.7399 0.630676H82.9934V14.3993H96.7399V0.630676Z"
+      fill="currentColor"
+    >
+      <animateTransform
+        attributeType="xml"
+        attributeName="transform"
+        type="translate"
+        values="0,0; 10,0; 0,0"
+        keyTimes="0; 0.5; 1"
+        keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+        dur="0.8s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path
+      d="M82.9935 83.2569H69.2471V97.0255H82.9935V83.2569Z"
+      fill="currentColor"
+    />
+    <path
+      d="M69.2396 83.2569H55.4932V97.0255H69.2396V83.2569Z"
+      fill="currentColor"
+    />
+    <path
+      d="M96.7399 83.2569H82.9934V97.0255H96.7399V83.2569Z"
+      fill="currentColor"
+    />
+    <path
+      d="M124.233 83.2569H110.486V97.0255H124.233V83.2569Z"
+      fill="currentColor"
+    />
+    <path
+      d="M110.486 83.2569H96.7397V97.0255H110.486V83.2569Z"
+      fill="currentColor"
+    />
+    <path
+      d="M55.493 83.2569H41.7466V97.0255H55.493V83.2569Z"
+      fill="currentColor"
+    />
+    <path
+      d="M41.7467 83.2569H28.0002V97.0255H41.7467V83.2569Z"
+      fill="currentColor"
+    />
+    <path
+      d="M28.0001 83.2569H14.2537V97.0255H28.0001V83.2569Z"
+      fill="currentColor"
+    />
+    <path
+      d="M137.987 83.2569H124.24V97.0255H137.987V83.2569Z"
+      fill="currentColor"
+    />
+  </svg>
+);

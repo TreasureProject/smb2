@@ -647,17 +647,17 @@ const WhatTheFuck = () => {
                 name="question-mark"
                 className="absolute -right-20 -top-16 w-16"
               />
-              <Shine
+              {/* <Shine
                 puffyness="3"
                 lightColor="#95F22A"
                 className="absolute -right-24 bottom-0"
-              >
-                <img
-                  src={TwerkSmol}
-                  className="h-auto w-40"
-                  alt="smol twerking"
-                />
-              </Shine>
+              > */}
+              <img
+                src={TwerkSmol}
+                className="absolute -right-24 bottom-0 h-auto w-40"
+                alt="smol twerking"
+              />
+              {/* </Shine> */}
               HUMAN
             </p>
           </div>

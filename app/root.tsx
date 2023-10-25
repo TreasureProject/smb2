@@ -153,7 +153,6 @@ function AppInner() {
   const location = useLocation();
   const isRoot = location.pathname === "/";
   const [showIntro, setShowIntro] = useState(isRoot);
-  const overflowHide = location.pathname === "/gallery";
   const blur = useMotionValue(isRoot ? INITIAL_BLUR_VALUE : 0);
   const y = useSpring(0, {
     stiffness: 5000,
@@ -441,11 +440,11 @@ function AppInner() {
             <ShaderCanvas
               className="absolute inset-0"
               setUniforms={{
-                u_saturation: 20.0,
-                u_complexity: 5.0,
-                u_twist: 30.0,
-                u_light: 1.0,
-                u_mix: 0.0
+                u_saturation: 20,
+                u_complexity: 5,
+                u_twist: 30,
+                u_light: 1,
+                u_mix: 0
               }}
               frag={`
 #ifdef GL_ES

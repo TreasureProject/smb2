@@ -9,7 +9,7 @@ export let loader: LoaderFunction = async ({ request }) => {
   const targetSmolId = url.searchParams.get("id") || "1";
 
   const data = await fetch(
-    `https://cloudflare-ipfs.com/ipfs/Qmae8GCKXTCKz1AipamMyGNbMQiGJgDcVBgAv7pADLkJfg/${targetSmolId}.json`
+    `https://cloudflare-ipfs.com/ipfs/QmXk3GFkkZpTehsQvwdDgiPbE43ktxUuZfg2S7Wf8pzePx/${targetSmolId}.json`
   );
 
   const voicemail = await data.json();

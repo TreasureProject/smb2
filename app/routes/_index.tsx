@@ -153,14 +153,14 @@ export default function Index() {
           </filter>
         </defs>
       </svg>
-      <div className="relative mx-auto flex h-full max-w-5xl items-center justify-center px-8 sm:px-12">
+      <div className="relative mx-auto flex h-full max-w-7xl items-center justify-center px-8 sm:px-12">
         <div
           ref={scope}
-          className="grid grid-cols-2 gap-8 sm:grid-cols-6 sm:grid-rows-[130px_min-content_min-content_min-content]"
+          className="grid h-[36rem] grid-cols-2 gap-8 sm:grid-cols-6 sm:grid-rows-[0.7fr_1fr_min-content_min-content]"
         >
           <Box
             as="link"
-            to="/news"
+            to="/about"
             state={getTransformOrigin}
             className="bg-white/10 backdrop-blur-sm sm:col-start-1 sm:col-end-3 sm:row-start-1 sm:row-end-2"
           >

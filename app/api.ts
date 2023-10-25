@@ -19,7 +19,7 @@ export type TroveSmolToken = {
       display_type?: string;
     }[];
   };
-  rarity: {
+  rarity?: {
     score: number;
     rank: number;
     scoreBreakdown: {
@@ -52,4 +52,23 @@ export const fetchSmols = async (page: number) => {
   const data = await res.json();
 
   return data.tokens as TroveSmolToken[];
+};
+
+export const searchSmol = async (tokenId: string) => {
+  const res = await fetch(
+    `https://${BASE_URL}.treasure.lol/collection/arb/smol-brains/tokens?${new URLSearchParams(
+      {
+        ids: tokenId
+      }
+    )}`,
+    {
+      headers: {
+        "X-API-Key": process.env.PUBLIC_TROVE_API_KEY
+      }
+    }
+  );
+
+  const data = await res.json();
+
+  return data.tokens as TroveSmolToken[] | undefined;
 };

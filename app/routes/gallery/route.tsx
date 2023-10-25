@@ -12,7 +12,7 @@ import {
 import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import { distance } from "@popmotion/popcorn";
-import type { TroveSmolToken } from "~/api";
+import type { TroveSmolToken, searchSmol } from "~/api";
 import { fetchSmols } from "~/api";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -26,21 +26,11 @@ import { Header } from "~/components/Header";
 import { useResponsive } from "~/contexts/responsive";
 import { useFetcher } from "@remix-run/react";
 import PurpleMonke from "./assets/purpleMonke.webp";
+import { Loading } from "~/components/Loading";
 
 const MotionIcon = motion(Icon);
 // this is the height for the visible area on line 201, h-96.
 const BOX_HEIGHT = 200;
-
-const filterTraits = [
-  "Background",
-  "Body",
-  "Clothes",
-  "Glasses",
-  "Hat",
-  "Naked",
-  "Mouth",
-  "Gender"
-];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -60,7 +50,7 @@ function splitApps(apps: TroveSmolToken[], isMobile: boolean = false) {
   const first = isMobile ? 5 : 7;
   const second = isMobile ? 4 : 6;
 
-  for (let i = 0; i < apps.length; ) {
+  for (let i = 0; i < apps.length; i++) {
     if (isFirst) {
       results.push(apps.slice(i, i + first));
       i += first;
@@ -251,15 +241,18 @@ const GalleryInner = ({
   parentHeight,
   x,
   y
-}: {
+} // targetSmolId
+: {
   width: number;
   parentHeight: number;
   x: MotionValue<number>;
   y: MotionValue<number>;
+  // targetSmolId: string | null;
 }) => {
   const initialData = useCustomLoaderData<typeof loader>();
-  const [data, setData] = useState(initialData?.data);
+  const [pageData, setPageData] = useState(initialData?.data);
   const fetcher = useFetcher<typeof loader>();
+  // const smolFetcher = useFetcher<ReturnType<typeof searchSmol>>();
   const { isMobile } = useResponsive();
   const loadedPages = useRef<number[]>([]);
   const [openModal, setOpenModal] = useState<{
@@ -270,6 +263,20 @@ const GalleryInner = ({
     targetTokenId: null
   });
 
+  // TODO: remove this when fetcher is memoized properly
+  // const fetcherRef = useRef(smolFetcher);
+  // useEffect(() => {
+  //   fetcherRef.current = smolFetcher;
+  // }, [smolFetcher]);
+
+  // useEffect(() => {
+  //   if (!targetSmolId) return;
+
+  //   fetcherRef.current.load(
+  //     `/search?${new URLSearchParams({ tokenId: targetSmolId }).toString()}`
+  //   );
+  // }, [targetSmolId]);
+
   const page = fetcher.data
     ? fetcher.data.page + 1
     : (initialData?.page || 0) + 1;
@@ -278,11 +285,14 @@ const GalleryInner = ({
 
   useEffect(() => {
     if (fetcher.data) {
-      setData((d) => {
+      setPageData((d) => {
         return [...(d ?? []), ...(fetcher.data?.data ?? [])];
       });
     }
   }, [fetcher.data]);
+
+  // const data = smolFetcher.data ?? pageData;
+  const data = pageData;
 
   const loadMore = () => {
     if (loadedPages.current.includes(page)) return;
@@ -365,7 +375,7 @@ export default function Gallery() {
   });
   const [dragRef, attachRef] = useCallbackRef<HTMLDivElement>();
   const [parentRef, attachParentRef] = useCallbackRef<HTMLDivElement>();
-
+  // const [targetSmolId, setTargetSmolId] = useState<string | null>(null);
   const width = dragRef?.getBoundingClientRect().width ?? 0;
 
   const isPresent = useIsPresent();
@@ -436,14 +446,26 @@ export default function Gallery() {
         <div className="pointer-events-none absolute inset-0 z-10 bg-black [mask-image:radial-gradient(transparent,black_95%)]"></div>
         <motion.div
           ref={attachRef}
-          className="relative touch-none"
+          className="touch-none"
           style={{
             y,
             x
           }}
         >
-          <GalleryInner width={width} parentHeight={parentHeight} x={x} y={y} />
+          <GalleryInner
+            width={width}
+            parentHeight={parentHeight}
+            x={x}
+            y={y}
+            // targetSmolId={targetSmolId}
+          />
         </motion.div>
+        {/* <div className="fixed bottom-4 left-1/2 -translate-x-1/2 text-white text-3xl">
+          <button onClick={() => {
+            setTargetSmolId("1000");
+            y.set(0)
+          }}>Set up</button>
+        </div> */}
       </div>
     </AnimationContainer>
   );
@@ -455,10 +477,27 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
   const [seconds, setSeconds] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const player = useRef<Player | null>(null);
-
   const gender =
     smol.metadata.attributes.find((a) => a.trait_type === "Gender")?.value ??
     "male";
+
+  const fetcher = useFetcher<{ location: string }>();
+  // TODO: remove this when fetcher is memoized properly
+  const fetcherRef = useRef(fetcher);
+  useEffect(() => {
+    fetcherRef.current = fetcher;
+  }, [fetcher]);
+
+  // fetch location information about the smol
+  useEffect(() => {
+    const searchParams = new URLSearchParams({ id: String(smol.tokenId) });
+
+    fetcherRef.current.load(`/location?${searchParams.toString()}`);
+  }, [smol.tokenId]);
+
+  const iq =
+    (smol.metadata.attributes.find((a) => a.trait_type === "IQ")
+      ?.value as number) ?? 0;
 
   useEffect(() => {
     const load = async () => {
@@ -555,51 +594,79 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
         className="pointer-events-none absolute -right-12 top-44 z-10 h-36 w-32 fill-current sm:top-[17rem] lg:top-60 lg:h-48 lg:w-40"
       />
       <div className="relative flex h-full flex-col gap-4 p-4">
-        <div className="grid flex-1 grid-cols-2 gap-2">
-          {smol.rarity.scoreBreakdown
-            .filter((data) => filterTraits.includes(data.trait))
-            .map((data) => {
-              return (
-                <div
-                  key={`${data.trait}-${data.value}`}
-                  className="group relative bg-[#443560] font-bold uppercase text-white font-formula"
-                >
-                  <div className="absolute inset-0 grid h-full w-full place-items-center bg-[#7237E3] opacity-0 transition-all duration-300 group-hover:opacity-100">
-                    <p className="text-sm">{data.score.toFixed(2)}%</p>
-                  </div>
-                  <div className="flex h-full flex-col items-center justify-center gap-1 py-2">
-                    <p className="text-white/50 text-xs sm:text-sm">
-                      {data.trait}
-                    </p>
-                    <p className="text-sm sm:text-lg">{data.value}</p>
-                  </div>
-                </div>
-              );
-            })}
+        <div className="flex justify-between">
+          <div className="flex flex-col space-y-2">
+            <p className="font-bold text-[#BFB9CA] font-formula text-sm leading-none capsize">
+              SMOL BRAIN
+            </p>
+            <p className="font-black text-grayTwo font-formula text-5xl leading-none capsize">
+              {smol.tokenId}
+            </p>
+          </div>
+          <div className="flex items-center space-x-2 self-center bg-[#36225E] px-4 py-3">
+            <Icon name="brain" className="h-6 w-6 text-white" />
+            <span className="font-extrabold text-grayTwo font-formula leading-none capsize">
+              {new Intl.NumberFormat("en-US").format(iq)}
+            </span>
+          </div>
         </div>
-        <button
-          onClick={() => playSound()}
-          className="inline-flex h-12 items-center justify-center border bg-acid py-4 font-bold font-formula"
-        >
-          <MotionIcon
-            animate={
-              ringing
-                ? {
-                    rotate: 360
+        <div className="mt-4 flex h-full flex-col">
+          {fetcher.state === "loading" ? (
+            <div className="grid flex-1 place-items-center">
+              <Loading className="h-12 w-12 text-white" />
+            </div>
+          ) : (
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center space-x-2 bg-[#36225E] px-4 py-2.5">
+                <Icon name="geotag" className="h-6 w-6 text-white" />
+                <span className="font-bold text-grayTwo font-formula leading-none capsize">
+                  {fetcher.data?.location ?? "UNKNOWN"}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2 bg-[#36225E] px-4 py-2.5">
+                <Icon name="work" className="h-6 w-6 text-white" />
+                <span className="font-bold text-grayTwo font-formula leading-none capsize">
+                  DESIGNER
+                </span>
+              </div>
+            </div>
+          )}
+          <div className="flex flex-1 items-end">
+            <div className="flex w-full flex-col space-y-1">
+              <button
+                onClick={() => playSound()}
+                className="inline-flex h-12 w-full items-center justify-center bg-acid py-4 font-bold font-formula"
+              >
+                <MotionIcon
+                  animate={
+                    ringing
+                      ? {
+                          rotate: 360
+                        }
+                      : undefined
                   }
-                : undefined
-            }
-            name="call"
-            className="h-8 w-8"
-          />
-          <span className="ml-1">
-            {ringing
-              ? "Ringing..."
-              : audioRef.current && !audioRef.current.paused
-              ? `00:${seconds < 10 ? `0${seconds}` : seconds}`
-              : `Call ${smol.tokenId}`}
-          </span>
-        </button>
+                  name="call"
+                  className="h-8 w-8"
+                />
+                <span className="ml-1">
+                  {ringing
+                    ? "Ringing..."
+                    : audioRef.current && !audioRef.current.paused
+                    ? `00:${seconds < 10 ? `0${seconds}` : seconds}`
+                    : `Call ${smol.tokenId}`}
+                </span>
+              </button>
+              <a
+                href={`https://app.treasure.lol/collection/smol-brains/${smol.tokenId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-12 w-full items-center justify-center bg-troll py-4 font-bold font-formula"
+              >
+                VIEW MORE DETAILS
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
