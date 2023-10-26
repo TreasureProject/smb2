@@ -100,6 +100,7 @@ export default function Tv() {
           {/* <CameraRig /> */}
           <OrbitControls
             enableZoom={false}
+            enablePan={false}
             // vertical movement limit
             minPolarAngle={Math.PI / 2}
             // horizontal movement limit

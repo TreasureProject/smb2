@@ -36,6 +36,7 @@
     "r3f-perf": "^7.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-idle-timer": "^5.7.2",
     "remix-utils": "^7.0.2",
     "say": "^0.16.0",
     "tailwind-merge": "^1.14.0",

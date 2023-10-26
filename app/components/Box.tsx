@@ -23,7 +23,7 @@ type Props =
     } & Omit<RemixLinkProps, "state">);
 
 export const Box = (props: Props) => {
-  const className = cn("relative overflow-hidden box", props.className);
+  const className = cn("relative box", props.className);
 
   const { children, as } = props;
   const [ref, setNodeRef] = useState<HTMLAnchorElement | null>(null);

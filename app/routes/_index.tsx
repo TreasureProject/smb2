@@ -1,5 +1,5 @@
 import type { LinksFunction, MetaFunction } from "@remix-run/node";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { getTransformOrigin } from "~/utils";
 import { Box } from "~/components/Box";
 import Frens from "../assets/frens.webp";
@@ -13,6 +13,9 @@ import Spotlight from "../assets/spotlight.webp";
 import { AnimatePresence, motion, useAnimate } from "framer-motion";
 import { useKonami } from "~/contexts/konami";
 import SmolMusicVideo from "~/assets/smol-musicvideo.mp4";
+import { useIdleTimer } from "react-idle-timer";
+
+import Peek from "~/assets/peek.gif";
 
 // const MotionLink = motion(Link);
 
@@ -68,7 +71,7 @@ export const links: LinksFunction = () => [
 //         // @ts-ignore
 //         width
 //       }}
-//       className="relative z-10 aspect-square h-auto w-16"
+//       className="relative z-10 aspect-video h-auto w-16"
 //     >
 //       <img src={TestImg} className="h-full w-full rounded-md bg-neonPink"></img>
 //     </MotionLink>
@@ -78,7 +81,16 @@ export const links: LinksFunction = () => [
 export default function Index() {
   const [scope, _animate] = useAnimate();
   const { activated } = useKonami();
+  const [state, setState] = useState<"idle" | "active">("active");
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
+
+  useIdleTimer({
+    onIdle: () => setState("idle"),
+    onActive: () => setState("active"),
+    timeout: 5000,
+    throttle: 500
+  });
+
   React.useEffect(() => {
     const animation = _animate(
       "a",
@@ -162,13 +174,31 @@ export default function Index() {
             as="link"
             to="/about"
             state={getTransformOrigin}
-            className="bg-white/10 backdrop-blur-sm sm:col-start-1 sm:col-end-3 sm:row-start-1 sm:row-end-2"
+            className="relative bg-white/10 backdrop-blur-sm sm:col-start-1 sm:col-end-3 sm:row-start-1 sm:row-end-2"
           >
             <img
               src={News}
               alt="News"
-              className="aspect-square h-full w-full opacity-[0.85]"
+              className="aspect-video h-full w-full opacity-[0.85]"
             ></img>
+            <AnimatePresence>
+              {state === "idle" && (
+                <motion.img
+                  initial={{
+                    opacity: 0
+                  }}
+                  animate={{
+                    opacity: 1
+                  }}
+                  exit={{
+                    opacity: 0
+                  }}
+                  src={Peek}
+                  className="absolute bottom-full left-1/2 z-10 h-24 w-24 -translate-x-1/2"
+                  alt="peek smol"
+                />
+              )}
+            </AnimatePresence>
           </Box>
           <Box
             as="link"
@@ -179,7 +209,7 @@ export default function Index() {
             <img
               src={Gallery}
               alt="gallery"
-              className="aspect-square h-full w-full opacity-[0.85]"
+              className="aspect-video h-full w-full opacity-[0.85]"
             ></img>
           </Box>
           <Box
@@ -191,31 +221,67 @@ export default function Index() {
             <img
               src={Art}
               alt="art"
-              className="aspect-square h-full w-full opacity-[0.85]"
+              className="aspect-video h-full w-full opacity-[0.85]"
             ></img>
           </Box>
           <Box
             as="link"
             to="/spotlight"
             state={getTransformOrigin}
-            className="bg-white/10 sm:col-start-5 sm:col-end-7 sm:row-start-1 sm:row-end-3"
+            className="relative bg-white/10 sm:col-start-5 sm:col-end-7 sm:row-start-1 sm:row-end-3"
           >
             <img
               src={Spotlight}
               alt="spotlight"
               className="aspect-square h-full w-full opacity-[0.85]"
             ></img>
+            <AnimatePresence>
+              {state === "idle" && (
+                <motion.img
+                  initial={{
+                    opacity: 0
+                  }}
+                  animate={{
+                    opacity: 1
+                  }}
+                  exit={{
+                    opacity: 0
+                  }}
+                  src={Peek}
+                  className="absolute bottom-0 left-full z-10 h-24 w-24 rotate-90"
+                  alt="peek smol"
+                />
+              )}
+            </AnimatePresence>
           </Box>
           <Box
             as="a"
             href="https://shop.smolverse.lol/"
-            className="bg-white/10 backdrop-blur-sm sm:col-start-1 sm:col-end-3 sm:row-start-2 sm:row-end-5"
+            className="relative bg-white/10 backdrop-blur-sm sm:col-start-1 sm:col-end-3 sm:row-start-2 sm:row-end-5"
           >
             <img
               src={Fashion}
               alt="fashion"
               className="aspect-square h-full w-full opacity-[0.85]"
             ></img>
+            <AnimatePresence>
+              {state === "idle" && (
+                <motion.img
+                  initial={{
+                    opacity: 0
+                  }}
+                  animate={{
+                    opacity: 1
+                  }}
+                  exit={{
+                    opacity: 0
+                  }}
+                  src={Peek}
+                  className="absolute bottom-0 right-full z-10 h-24 w-24 -rotate-90"
+                  alt="peek smol"
+                />
+              )}
+            </AnimatePresence>
           </Box>
           <Box
             as="link"
@@ -233,13 +299,31 @@ export default function Index() {
             as="link"
             to="/news"
             state={getTransformOrigin}
-            className="bg-white/10 backdrop-blur-sm sm:col-start-5 sm:col-end-6 sm:row-start-3 sm:row-end-5"
+            className="relative bg-white/10 backdrop-blur-sm sm:col-start-5 sm:col-end-6 sm:row-start-3 sm:row-end-5"
           >
             <img
               src={Goals}
               alt="goals"
               className="aspect-square h-full w-full opacity-[0.85]"
             ></img>
+            <AnimatePresence>
+              {state === "idle" && (
+                <motion.img
+                  initial={{
+                    opacity: 0
+                  }}
+                  animate={{
+                    opacity: 1
+                  }}
+                  exit={{
+                    opacity: 0
+                  }}
+                  src={Peek}
+                  className="absolute left-1/2 top-full z-10 h-24 w-24 -translate-x-1/2 -rotate-180"
+                  alt="peek smol"
+                />
+              )}
+            </AnimatePresence>
           </Box>
           <Box
             as="link"

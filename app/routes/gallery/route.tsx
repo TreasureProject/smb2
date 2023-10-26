@@ -27,6 +27,7 @@ import { useResponsive } from "~/contexts/responsive";
 import { useFetcher } from "@remix-run/react";
 import PurpleMonke from "./assets/purpleMonke.webp";
 import { Loading } from "~/components/Loading";
+import { cn } from "~/utils";
 
 const MotionIcon = motion(Icon);
 // this is the height for the visible area on line 201, h-96.
@@ -74,14 +75,12 @@ function useCallbackRef<TValue = unknown>(): [
 const FiveColumns = ({
   apps,
   width,
-  y,
   x,
   parentHeight,
   openModal
 }: {
   apps: TroveSmolToken[];
   width: number;
-  y: MotionValue<number>;
   x: MotionValue<number>;
   parentHeight: number;
   openModal: (id: string) => void;
@@ -102,7 +101,6 @@ const FiveColumns = ({
           key={app.tokenId}
           app={app}
           width={width}
-          y={y}
           openModal={openModal}
         />
       ))}
@@ -113,14 +111,12 @@ const FiveColumns = ({
 const SevenColumns = ({
   apps,
   width,
-  y,
   x,
   parentHeight,
   openModal
 }: {
   apps: TroveSmolToken[];
   width: number;
-  y: MotionValue<number>;
   x: MotionValue<number>;
   parentHeight: number;
   openModal: (id: string) => void;
@@ -141,7 +137,6 @@ const SevenColumns = ({
           key={app.tokenId}
           app={app}
           width={width}
-          y={y}
           openModal={openModal}
         />
       ))}
@@ -152,14 +147,12 @@ const SevenColumns = ({
 const Item = ({
   app,
   width,
-  y,
   x,
   parentHeight,
   openModal
 }: {
   app: TroveSmolToken;
   width: number;
-  y: MotionValue<number>;
   x: MotionValue<number>;
   parentHeight: number;
   openModal: (id: string) => void;
@@ -240,42 +233,25 @@ const GalleryInner = ({
   width,
   parentHeight,
   x,
-  y
-} // targetSmolId
-: {
+  y,
+  openModal,
+  triggerModal
+}: {
   width: number;
   parentHeight: number;
   x: MotionValue<number>;
   y: MotionValue<number>;
-  // targetSmolId: string | null;
+  openModal: {
+    isOpen: boolean;
+    targetTokenId: string | null;
+  };
+  triggerModal: (id: string) => void;
 }) => {
   const initialData = useCustomLoaderData<typeof loader>();
   const [pageData, setPageData] = useState(initialData?.data);
   const fetcher = useFetcher<typeof loader>();
-  // const smolFetcher = useFetcher<ReturnType<typeof searchSmol>>();
   const { isMobile } = useResponsive();
   const loadedPages = useRef<number[]>([]);
-  const [openModal, setOpenModal] = useState<{
-    isOpen: boolean;
-    targetTokenId: string | null;
-  }>({
-    isOpen: false,
-    targetTokenId: null
-  });
-
-  // TODO: remove this when fetcher is memoized properly
-  // const fetcherRef = useRef(smolFetcher);
-  // useEffect(() => {
-  //   fetcherRef.current = smolFetcher;
-  // }, [smolFetcher]);
-
-  // useEffect(() => {
-  //   if (!targetSmolId) return;
-
-  //   fetcherRef.current.load(
-  //     `/search?${new URLSearchParams({ tokenId: targetSmolId }).toString()}`
-  //   );
-  // }, [targetSmolId]);
 
   const page = fetcher.data
     ? fetcher.data.page + 1
@@ -311,21 +287,10 @@ const GalleryInner = ({
     }
   });
 
-  const triggerModal = (id: string) =>
-    setOpenModal({ isOpen: true, targetTokenId: id });
-
   const targetSmol = data?.find((d) => d.tokenId === openModal.targetTokenId);
 
   return (
-    <Sheet
-      open={openModal.isOpen}
-      onOpenChange={(isOpen) =>
-        setOpenModal((modal) => ({
-          ...modal,
-          isOpen
-        }))
-      }
-    >
+    <>
       <div className="relative grid touch-none gap-16 p-4">
         {data &&
           splitApps(data, isMobile).map((apps) => {
@@ -336,31 +301,28 @@ const GalleryInner = ({
                   key={apps.map((d) => d.tokenId).join(",")}
                   apps={apps}
                   width={width}
-                  y={y}
-                  x={x}
-                  parentHeight={parentHeight}
-                  openModal={triggerModal}
-                />
-              );
-            } else {
-              return (
-                <FiveColumns
-                  key={apps.map((d) => d.tokenId).join(",")}
-                  apps={apps}
-                  width={width}
-                  y={y}
                   x={x}
                   parentHeight={parentHeight}
                   openModal={triggerModal}
                 />
               );
             }
+            return (
+              <FiveColumns
+                key={apps.map((d) => d.tokenId).join(",")}
+                apps={apps}
+                width={width}
+                x={x}
+                parentHeight={parentHeight}
+                openModal={triggerModal}
+              />
+            );
           })}
       </div>
       <SheetContent className="bg-[#1C122F]">
         {targetSmol ? <SidePopup smol={targetSmol} /> : null}
       </SheetContent>
-    </Sheet>
+    </>
   );
 };
 
@@ -375,7 +337,18 @@ export default function Gallery() {
   });
   const [dragRef, attachRef] = useCallbackRef<HTMLDivElement>();
   const [parentRef, attachParentRef] = useCallbackRef<HTMLDivElement>();
-  // const [targetSmolId, setTargetSmolId] = useState<string | null>(null);
+  const [targetSmolId, setTargetSmolId] = useState<string | null>(null);
+  const [openModal, setOpenModal] = useState<{
+    isOpen: boolean;
+    targetTokenId: string | null;
+  }>({
+    isOpen: false,
+    targetTokenId: null
+  });
+
+  const triggerModal = (id: string) =>
+    setOpenModal({ isOpen: true, targetTokenId: id });
+
   const width = dragRef?.getBoundingClientRect().width ?? 0;
 
   const isPresent = useIsPresent();
@@ -396,7 +369,8 @@ export default function Gallery() {
       bounds: { left: -0, right: 0 },
 
       rubberband: true,
-      filterTaps: true
+      filterTaps: true,
+      enabled: !targetSmolId
     }
   );
 
@@ -426,6 +400,22 @@ export default function Gallery() {
     ]);
   }, [isPresent, parentRef]);
 
+  const smolFetcher = useFetcher<ReturnType<typeof searchSmol>>();
+
+  // TODO: remove this when fetcher is memoized properly
+  const fetcherRef = useRef(smolFetcher);
+  useEffect(() => {
+    fetcherRef.current = smolFetcher;
+  }, [smolFetcher]);
+
+  useEffect(() => {
+    if (!targetSmolId) return;
+
+    fetcherRef.current.load(
+      `/search?${new URLSearchParams({ tokenId: targetSmolId }).toString()}`
+    );
+  }, [targetSmolId]);
+
   return (
     <AnimationContainer
       className="relative flex h-full flex-col bg-[url(/img/stars.webp)] bg-repeat brightness-125"
@@ -441,31 +431,62 @@ export default function Gallery() {
 
       <div
         ref={attachParentRef}
-        className="invisible relative grid flex-1 justify-center overflow-hidden"
+        className={cn(
+          "invisible relative grid flex-1 justify-center overflow-hidden"
+        )}
       >
         <div className="pointer-events-none absolute inset-0 z-10 bg-black [mask-image:radial-gradient(transparent,black_95%)]"></div>
-        <motion.div
-          ref={attachRef}
-          className="touch-none"
-          style={{
-            y,
-            x
+        <Sheet
+          open={openModal.isOpen}
+          onOpenChange={(isOpen) =>
+            setOpenModal((modal) => ({
+              ...modal,
+              isOpen
+            }))
+          }
+        >
+          {smolFetcher.data && targetSmolId ? (
+            <div className="grid h-full place-items-center">
+              <Item
+                app={smolFetcher.data[0]}
+                width={width}
+                x={x}
+                parentHeight={parentHeight}
+                openModal={triggerModal}
+              />
+              <SheetContent className="bg-[#1C122F]">
+                <SidePopup smol={smolFetcher.data[0]} />
+              </SheetContent>
+            </div>
+          ) : (
+            <motion.div
+              ref={attachRef}
+              className="touch-none"
+              style={{
+                y,
+                x
+              }}
+            >
+              <GalleryInner
+                width={width}
+                parentHeight={parentHeight}
+                x={x}
+                y={y}
+                openModal={openModal}
+                triggerModal={triggerModal}
+              />
+            </motion.div>
+          )}
+        </Sheet>
+      </div>
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 text-white text-3xl">
+        <button
+          onClick={() => {
+            setTargetSmolId((smol) => (!smol ? "1000" : null));
           }}
         >
-          <GalleryInner
-            width={width}
-            parentHeight={parentHeight}
-            x={x}
-            y={y}
-            // targetSmolId={targetSmolId}
-          />
-        </motion.div>
-        {/* <div className="fixed bottom-4 left-1/2 -translate-x-1/2 text-white text-3xl">
-          <button onClick={() => {
-            setTargetSmolId("1000");
-            y.set(0)
-          }}>Set up</button>
-        </div> */}
+          Set up
+        </button>
       </div>
     </AnimationContainer>
   );

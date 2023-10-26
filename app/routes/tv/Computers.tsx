@@ -9,27 +9,15 @@ Title: Old Computers
 */
 
 import type * as THREE from "three";
-import React, {
-  useRef,
-  useMemo,
-  useContext,
-  createContext,
-  useState
-} from "react";
+import React, { useMemo, useContext, createContext } from "react";
 import {
   useGLTF,
   Merged,
   RenderTexture,
-  Text,
   PerspectiveCamera,
-  useVideoTexture,
-  useAspect,
-  OrthographicCamera,
-  OrbitControls,
-  useHelper
+  useVideoTexture
 } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
-import { useFrame } from "@react-three/fiber";
 
 interface GLTFResult extends GLTF {
   nodes: {
@@ -39,6 +27,7 @@ interface GLTFResult extends GLTF {
     Object_172: THREE.Mesh;
     Object_174: THREE.Mesh;
     Object_22: THREE.Mesh;
+    Object_24: THREE.Mesh;
     Object_26: THREE.Mesh;
     Object_28: THREE.Mesh;
     Object_178: THREE.Mesh;
@@ -59,65 +48,6 @@ type ContextType = Record<
   string,
   React.ForwardRefExoticComponent<JSX.IntrinsicElements["mesh"]>
 >;
-
-// const context = createContext({} as ContextType);
-// export function Instances({
-//   children,
-//   ...props
-// }: JSX.IntrinsicElements["group"]) {
-//   const { nodes } = useGLTF("/old_computers-transformed.glb") as GLTFResult;
-//   const instances = useMemo(
-//     () => ({
-//       Object: nodes.Object_14,
-//       Object1: nodes.Object_18,
-//       Object2: nodes.Object_207,
-//       Object3: nodes.Object_0,
-//       Object4: nodes.Object_6,
-//       Object5: nodes.Object_9,
-//       Object6: nodes.Object_10,
-//       Object7: nodes.Object_12,
-//       Object8: nodes.Object_25
-//     }),
-//     [nodes]
-//   );
-//   return (
-//     <Merged meshes={instances} {...props}>
-//       {(instances: ContextType) => (
-//         <context.Provider value={instances} children={children} />
-//       )}
-//     </Merged>
-//   );
-// }
-
-// export function Computers(props: JSX.IntrinsicElements["group"]) {
-//   const instances = useContext(context);
-//   return (
-//     <group {...props} dispose={null}>
-//       <instances.Object scale={13} />
-//       <instances.Object1
-//         position={[-0.186, 0, -2.962]}
-//         rotation={[0, -0.064, 0]}
-//         scale={1.52}
-//       />
-//       <instances.Object2 position={[0.27, 1.529, -2.613]} />
-//       <instances.Object3 />
-//       <instances.Object4 />
-//       <instances.Object5 />
-//       <instances.Object6 />
-//       <instances.Object7 />
-//       <instances.Object8 />
-//       <Screen
-//         frame="Object_14"
-//         panel="Object_18"
-//         y={5}
-//         position={[-1.43, 2.5, -1.8]}
-//         rotation={[0, 1, 0]}
-//       >
-//         <meshBasicMaterial color="red" />
-//       </Screen>
-//     </group>
-//   );
-// }
 
 const context = createContext({} as ContextType);
 export function Instances({
@@ -774,35 +704,37 @@ export function Computers(props: JSX.IntrinsicElements["group"]) {
         frame="Object_206"
         panel="Object_207"
         position={[0.27, 1.53, -2.61]}
+        videoPosition={[2.87, -0.7, 9.06]}
       />
       <ScreenVideo
         frame="Object_209"
         panel="Object_210"
-        y={5}
         path="2"
+        videoPosition={[0.04, -2.2, 6.4]}
         position={[-1.43, 2.5, -1.8]}
         rotation={[0, 1, 0]}
       />
       <ScreenVideo
         frame="Object_212"
         panel="Object_213"
-        x={-5}
-        y={5}
         path="3"
+        videoPosition={[0.04, -0.6, 6.74]}
         position={[-2.73, 0.63, -0.52]}
         rotation={[0, 1.09, 0]}
       />
       <ScreenVideo
         frame="Object_215"
         panel="Object_216"
-        path="3"
+        path="4"
         position={[1.84, 0.38, -1.77]}
+        videoPosition={[0, -0.3, 7.39]}
         rotation={[0, -Math.PI / 9, 0]}
       />
       <ScreenVideo
         frame="Object_218"
         panel="Object_219"
         path="3"
+        videoPosition={[0.04, -0.6, 6.74]}
         position={[3.11, 2.15, -0.18]}
         rotation={[0, -0.79, 0]}
         scale={0.81}
@@ -811,6 +743,7 @@ export function Computers(props: JSX.IntrinsicElements["group"]) {
         frame="Object_221"
         panel="Object_222"
         path="3"
+        videoPosition={[0.04, -0.6, 6.74]}
         position={[-3.42, 3.06, 1.3]}
         rotation={[0, 1.22, 0]}
         scale={0.9}
@@ -818,6 +751,7 @@ export function Computers(props: JSX.IntrinsicElements["group"]) {
       <ScreenVideo
         frame="Object_224"
         path="3"
+        videoPosition={[0.04, -0.6, 6.74]}
         panel="Object_225"
         position={[-3.9, 4.29, -2.64]}
         rotation={[0, 0.54, 0]}
@@ -826,12 +760,14 @@ export function Computers(props: JSX.IntrinsicElements["group"]) {
         frame="Object_227"
         panel="Object_228"
         path="3"
+        videoPosition={[0.04, -0.6, 6.74]}
         position={[0.96, 4.28, -4.2]}
         rotation={[0, -0.65, 0]}
       />
       <ScreenVideo
         frame="Object_230"
         path="3"
+        videoPosition={[0.04, -0.6, 6.74]}
         panel="Object_231"
         position={[4.68, 4.29, -1.56]}
         rotation={[0, -Math.PI / 3, 0]}
@@ -879,14 +815,17 @@ function Screen({
 /* Renders a monitor with a spinning box */
 function ScreenVideo({
   path = "1",
+  videoPosition,
+  bg = "black",
   ...props
 }: {
   frame: string;
   panel: string;
   path?: string;
+  bg?: string;
+  videoPosition: [number, number, number];
 } & JSX.IntrinsicElements["group"]) {
   const texture = useVideoTexture(`/videos/${path}.mp4`);
-  const boxRef = useRef<THREE.Mesh>();
 
   return (
     <Screen {...props}>
@@ -894,12 +833,12 @@ function ScreenVideo({
         makeDefault
         manual
         aspect={1 / 1}
-        position={[0, 0, 1]}
+        position={videoPosition}
       />
 
-      <color attach="background" args={["orange"]} />
-      <mesh ref={boxRef} position={[0, 0, 0]}>
-        <planeGeometry />
+      <color attach="background" args={[bg]} />
+      <mesh position={[0, 0, 0]}>
+        <planeGeometry args={[1.5, 1.5, 1]} />
         <meshBasicMaterial map={texture} toneMapped={false} />
       </mesh>
     </Screen>
