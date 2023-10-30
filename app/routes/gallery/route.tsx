@@ -29,8 +29,8 @@ import { Loading } from "~/components/Loading";
 import { cn } from "~/utils";
 import type { loader as loaderType } from "~/routes/location";
 import { lastSeenRoutine } from "./getLastSeen";
-import { flushSync } from "react-dom";
 
+const SPEECH_NAMES = ["Bruce", "Fred", "Junior"];
 // this is the height for the visible area on line 201, h-96.
 const BOX_HEIGHT = 200;
 
@@ -569,13 +569,16 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
       utterance.voice =
         voices.find((voice) => {
           if (gender === "male") {
-            return (
-              voice.name ===
-              ["Bruce", "Fred", "Junior"][Number(smol.tokenId) % 3]
-            );
+            // if any of these names are in the voice name, return true
+            if (SPEECH_NAMES.includes(voice.name)) {
+              return voice.name === SPEECH_NAMES[Number(smol.tokenId) % 3];
+            }
+            return voice.name === "Microsoft David - English (United States)";
           }
 
-          return voice.name === "Kathy";
+          return ["Kathy", "Microsoft Zira - English (United States)"].includes(
+            voice.name
+          );
         }) ?? voices[0];
     }
 
