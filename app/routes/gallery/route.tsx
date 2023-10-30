@@ -21,13 +21,15 @@ import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { interpolate } from "popmotion";
 import { Icon } from "~/components/Icons";
 import { AnimationContainer } from "~/components/AnimationContainer";
-import { PitchShift, Player, loaded } from "tone";
+import type { Player } from "tone";
+import { PitchShift, loaded } from "tone";
 import { Header } from "~/components/Header";
 import { useResponsive } from "~/contexts/responsive";
 import { useFetcher } from "@remix-run/react";
 import PurpleMonke from "./assets/purpleMonke.webp";
 import { Loading } from "~/components/Loading";
 import { cn } from "~/utils";
+import type { loader as loaderType } from "~/routes/location";
 
 const MotionIcon = motion(Icon);
 // this is the height for the visible area on line 201, h-96.
@@ -496,20 +498,27 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
   const [color, setColor] = useState<string | null>(null);
   const [ringing, setRinging] = useState(false);
   const [seconds, setSeconds] = useState(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const player = useRef<Player | null>(null);
   const gender =
     smol.metadata.attributes.find((a) => a.trait_type === "Gender")?.value ??
     "male";
 
-  const fetcher = useFetcher<{ location: string }>();
+  const synth = useRef<SpeechSynthesis | null>(null);
+
+  useEffect(() => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      synth.current = window.speechSynthesis;
+    }
+  }, []);
+
+  const fetcher = useFetcher<typeof loaderType>();
   // TODO: remove this when fetcher is memoized properly
   const fetcherRef = useRef(fetcher);
   useEffect(() => {
     fetcherRef.current = fetcher;
   }, [fetcher]);
 
-  // fetch location information about the smol
+  // fetch information about the smol
   useEffect(() => {
     const searchParams = new URLSearchParams({ id: String(smol.tokenId) });
 
@@ -520,42 +529,40 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
     (smol.metadata.attributes.find((a) => a.trait_type === "IQ")
       ?.value as number) ?? 0;
 
-  useEffect(() => {
-    const load = async () => {
-      const searchParams = new URLSearchParams({ id: String(smol.tokenId) });
-
-      player.current = new Player({
-        url: `/speech.wav?${searchParams.toString()}`,
-        loop: false,
-        autostart: false
-      });
-
-      const pitchShift = new PitchShift({
-        pitch: gender === "male" ? -4 : 10
-      }).toDestination();
-
-      await loaded();
-      player.current.connect(pitchShift);
-    };
-
-    load();
-  }, [gender, smol.tokenId]);
-
   const playSound = () => {
-    if (ringing || (player.current && player.current.state === "started"))
-      return;
+    if (ringing || (synth.current && synth.current.speaking)) return;
 
     setRinging(true);
 
     setTimeout(() => {
       setRinging(false);
-      player.current?.start();
+      const speech = new SpeechSynthesisUtterance(fetcher.data?.voicemail);
+
+      speech.lang = "en-US";
+
+      const voices = synth.current?.getVoices();
+
+      if (voices) {
+        speech.voice =
+          voices.find((voice) => {
+            if (gender === "male") {
+              return (
+                voice.name ===
+                ["Bruce", "Fred", "Junior"][Math.floor(Math.random() * 3)]
+              );
+            }
+
+            return voice.name === "Kathy";
+          }) ?? voices[0];
+      }
+
+      synth.current?.speak(speech);
     }, 2000);
   };
 
   useEffect(() => {
-    if (audioRef.current) {
-      if (!audioRef.current?.paused) {
+    if (synth.current) {
+      if (synth.current?.speaking) {
         const id = setInterval(() => {
           setSeconds((s) => s + 1);
         }, 1000);
@@ -564,7 +571,7 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
         setSeconds(0);
       }
     }
-  }, [audioRef.current?.paused]);
+  }, [synth.current?.speaking]);
 
   return (
     <div className="relative flex h-full flex-col">
@@ -656,7 +663,10 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
             <div className="flex w-full flex-col space-y-1">
               <button
                 onClick={() => playSound()}
-                className="inline-flex h-12 w-full items-center justify-center bg-acid py-4 font-bold font-formula"
+                disabled={
+                  fetcher.state === "loading" || synth.current?.speaking
+                }
+                className="inline-flex h-12 w-full items-center justify-center bg-acid py-4 font-bold font-formula disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <MotionIcon
                   animate={
@@ -672,7 +682,7 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
                 <span className="ml-1">
                   {ringing
                     ? "Ringing..."
-                    : audioRef.current && !audioRef.current.paused
+                    : synth.current && synth.current.speaking
                     ? `00:${seconds < 10 ? `0${seconds}` : seconds}`
                     : `Call ${smol.tokenId}`}
                 </span>

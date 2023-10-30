@@ -777,8 +777,6 @@ export function Computers(props: JSX.IntrinsicElements["group"]) {
   );
 }
 
-/* This component renders a monitor (taken out of the gltf model)
-   It renders a custom scene into a texture and projects it onto monitors screen */
 function Screen({
   frame,
   panel,
@@ -812,7 +810,6 @@ function Screen({
   );
 }
 
-/* Renders a monitor with a spinning box */
 function ScreenVideo({
   path = "1",
   videoPosition,

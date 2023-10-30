@@ -1,7 +1,7 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 
-export let loader: LoaderFunction = async ({ request }) => {
+export let loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const targetSmolId = url.searchParams.get("id") || "1";
 
@@ -9,9 +9,11 @@ export let loader: LoaderFunction = async ({ request }) => {
     `https://cloudflare-ipfs.com/ipfs/QmXk3GFkkZpTehsQvwdDgiPbE43ktxUuZfg2S7Wf8pzePx/${targetSmolId}.json`
   );
 
-  const voicemail = await data.json();
+  const res = await data.json();
 
-  const location = voicemail.Location;
+  const location = res.Location as string;
 
-  return json({ location });
+  const voicemail = res.Voicemail as string;
+
+  return json({ location, voicemail });
 };
