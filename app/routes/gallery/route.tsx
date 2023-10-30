@@ -10,7 +10,7 @@ import {
   useMotionValueEvent
 } from "framer-motion";
 import type { CSSProperties } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { distance } from "@popmotion/popcorn";
 import type { TroveSmolToken, searchSmol } from "~/api";
 import { fetchSmols } from "~/api";
@@ -21,8 +21,6 @@ import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { interpolate } from "popmotion";
 import { Icon } from "~/components/Icons";
 import { AnimationContainer } from "~/components/AnimationContainer";
-import type { Player } from "tone";
-import { PitchShift, loaded } from "tone";
 import { Header } from "~/components/Header";
 import { useResponsive } from "~/contexts/responsive";
 import { useFetcher } from "@remix-run/react";
@@ -30,8 +28,9 @@ import PurpleMonke from "./assets/purpleMonke.webp";
 import { Loading } from "~/components/Loading";
 import { cn } from "~/utils";
 import type { loader as loaderType } from "~/routes/location";
+import { lastSeenRoutine } from "./getLastSeen";
+import { flushSync } from "react-dom";
 
-const MotionIcon = motion(Icon);
 // this is the height for the visible area on line 201, h-96.
 const BOX_HEIGHT = 200;
 
@@ -494,24 +493,52 @@ export default function Gallery() {
   );
 }
 
+const useSpeechSynthesis = () => {
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const [speaking, setSpeaking] = useState(false);
+
+  useEffect(() => {
+    utteranceRef.current = new SpeechSynthesisUtterance("Hello world");
+
+    const onSpeaking = () => {
+      setSpeaking(true);
+    };
+
+    const onEnd = () => {
+      setSpeaking(false);
+    };
+
+    // Check if speech synthesis is supported
+    if (window.speechSynthesis && utteranceRef.current) {
+      utteranceRef.current.addEventListener("start", onSpeaking);
+      utteranceRef.current.addEventListener("end", onEnd);
+    }
+
+    return () => {
+      if (utteranceRef.current) {
+        utteranceRef.current.removeEventListener("start", onSpeaking);
+        utteranceRef.current.removeEventListener("end", onEnd);
+      }
+    };
+  }, []);
+
+  return {
+    utterance: utteranceRef.current,
+    speaking
+  };
+};
+
 const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
   const [color, setColor] = useState<string | null>(null);
-  const [ringing, setRinging] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const gender =
     smol.metadata.attributes.find((a) => a.trait_type === "Gender")?.value ??
     "male";
 
-  const synth = useRef<SpeechSynthesis | null>(null);
-
-  useEffect(() => {
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      synth.current = window.speechSynthesis;
-    }
-  }, []);
-
   const fetcher = useFetcher<typeof loaderType>();
+
+  const { utterance, speaking } = useSpeechSynthesis();
+
   // TODO: remove this when fetcher is memoized properly
   const fetcherRef = useRef(fetcher);
   useEffect(() => {
@@ -530,48 +557,46 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
       ?.value as number) ?? 0;
 
   const playSound = () => {
-    if (ringing || (synth.current && synth.current.speaking)) return;
+    if (speaking || !utterance || !window.speechSynthesis) return;
 
-    setRinging(true);
+    utterance.text = fetcher.data?.voicemail ?? "EEEEEEEE";
 
-    setTimeout(() => {
-      setRinging(false);
-      const speech = new SpeechSynthesisUtterance(fetcher.data?.voicemail);
+    utterance.lang = "en-US";
 
-      speech.lang = "en-US";
+    const voices = speechSynthesis.getVoices();
 
-      const voices = synth.current?.getVoices();
+    if (voices) {
+      utterance.voice =
+        voices.find((voice) => {
+          if (gender === "male") {
+            return (
+              voice.name ===
+              ["Bruce", "Fred", "Junior"][Number(smol.tokenId) % 3]
+            );
+          }
 
-      if (voices) {
-        speech.voice =
-          voices.find((voice) => {
-            if (gender === "male") {
-              return (
-                voice.name ===
-                ["Bruce", "Fred", "Junior"][Math.floor(Math.random() * 3)]
-              );
-            }
+          return voice.name === "Kathy";
+        }) ?? voices[0];
+    }
 
-            return voice.name === "Kathy";
-          }) ?? voices[0];
-      }
-
-      synth.current?.speak(speech);
-    }, 2000);
+    speechSynthesis.speak(utterance);
   };
 
   useEffect(() => {
-    if (synth.current) {
-      if (synth.current?.speaking) {
-        const id = setInterval(() => {
-          setSeconds((s) => s + 1);
-        }, 1000);
-        return () => clearInterval(id);
-      } else {
-        setSeconds(0);
-      }
+    if (speaking) {
+      const id = setInterval(() => {
+        setSeconds((s) => s + 1);
+      }, 1000);
+      return () => clearInterval(id);
+    } else {
+      setSeconds(0);
     }
-  }, [synth.current?.speaking]);
+  }, [speaking]);
+
+  const location = useMemo(
+    () => lastSeenRoutine(new Date().getHours(), smol.tokenId),
+    [smol.tokenId]
+  );
 
   return (
     <div className="relative flex h-full flex-col">
@@ -647,9 +672,14 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
             <div className="flex flex-col space-y-2">
               <div className="flex items-center space-x-2 bg-[#36225E] px-4 py-2.5">
                 <Icon name="geotag" className="h-6 w-6 text-white" />
-                <span className="font-bold text-grayTwo font-formula leading-none capsize">
-                  {fetcher.data?.location ?? "UNKNOWN"}
-                </span>
+                <div className="flex flex-col space-y-1.5">
+                  <span className="font-bold uppercase text-grayTwo font-formula leading-none capsize">
+                    {location[0]}
+                  </span>
+                  <span className="font-bold text-grayOne font-formula text-[0.6rem] leading-none">
+                    Last seen {location[1]} Minutes Ago
+                  </span>
+                </div>
               </div>
               <div className="flex items-center space-x-2 bg-[#36225E] px-4 py-2.5">
                 <Icon name="work" className="h-6 w-6 text-white" />
@@ -662,27 +692,15 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
           <div className="flex flex-1 items-end">
             <div className="flex w-full flex-col space-y-1">
               <button
-                onClick={() => playSound()}
-                disabled={
-                  fetcher.state === "loading" || synth.current?.speaking
-                }
+                onClick={() => {
+                  playSound();
+                }}
+                disabled={fetcher.state === "loading" || speaking}
                 className="inline-flex h-12 w-full items-center justify-center bg-acid py-4 font-bold font-formula disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <MotionIcon
-                  animate={
-                    ringing
-                      ? {
-                          rotate: 360
-                        }
-                      : undefined
-                  }
-                  name="call"
-                  className="h-8 w-8"
-                />
+                <Icon name="call" className="h-8 w-8" />
                 <span className="ml-1">
-                  {ringing
-                    ? "Ringing..."
-                    : synth.current && synth.current.speaking
+                  {speaking
                     ? `00:${seconds < 10 ? `0${seconds}` : seconds}`
                     : `Call ${smol.tokenId}`}
                 </span>
