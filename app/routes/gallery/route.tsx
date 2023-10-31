@@ -159,6 +159,7 @@ const Item = ({
   openModal: (id: string) => void;
 }) => {
   const [ref, attachRef] = useCallbackRef<HTMLDivElement>();
+
   const d = useTransform(() => {
     const { top } = ref?.getBoundingClientRect() ?? { top: 0 };
     const offsetRelative = parentHeight - top - parentHeight / 2;
@@ -182,51 +183,46 @@ const Item = ({
     mass: 0.1
   });
 
+  const scaleT = useMotionTemplate`scale(${scale})`;
+
   useEffect(() => {
     if (ref === null) return;
-    const runAnimation = async () => {
-      await _animate(
-        ref,
-        { y: ["99%", "0%"], opacity: [0, 1] },
-        {
-          duration: 0.5,
-          ease: "easeOut"
-        }
-      );
 
-      _animate(
-        ref,
-        {
-          y: ["0%", "5%", "0%"]
-        },
-        {
-          duration: interpolate([0.5, 0.8, 1.4], [6, 4, 2])(s.get()),
-          ease: "easeOut",
-          repeat: Infinity,
-          repeatType: "reverse"
-        }
-      );
-    };
-    runAnimation();
+    _animate(
+      ref,
+      {
+        transform: ["translateY(0%)", "translateY(5%)", "translateY(0%)"]
+      },
+      {
+        duration: interpolate([0.5, 0.8, 1.4], [6, 4, 2])(s.get()),
+        ease: "easeOut",
+        repeat: Infinity,
+        repeatType: "reverse"
+      }
+    );
   }, [ref, s]);
 
   return (
-    <motion.div
-      style={{
-        scale
-      }}
-      ref={attachRef}
-      className="relative aspect-square overflow-hidden rounded-full text-white ring-4 ring-transparent ring-offset-2 ring-offset-transparent transition-shadow duration-200 text-xl hover:ring-white/50 hover:ring-offset-black"
-    >
-      <motion.img
-        src={app.image.uri}
-        className="h-full w-full touch-none select-none [-webkit-user-drag:none]"
-      />
-      <button
-        className="absolute inset-0 h-full w-full"
-        onClick={() => openModal(app.tokenId)}
-      />
-    </motion.div>
+    <div ref={attachRef}>
+      <motion.div
+        style={{
+          transform: scaleT
+        }}
+        className="relative aspect-square overflow-hidden rounded-full text-white ring-4 ring-transparent ring-offset-2 ring-offset-transparent transition-shadow duration-200 text-xl hover:ring-white/50 hover:ring-offset-black"
+      >
+        <motion.img
+          src={app.image.uri}
+          className="h-full w-full touch-none select-none [-webkit-user-drag:none]"
+        />
+        <span className="absolute bottom-3 left-1/2 -translate-x-1/2 font-formula text-3xl leading-none">
+          {app.tokenId}
+        </span>
+        <button
+          className="absolute inset-0 h-full w-full"
+          onClick={() => openModal(app.tokenId)}
+        />
+      </motion.div>
+    </div>
   );
 };
 

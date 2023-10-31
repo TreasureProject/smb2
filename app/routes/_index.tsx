@@ -17,8 +17,6 @@ import { useIdleTimer } from "react-idle-timer";
 
 import Peek from "~/assets/peek.gif";
 
-// const MotionLink = motion(Link);
-
 export const meta: MetaFunction = () => {
   return [
     { title: "New Remix App" },
@@ -34,49 +32,6 @@ export const links: LinksFunction = () => [
     type: "video/mp4"
   }
 ];
-
-// function Dock() {
-//   let mouseX = useMotionValue(Infinity);
-
-//   return (
-//     <Box
-//       onMouseMove={(e) => mouseX.set(e.pageX)}
-//       onMouseLeave={() => mouseX.set(Infinity)}
-//       className="mx-auto flex h-28 items-end gap-4 overflow-visible bg-neonPink px-6 pb-7"
-//     >
-//       {[...Array(8).keys()].map((i) => (
-//         <AppIcon mouseX={mouseX} key={i} />
-//       ))}
-//     </Box>
-//   );
-// }
-
-// function AppIcon({ mouseX }: { mouseX: MotionValue }) {
-//   let ref = useRef<HTMLImageElement>(null);
-
-//   let distance = useTransform(mouseX, (val) => {
-//     let bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
-
-//     return val - bounds.x - bounds.width / 2;
-//   });
-
-//   let widthSync = useTransform(distance, [-150, 0, 150], [64, 112, 64]);
-//   let width = useSpring(widthSync, { mass: 0.1, stiffness: 150, damping: 12 });
-
-//   return (
-//     <MotionLink
-//       ref={ref}
-//       to="/smolspace"
-//       style={{
-//         // @ts-ignore
-//         width
-//       }}
-//       className="relative z-10 aspect-video h-auto w-16"
-//     >
-//       <img src={TestImg} className="h-full w-full rounded-md bg-neonPink"></img>
-//     </MotionLink>
-//   );
-// }
 
 export default function Index() {
   const [scope, _animate] = useAnimate();
