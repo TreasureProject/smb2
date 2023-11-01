@@ -2,11 +2,73 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useNavigate } from "@remix-run/react";
 import { motion } from "framer-motion";
 import { ClientOnly } from "remix-utils/client-only";
-import PencilMonke from "./assets/PencilMonke.webp";
+import { json } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { client } from "./client.server";
+import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
+
+type Weather = "sunny" | "rainy" | "cloudy" | "windy" | "fog" | "snowy";
+
+export const loader: LoaderFunction = async () => {
+  const today = new Date();
+
+  const weathers = await Promise.all(
+    Array.from({ length: 7 }).map(async (_, i) => {
+      const targetDay = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() + i
+      );
+
+      const { day, month, year } = {
+        day: targetDay.getDate(),
+        month: targetDay.getMonth() + 1,
+        year: targetDay.getFullYear()
+      };
+      const weather = (await client.readContract({
+        address: "0x4B14Aa64C37bE1aB98DEB2B4D197d42149750eC0",
+        abi: [
+          {
+            inputs: [
+              { internalType: "uint256", name: "day", type: "uint256" },
+              { internalType: "uint256", name: "month", type: "uint256" },
+              { internalType: "uint256", name: "year", type: "uint256" }
+            ],
+            name: "getWeather",
+            outputs: [{ internalType: "string", name: "", type: "string" }],
+            stateMutability: "view",
+            type: "function"
+          },
+          {
+            inputs: [],
+            name: "initialize",
+            outputs: [],
+            stateMutability: "nonpayable",
+            type: "function"
+          }
+        ],
+        functionName: "getWeather",
+        args: [BigInt(day), BigInt(month), BigInt(year)]
+      })) as Weather;
+
+      return {
+        weather,
+        day,
+        month,
+        year,
+        degrees: Math.floor(Math.random() * 100)
+      };
+    })
+  );
+
+  return json({ weathers });
+};
 
 export default function News() {
   const navigate = useNavigate();
+  const data = useCustomLoaderData<typeof loader>();
 
+  console.log({ data });
   return (
     <ClientOnly>
       {() => (
@@ -43,33 +105,69 @@ export default function News() {
                   transform: "translate(0, 999%)"
                 }}
                 transition={{ duration: 0.6, ease: "easeInOut" }}
-                className="fixed z-50 flex h-2/3 w-full max-w-xs flex-col gap-12 border border-vroom bg-grayTwo shadow-lg before:absolute before:bottom-0 before:left-6 before:top-0 before:block before:border-l before:border-rage before:content-[''] sm:max-w-2xl md:w-full"
+                className="fixed z-50 flex h-2/3 w-full max-w-xs flex-col gap-12 border border-vroom bg-grayTwo shadow-lg text-4xl"
               >
-                <Dialog.Title className="relative -mb-14 ml-8 mt-4 flex flex-col font-bold italic font-chad text-7xl">
-                  <span className="text-xl">What's</span>
-                  <span>Next</span>
-                  <img
-                    src={PencilMonke}
-                    className="absolute -bottom-4 left-32 h-auto w-24"
-                    alt="Pencil Monke"
-                  />
-                </Dialog.Title>
-                <div className="absolute right-0 top-6 [perspective:500px]">
-                  <div className="relative flex flex-col bg-pepe px-4 py-2 font-lazer before:absolute before:-bottom-0.5 before:left-0 before:-z-10 before:block before:h-4 before:w-full before:skew-y-3 before:bg-gray-500 after:absolute after:left-full after:top-0 after:-z-10 after:block after:h-full after:w-4 after:bg-[#CACF20] after:content-[''] after:[transform-origin:center_left] after:[transform:rotateY(70deg)_skewY(20deg)]">
-                    <span className="text-xs">LAST UPDATED:</span>
-                    <span className="text-2xl">10/06/2023</span>
+                <div className="flex w-full flex-col items-center justify-center">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="font-bold text-4xl">22°C</h2>
+                      <p className="text-lg">Sunny</p>
+                    </div>
+                    <div>
+                      <img
+                        alt="Weather Icon"
+                        height="64"
+                        src="/placeholder.svg"
+                        style={{
+                          aspectRatio: "64/64",
+                          objectFit: "cover"
+                        }}
+                        width="64"
+                      />
+                    </div>
                   </div>
-                </div>
-                <div className="flex-[1_1_0] overflow-y-auto">
-                  <ul className="relative flex flex-col font-bold text-fud font-mono before:absolute before:bottom-0 before:left-6 before:top-0 before:block before:border-l before:border-rage before:content-['']">
-                    <li className="px-8 pb-[1.2rem]"></li>
-                    <li className="border-t border-vroom px-8 py-[1.2rem]"></li>
-                    {Array.from({ length: 20 }).map((_, i) => (
-                      <li key={i} className="border-t border-vroom px-8 py-2">
-                        Lorem ipsum dolor sit amet consectetur
-                      </li>
-                    ))}
-                  </ul>
+                  <p className="mt-4 text-center text-xl">New York City</p>
+                  <div className="mt-8 grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <p className="font-bold">Humidity</p>
+                      <p>64%</p>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <p className="font-bold">Wind</p>
+                      <p>5 km/h</p>
+                    </div>
+                    <div>
+                      <p className="font-bold">Precipitation</p>
+                      <p>7%</p>
+                    </div>
+                  </div>
+                  <div className="mt-8 space-y-4">
+                    <div className="flex justify-between">
+                      <p>Monday</p>
+                      <p>Sunny</p>
+                      <p>24°C</p>
+                    </div>
+                    <div className="flex justify-between">
+                      <p>Tuesday</p>
+                      <p>Cloudy</p>
+                      <p>22°C</p>
+                    </div>
+                    <div className="flex justify-between">
+                      <p>Wednesday</p>
+                      <p>Rainy</p>
+                      <p>20°C</p>
+                    </div>
+                    <div className="flex justify-between">
+                      <p>Thursday</p>
+                      <p>Sunny</p>
+                      <p>23°C</p>
+                    </div>
+                    <div className="flex justify-between">
+                      <p>Friday</p>
+                      <p>Cloudy</p>
+                      <p>24°C</p>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             </Dialog.Content>
