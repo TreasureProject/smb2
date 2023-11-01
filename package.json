@@ -9,6 +9,7 @@
     "postinstall": "patch-package",
     "build:icons": "tsx ./build-icons.ts"
   },
+  "type": "module",
   "dependencies": {
     "@popmotion/popcorn": "^0.4.4",
     "@radix-ui/react-dialog": "^1.0.5",
