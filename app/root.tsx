@@ -23,7 +23,6 @@ import {
   useSpring
 } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import stylesheet from "~/tailwind.css";
 import usePartySocket from "partysocket/react";
 import peeImg from "~/assets/pee.webp";
 import { cn, getPublicKeys } from "./utils";
@@ -36,6 +35,8 @@ import { Icon } from "./components/Icons";
 import { ResponsiveProvider } from "./contexts/responsive";
 import { KonamiProvider, useKonami } from "./contexts/konami";
 
+import "./tailwind.css";
+
 import NProgress from "nprogress";
 
 const INITIAL_BLUR_VALUE = 15;
@@ -43,7 +44,6 @@ const INITIAL_BLUR_VALUE = 15;
 const MotionSvg = motion(Icon);
 
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: stylesheet },
   {
     rel: "preload",
     href: iconHref,
@@ -103,7 +103,6 @@ export default function App() {
   const location = useLocation();
   const isRoot = location.pathname === "/";
   const overflowHide = location.pathname === "/gallery";
-
   return (
     <KonamiProvider>
       <html lang="en">
@@ -129,8 +128,8 @@ export default function App() {
               __html: `window.ENV = ${JSON.stringify(data?.ENV)}`
             }}
           />
-          <Scripts />
           <LiveReload />
+          <Scripts />
         </body>
       </html>
     </KonamiProvider>
@@ -228,7 +227,6 @@ function AppInner() {
       }
     }
   );
-
   const ws = usePartySocket({
     host: data?.ENV.PUBLIC_PARTYKIT_URL || "localhost:1999",
     room: "my-room",

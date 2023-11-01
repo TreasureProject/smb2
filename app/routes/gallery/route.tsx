@@ -214,9 +214,7 @@ const Item = ({
           src={app.image.uri}
           className="h-full w-full touch-none select-none [-webkit-user-drag:none]"
         />
-        <span className="absolute bottom-3 left-1/2 -translate-x-1/2 font-formula text-3xl leading-none">
-          {app.tokenId}
-        </span>
+
         <button
           className="absolute inset-0 h-full w-full"
           onClick={() => openModal(app.tokenId)}
@@ -286,26 +284,16 @@ const GalleryInner = ({
 
   const targetSmol = data?.find((d) => d.tokenId === openModal.targetTokenId);
 
+  if (!data) return null;
+
   return (
     <>
       <div className="relative grid touch-none gap-16 p-4">
-        {data &&
-          splitApps(data, isMobile).map((apps) => {
-            const length = isMobile ? 5 : 7;
-            if (apps.length === length) {
-              return (
-                <SevenColumns
-                  key={apps.map((d) => d.tokenId).join(",")}
-                  apps={apps}
-                  width={width}
-                  x={x}
-                  parentHeight={parentHeight}
-                  openModal={triggerModal}
-                />
-              );
-            }
+        {splitApps(data ? data : [], isMobile).map((apps) => {
+          const length = isMobile ? 5 : 7;
+          if (apps.length === length) {
             return (
-              <FiveColumns
+              <SevenColumns
                 key={apps.map((d) => d.tokenId).join(",")}
                 apps={apps}
                 width={width}
@@ -314,7 +302,18 @@ const GalleryInner = ({
                 openModal={triggerModal}
               />
             );
-          })}
+          }
+          return (
+            <FiveColumns
+              key={apps.map((d) => d.tokenId).join(",")}
+              apps={apps}
+              width={width}
+              x={x}
+              parentHeight={parentHeight}
+              openModal={triggerModal}
+            />
+          );
+        })}
       </div>
       <SheetContent className="bg-[#1C122F]">
         {targetSmol ? <SidePopup smol={targetSmol} /> : null}

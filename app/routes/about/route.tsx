@@ -18,7 +18,6 @@ import HammerImg from "./assets/hammer.webp";
 import GameCoverBgImg from "./assets/graphic.webp";
 import SmolBrainsTextImg from "./assets/Text.webp";
 import type { LinksFunction } from "@remix-run/node";
-import stylesheet from "atropos/atropos.min.css";
 import Atropos from "atropos/react";
 import { cn } from "~/utils";
 
@@ -48,6 +47,8 @@ import TwerkSmol from "./assets/twerkSmol.webp";
 import { DraggableWindow } from "~/components/DraggableWindow";
 import { useResponsive } from "~/contexts/responsive";
 import { Shine } from "~/components/Shine";
+
+import "atropos/atropos.min.css";
 
 const navigation = {
   collections: [
@@ -130,10 +131,6 @@ const navigation = {
   //   }
   // ]
 };
-
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: stylesheet }
-];
 
 const animationProps = {
   animate: { y: ["4.5rem", "4rem"] },
