@@ -1,5 +1,5 @@
 import type { LinksFunction, MetaFunction } from "@remix-run/node";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { getTransformOrigin } from "~/utils";
 import { Box } from "~/components/Box";
 import Frens from "../assets/frens.webp";
@@ -16,6 +16,10 @@ import SmolMusicVideo from "~/assets/smol-musicvideo.mp4";
 import { useIdleTimer } from "react-idle-timer";
 
 import Peek from "~/assets/peek.gif";
+import Peek2 from "~/assets/peek2.gif";
+import Peek3 from "~/assets/peek3.gif";
+import Peek4 from "~/assets/peek4.gif";
+import Peek5 from "~/assets/peek5.gif";
 
 export const meta: MetaFunction = () => {
   return [
@@ -202,8 +206,26 @@ export default function Index() {
                   exit={{
                     opacity: 0
                   }}
-                  src={Peek}
-                  className="absolute bottom-0 left-full z-10 h-24 w-24 rotate-90"
+                  src={Peek5}
+                  className="absolute bottom-full right-24 z-10 h-24 w-24"
+                  alt="peek smol"
+                />
+              )}
+            </AnimatePresence>
+            <AnimatePresence>
+              {state === "idle" && (
+                <motion.img
+                  initial={{
+                    opacity: 0
+                  }}
+                  animate={{
+                    opacity: 1
+                  }}
+                  exit={{
+                    opacity: 0
+                  }}
+                  src={Peek2}
+                  className="absolute bottom-4 left-full z-10 h-24 w-24 rotate-90"
                   alt="peek smol"
                 />
               )}
@@ -231,8 +253,8 @@ export default function Index() {
                   exit={{
                     opacity: 0
                   }}
-                  src={Peek}
-                  className="absolute bottom-0 right-full z-10 h-24 w-24 -rotate-90"
+                  src={Peek3}
+                  className="absolute bottom-4 right-full z-10 h-24 w-24 -rotate-90"
                   alt="peek smol"
                 />
               )}
@@ -273,7 +295,7 @@ export default function Index() {
                   exit={{
                     opacity: 0
                   }}
-                  src={Peek}
+                  src={Peek4}
                   className="absolute left-1/2 top-full z-10 h-24 w-24 -translate-x-1/2 -rotate-180"
                   alt="peek smol"
                 />

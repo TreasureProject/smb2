@@ -1,6 +1,7 @@
 import { unstable_vitePlugin as remix } from "@remix-run/dev";
 import { defineConfig, loadEnv } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+import million from "million/compiler";
 
 export default ({ mode }: { mode: string }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd(), "") };
@@ -14,6 +15,7 @@ export default ({ mode }: { mode: string }) => {
       ]
     },
     plugins: [
+      million.vite({ auto: true, mode: "react", server: true, mute: true }),
       remix({
         ignoredRouteFiles: ["**/.*"]
         // appDirectory: "app",
