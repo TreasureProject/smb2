@@ -36,7 +36,8 @@ export default {
         oakley: ["Oakley", ...defaultTheme.fontFamily.sans],
         mondwest: ["PPMondwest", ...defaultTheme.fontFamily.sans],
         formula: ["PPFormula", ...defaultTheme.fontFamily.sans],
-        lazer: ["Lazer", ...defaultTheme.fontFamily.sans]
+        lazer: ["Lazer", ...defaultTheme.fontFamily.sans],
+        paperboy: ["Paperboy", ...defaultTheme.fontFamily.sans]
       },
       // get values from here: https://seek-oss.github.io/capsize/
       fontMetrics: {
@@ -67,6 +68,13 @@ export default {
           descent: 532,
           lineGap: 24,
           unitsPerEm: 2048
+        },
+        paperboy: {
+          capHeight: 2000,
+          ascent: 2000,
+          descent: 0,
+          lineGap: 24,
+          unitsPerEm: 1000
         }
       },
 

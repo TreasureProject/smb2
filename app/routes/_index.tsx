@@ -131,14 +131,14 @@ export default function Index() {
         >
           <Box
             as="link"
-            to="/about"
+            to="/news"
             state={getTransformOrigin}
-            className="relative bg-white/10 backdrop-blur-sm sm:col-start-1 sm:col-end-3 sm:row-start-1 sm:row-end-2"
+            className="relative sm:col-start-1 sm:col-end-3 sm:row-start-1 sm:row-end-2"
           >
             <img
               src={News}
               alt="News"
-              className="aspect-video h-full w-full opacity-[0.85]"
+              className="aspect-video h-full w-full"
             ></img>
             <AnimatePresence>
               {state === "idle" && (
@@ -163,24 +163,24 @@ export default function Index() {
             as="link"
             to="/gallery"
             state={getTransformOrigin}
-            className="bg-white/10 backdrop-blur-sm sm:col-start-3 sm:col-end-4 sm:row-start-1 sm:row-end-2"
+            className="sm:col-start-3 sm:col-end-4 sm:row-start-1 sm:row-end-2"
           >
             <img
               src={Gallery}
               alt="gallery"
-              className="aspect-video h-full w-full opacity-[0.85]"
+              className="aspect-video h-full w-full"
             ></img>
           </Box>
           <Box
             as="link"
             to="/about"
             state={getTransformOrigin}
-            className="bg-white/10 backdrop-blur-sm sm:col-start-4 sm:col-end-5 sm:row-start-1 sm:row-end-2"
+            className="sm:col-start-4 sm:col-end-5 sm:row-start-1 sm:row-end-2"
           >
             <img
               src={Art}
               alt="art"
-              className="aspect-video h-full w-full opacity-[0.85]"
+              className="aspect-video h-full w-full"
             ></img>
           </Box>
           <Box
@@ -192,7 +192,7 @@ export default function Index() {
             <img
               src={Spotlight}
               alt="spotlight"
-              className="aspect-square h-full w-full opacity-[0.85]"
+              className="aspect-square h-full w-full"
             ></img>
             <AnimatePresence>
               {state === "idle" && (
@@ -234,12 +234,12 @@ export default function Index() {
           <Box
             as="a"
             href="https://shop.smolverse.lol/"
-            className="relative bg-white/10 backdrop-blur-sm sm:col-start-1 sm:col-end-3 sm:row-start-2 sm:row-end-5"
+            className="relative sm:col-start-1 sm:col-end-3 sm:row-start-2 sm:row-end-5"
           >
             <img
               src={Fashion}
               alt="fashion"
-              className="aspect-square h-full w-full opacity-[0.85]"
+              className="aspect-square h-full w-full"
             ></img>
             <AnimatePresence>
               {state === "idle" && (
@@ -264,24 +264,24 @@ export default function Index() {
             as="link"
             to="/tv"
             state={getTransformOrigin}
-            className="bg-white/10 backdrop-blur-sm sm:col-start-3 sm:col-end-5 sm:row-start-2 sm:row-end-5"
+            className="sm:col-start-3 sm:col-end-5 sm:row-start-2 sm:row-end-5"
           >
             <img
               src={Tv}
               alt="tv"
-              className="aspect-square h-full w-full opacity-[0.85]"
+              className="aspect-square h-full w-full"
             ></img>
           </Box>
           <Box
             as="link"
-            to="/news"
+            to="/goals"
             state={getTransformOrigin}
-            className="relative bg-white/10 backdrop-blur-sm sm:col-start-5 sm:col-end-6 sm:row-start-3 sm:row-end-5"
+            className="relative sm:col-start-5 sm:col-end-6 sm:row-start-3 sm:row-end-5"
           >
             <img
               src={Goals}
               alt="goals"
-              className="aspect-square h-full w-full opacity-[0.85]"
+              className="aspect-square h-full w-full"
             ></img>
             <AnimatePresence>
               {state === "idle" && (
@@ -306,12 +306,12 @@ export default function Index() {
             as="link"
             to="/smolspace"
             state={getTransformOrigin}
-            className="bg-white/10 backdrop-blur-sm sm:col-start-6 sm:col-end-7 sm:row-start-3 sm:row-end-5"
+            className="sm:col-start-6 sm:col-end-7 sm:row-start-3 sm:row-end-5"
           >
             <img
               src={Frens}
               alt="frens"
-              className="aspect-square h-full w-full opacity-[0.85]"
+              className="aspect-square h-full w-full"
             ></img>
           </Box>
         </div>

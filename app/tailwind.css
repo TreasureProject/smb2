@@ -200,6 +200,17 @@
     url("./fonts/Lazer84.woff") format("woff");
 }
 
+@font-face {
+  font-family: "Paperboy";
+  font-weight: 500;
+  font-display: swap;
+  font-style: normal;
+  font-named-instance: "Regular";
+  src:
+    url("./fonts/Paperboy.woff2") format("woff2"),
+    url("./fonts/Paperboy.woff") format("woff");
+}
+
 .box::before {
   content: "";
   pointer-events: none;
