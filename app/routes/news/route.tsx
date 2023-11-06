@@ -19,7 +19,7 @@ export default function News() {
             <div className="font-paperboy col-span-full h-full border-b border-t border-black py-4 text-center tracking-widest text-[0.5rem] leading-none capsize">
               <p>YOUR DAILY DOSE OF ALL THINGS SMOL</p>
             </div>
-            <h1 className="col-span-full border-t border-black py-6 text-center font-bold tracking-wider font-mondwest text-8xl leading-none capsize">
+            <h1 className="col-span-full border-t border-black py-6 text-center font-bold tracking-wider font-mondwest text-[min(6vw,130px)] leading-none capsize">
               SMOL STREET JOURNAL
             </h1>
             <div className="col-span-4 border border-black p-3">
