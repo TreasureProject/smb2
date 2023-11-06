@@ -4,25 +4,25 @@ import Smol from "./smol.png";
 
 export default function News() {
   return (
-    <AnimationContainer className="h-full bg-[rgb(68,0,11)]">
+    <AnimationContainer className="h-fit bg-[rgb(68,0,11)]">
       <div className="flex h-full flex-col p-2 text-xs">
         <div className="flex-1 bg-[#a7a789] p-3.5">
           <div className="grid h-full grid-cols-[repeat(12,1fr)] grid-rows-[min-content_min-content_min-content_1fr] gap-2.5 bg-[#c5c5b8] p-4">
             <div className="col-span-full flex justify-between border-b border-black pb-2 text-center">
-              <h1 className="font-paperboy text-center font-normal tracking-widest text-[0.5rem] leading-none capsize">
+              <h1 className="font-paperboy text-center font-normal tracking-widest text-[min(1vw,0.5rem)] leading-none capsize">
                 NOVEMBER 21, 2021
               </h1>
-              <p className="font-paperboy text-center font-normal tracking-widest text-[0.5rem] leading-none capsize">
+              <p className="font-paperboy text-center font-normal tracking-widest text-[min(1vw,0.5rem)] leading-none capsize">
                 ISSUE 1
               </p>
             </div>
-            <div className="font-paperboy col-span-full h-full border-b border-t border-black py-4 text-center tracking-widest text-[0.5rem] leading-none capsize">
+            <div className="font-paperboy col-span-full h-full border-b border-t border-black py-4 text-center tracking-widest text-[min(0.75vw,0.5rem)] leading-none capsize">
               <p>YOUR DAILY DOSE OF ALL THINGS SMOL</p>
             </div>
             <h1 className="col-span-full border-t border-black py-6 text-center font-bold tracking-wider font-mondwest text-[min(6vw,130px)] leading-none capsize">
               SMOL STREET JOURNAL
             </h1>
-            <div className="col-span-4 border border-black p-3">
+            <div className="col-span-full border border-black p-3 sm:col-span-4">
               <h2 className="font-bold font-mondwest text-4xl leading-none capsize">
                 AGE OF PROSPERITY
               </h2>
@@ -48,7 +48,7 @@ export default function News() {
                 </p>
               </div>
             </div>
-            <div className="col-span-4 border border-black p-3">
+            <div className="col-span-full border border-black p-3 sm:col-span-4">
               <h2 className="font-bold font-mondwest text-4xl leading-none capsize">
                 SMOLS PLANNING A DOWNTOWN BASH IN SMOLVILLE TO RING IN THE NEW
                 YEAR. TICKETS ON SALE.
@@ -67,7 +67,7 @@ export default function News() {
                 More snow expected.
               </p>
             </div>
-            <div className="col-span-4 border border-black p-3">
+            <div className="col-span-full border border-black p-3 sm:col-span-4">
               <h2 className="text-center font-bold font-mondwest text-4xl leading-none capsize">
                 ALIENS DISCOVERED
               </h2>
