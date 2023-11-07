@@ -4,6 +4,11 @@ import { GLTF } from "three-stdlib";
 import { Environment, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useLocation } from "@remix-run/react";
+import {
+  Bloom,
+  DepthOfField,
+  EffectComposer
+} from "@react-three/postprocessing";
 
 interface GLTFResult extends GLTF {
   nodes: {
@@ -51,8 +56,8 @@ function Banana({
   });
 
   return (
-    <group ref={ref} {...props} dispose={null} scale={0.2}>
-      <mesh geometry={nodes.banana.geometry} material={materials.skin} />
+    <group ref={ref} {...props} dispose={null} scale={0.1}>
+      <mesh geometry={nodes.banana.geometry} material={nodes.banana.material} />
     </group>
   );
 }
@@ -66,7 +71,6 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
     <Canvas
       legacy={true}
       frameloop={location.pathname !== "/" ? "never" : "always"}
-      gl={{ alpha: false }}
       camera={{
         near: 0.01,
         far: 110,
@@ -74,13 +78,30 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
       }}
       dpr={[1, 1.5]}
     >
-      <color attach="background" args={["#1938F2"]} />
-      <spotLight position={[10, 10, 10]} intensity={1} />
+      <hemisphereLight
+        intensity={0.5}
+        groundColor={new THREE.Color(0x0e072d)}
+      />
       <Suspense>
         {Array.from({ length: count }).map((_, i) => (
           <Banana key={i} z={(-i / count) * depth - 20} />
         ))}
-        <Environment preset="sunset" />
+      </Suspense>
+      <Suspense fallback={null}>
+        <EffectComposer disableNormalPass>
+          <Bloom
+            luminanceThreshold={0}
+            mipmapBlur
+            luminanceSmoothing={0.2}
+            intensity={40}
+          />
+          {/* <DepthOfField
+            focusDistance={0}
+            focalLength={0.5}
+            bokehScale={5}
+            height={700}
+          /> */}
+        </EffectComposer>
       </Suspense>
     </Canvas>
   );

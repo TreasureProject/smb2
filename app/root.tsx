@@ -115,7 +115,7 @@ export default function App() {
         </head>
         <body
           className={cn(
-            "relative h-[100dvh] bg-vroom antialiased",
+            "relative h-[100dvh] bg-[url(/img/stars.webp)] bg-repeat antialiased",
             isRoot || overflowHide ? "overflow-hidden" : null
           )}
         >
@@ -167,6 +167,8 @@ function AppInner() {
     stiffness: 100,
     damping: 20
   });
+
+  const yTransform = useMotionTemplate`translate(0, ${y}px)`;
 
   const hueFilter = useMotionTemplate`hue-rotate(${hue}deg)`;
 
@@ -429,21 +431,11 @@ function AppInner() {
             )}
           </AnimatePresence>
 
-          <motion.div
-            style={{
-              filter: animatedFilter,
-              transform: "translate3d(0, 0, 0)"
-            }}
-            className="relative h-full"
-          >
+          <div className="relative h-full">
             <BananaCanvas />
 
             <AnimatePresence initial={false} mode="popLayout">
               <motion.div
-                style={{
-                  filter: animatedFilter,
-                  transform: "translate3d(0, 0, 0)"
-                }}
                 key={navigation.pathname}
                 initial={false}
                 className="absolute inset-0 z-10 h-full"
@@ -455,15 +447,15 @@ function AppInner() {
                 <AnimatedOutlet />
               </motion.div>
             </AnimatePresence>
-          </motion.div>
+          </div>
           {/* Only show the intro on the root page */}
           {isRoot && showIntro && (
             <motion.div
               style={{
-                y
+                transform: yTransform
               }}
               ref={introRef}
-              className="absolute inset-0 h-[100dvh] w-full touch-pan-x bg-intro/70"
+              className="absolute inset-0 z-10 h-[100dvh] w-full touch-pan-x bg-intro/90 backdrop-blur-md"
             >
               <div className="mx-auto grid h-full max-w-7xl items-center justify-center py-12">
                 <p className="relative text-white">
