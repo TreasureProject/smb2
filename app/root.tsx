@@ -115,7 +115,7 @@ export default function App() {
         </head>
         <body
           className={cn(
-            "relative h-[100dvh] bg-[url(/img/stars.webp)] bg-repeat antialiased",
+            "relative h-[100dvh] bg-[url(/img/stars.webp)] bg-repeat antialiased [overscroll-behavior:none]",
             isRoot || overflowHide ? "overflow-hidden" : null
           )}
         >
@@ -301,46 +301,6 @@ function AppInner() {
         filter: hueFilter
       }}
       className="h-full"
-      onMouseMove={({ currentTarget, clientX, clientY }) => {
-        if (isPotentialDrag.current) {
-          isDragging.current = true;
-        }
-
-        const { left, top } = currentTarget.getBoundingClientRect();
-        mouseX.set(clientX - left - 40);
-        mouseY.set(clientY - top - 40);
-      }}
-      onMouseDown={() => (isPotentialDrag.current = true)}
-      onMouseUp={(e) => {
-        if (isPotentialDrag.current && !isDragging.current) {
-          let target = e.target as HTMLElement | null;
-
-          // only show smear when not interacting with interactive elements
-          while (target != null) {
-            if (
-              target.tagName === "BUTTON" ||
-              target.tagName === "A" ||
-              target.tagName === "INPUT" ||
-              target.getAttribute("role") === "button"
-            ) {
-              return;
-            }
-            target = target.parentElement;
-          }
-
-          if (smear.state !== "idle") return;
-
-          const { left, top } = e.currentTarget.getBoundingClientRect();
-
-          setSmear({
-            state: "active",
-            x: e.clientX - left,
-            y: e.clientY - top
-          });
-        }
-        isPotentialDrag.current = false;
-        isDragging.current = false;
-      }}
     >
       <svg width="0" height="0" aria-hidden="true">
         <defs>

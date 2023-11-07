@@ -1,4 +1,4 @@
-import { useDrag } from "@use-gesture/react";
+import { useDrag, useGesture } from "@use-gesture/react";
 import type { MotionValue } from "framer-motion";
 import {
   motion,
@@ -322,6 +322,12 @@ const GalleryInner = ({
   );
 };
 
+const GESTURE_CONFIG = {
+  bounds: { left: -0, right: 0 },
+  rubberband: true,
+  filterTaps: true
+};
+
 export default function Gallery() {
   const y = useSpring(0, {
     stiffness: 5000,
@@ -351,22 +357,27 @@ export default function Gallery() {
 
   const parentHeight = parentRef?.getBoundingClientRect().height ?? 0;
 
-  useDrag(
-    ({ offset: [ox, oy] }) => {
-      x.set(ox);
-      if (oy > 0) return;
-      y.set(oy);
+  useGesture(
+    {
+      onDrag: ({ offset: [ox, oy] }) => {
+        x.set(ox);
+        if (oy > 0) return;
+        y.set(oy);
+      },
+      onWheel: ({ offset: [ox, oy] }) => {
+        x.set(ox);
+        if (oy > 0) return;
+        y.set(oy);
+      }
     },
     {
       from: () => {
         return [x.get(), y.get()];
       },
       target: dragRef ?? undefined,
-      bounds: { left: -0, right: 0 },
-
-      rubberband: true,
-      filterTaps: true,
-      enabled: !targetSmolId
+      enabled: !targetSmolId,
+      drag: GESTURE_CONFIG,
+      wheel: GESTURE_CONFIG
     }
   );
 
