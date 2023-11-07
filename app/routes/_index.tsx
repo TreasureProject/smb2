@@ -125,15 +125,12 @@ export default function Index() {
         </defs>
       </svg>
       <div className="relative mx-auto flex h-full max-w-7xl items-center justify-center px-8 sm:px-12">
-        <div
-          ref={scope}
-          className="grid h-[36rem] grid-cols-2 gap-8 sm:grid-cols-6 sm:grid-rows-[0.7fr_1fr_min-content_min-content]"
-        >
+        <div ref={scope} className="grid h-[36rem] grid-cols-4 gap-8">
           <Box
             as="link"
             to="/news"
             state={getTransformOrigin}
-            className="relative sm:col-start-1 sm:col-end-3 sm:row-start-1 sm:row-end-2"
+            className="relative"
           >
             <img
               src={News}
@@ -159,24 +156,14 @@ export default function Index() {
               )}
             </AnimatePresence>
           </Box>
-          <Box
-            as="link"
-            to="/gallery"
-            state={getTransformOrigin}
-            className="sm:col-start-3 sm:col-end-4 sm:row-start-1 sm:row-end-2"
-          >
+          <Box as="link" to="/gallery" state={getTransformOrigin}>
             <img
               src={Gallery}
               alt="gallery"
               className="aspect-video h-full w-full"
             ></img>
           </Box>
-          <Box
-            as="link"
-            to="/about"
-            state={getTransformOrigin}
-            className="sm:col-start-4 sm:col-end-5 sm:row-start-1 sm:row-end-2"
-          >
+          <Box as="link" to="/about" state={getTransformOrigin}>
             <img
               src={Art}
               alt="art"
@@ -187,7 +174,7 @@ export default function Index() {
             as="link"
             to="/spotlight"
             state={getTransformOrigin}
-            className="relative bg-white/10 sm:col-start-5 sm:col-end-7 sm:row-start-1 sm:row-end-3"
+            className="relative bg-white/10"
           >
             <img
               src={Spotlight}
@@ -231,11 +218,7 @@ export default function Index() {
               )}
             </AnimatePresence>
           </Box>
-          <Box
-            as="a"
-            href="https://shop.smolverse.lol/"
-            className="relative sm:col-start-1 sm:col-end-3 sm:row-start-2 sm:row-end-5"
-          >
+          <Box as="a" href="https://shop.smolverse.lol/" className="relative">
             <img
               src={Fashion}
               alt="fashion"
@@ -260,12 +243,7 @@ export default function Index() {
               )}
             </AnimatePresence>
           </Box>
-          <Box
-            as="link"
-            to="/tv"
-            state={getTransformOrigin}
-            className="sm:col-start-3 sm:col-end-5 sm:row-start-2 sm:row-end-5"
-          >
+          <Box as="link" to="/tv" state={getTransformOrigin}>
             <img
               src={Tv}
               alt="tv"
@@ -276,7 +254,7 @@ export default function Index() {
             as="link"
             to="/goals"
             state={getTransformOrigin}
-            className="relative sm:col-start-5 sm:col-end-6 sm:row-start-3 sm:row-end-5"
+            className="relative"
           >
             <img
               src={Goals}
@@ -302,12 +280,7 @@ export default function Index() {
               )}
             </AnimatePresence>
           </Box>
-          <Box
-            as="link"
-            to="/smolspace"
-            state={getTransformOrigin}
-            className="sm:col-start-6 sm:col-end-7 sm:row-start-3 sm:row-end-5"
-          >
+          <Box as="link" to="/smolspace" state={getTransformOrigin}>
             <img
               src={Frens}
               alt="frens"

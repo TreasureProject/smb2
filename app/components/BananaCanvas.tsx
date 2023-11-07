@@ -7,8 +7,10 @@ import { useLocation } from "@remix-run/react";
 import {
   Bloom,
   DepthOfField,
-  EffectComposer
+  EffectComposer,
+  Glitch
 } from "@react-three/postprocessing";
+import { useKonami } from "~/contexts/konami";
 
 interface GLTFResult extends GLTF {
   nodes: {
@@ -30,6 +32,7 @@ function Banana({
   const { viewport, camera } = useThree();
 
   const { width, height } = viewport.getCurrentViewport(camera, [0, 0, z]);
+  const { activated } = useKonami();
 
   const position = React.useMemo(
     () => ({
@@ -48,7 +51,11 @@ function Banana({
       (position.rY += 0.001),
       (position.rZ += 0.001)
     );
-    ref.current?.position.set(position.x * width, (position.y += 0.025), z);
+    ref.current?.position.set(
+      position.x * width,
+      (position.y += activated ? 0.1 : 0.005),
+      z
+    );
 
     if (position.y > height / 1.25) {
       position.y = -height / 1.25;
@@ -66,7 +73,7 @@ useGLTF.preload("/banana-transformed.glb");
 
 export const BananaCanvas = ({ count = 200, depth = 80 }) => {
   const location = useLocation();
-
+  const { activated } = useKonami();
   return (
     <Canvas
       legacy={true}
@@ -77,6 +84,7 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
         fov: 30
       }}
       dpr={[1, 1.5]}
+      className={activated ? "z-20" : undefined}
     >
       <hemisphereLight
         intensity={0.5}
@@ -88,19 +96,13 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
         ))}
       </Suspense>
       <Suspense fallback={null}>
-        <EffectComposer disableNormalPass>
+        <EffectComposer>
           <Bloom
             luminanceThreshold={0}
             mipmapBlur
             luminanceSmoothing={0.2}
             intensity={40}
           />
-          {/* <DepthOfField
-            focusDistance={0}
-            focalLength={0.5}
-            bokehScale={5}
-            height={700}
-          /> */}
         </EffectComposer>
       </Suspense>
     </Canvas>
