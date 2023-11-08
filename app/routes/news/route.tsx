@@ -72,16 +72,6 @@ const Newspaper = (
   );
   const setSelected = useStore((state) => state.setSelectedModel);
   const selected = useStore((state) => state.selectedModel) === props.index;
-  useEffect(() => {
-    if (controls && controls.mouseButtons) {
-      controls.mouseButtons.right = 0;
-      controls.mouseButtons.left = 0;
-      controls.mouseButtons.wheel = 0;
-      controls.touches.one = 0;
-      controls.touches.two = 0;
-      controls.touches.three = 0;
-    }
-  }, []);
 
   const texture = useVideoTexture("videos/Issue_1.mp4");
 
@@ -213,7 +203,20 @@ export default function News() {
               <Scroller />
               <Minimap />
             </Suspense>
-            <CameraControls makeDefault />
+            <CameraControls
+              touches={{
+                one: 0,
+                two: 0,
+                three: 0
+              }}
+              mouseButtons={{
+                left: 0,
+                right: 0,
+                wheel: 0,
+                middle: 0
+              }}
+              makeDefault
+            />
           </Canvas>
           <Interface />
         </>

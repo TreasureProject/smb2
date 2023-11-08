@@ -322,12 +322,6 @@ const GalleryInner = ({
   );
 };
 
-const GESTURE_CONFIG = {
-  bounds: { left: -0, right: 0 },
-  rubberband: true,
-  filterTaps: true
-};
-
 export default function Gallery() {
   const y = useSpring(0, {
     stiffness: 5000,

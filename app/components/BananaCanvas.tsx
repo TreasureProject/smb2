@@ -11,6 +11,7 @@ import {
   Glitch
 } from "@react-three/postprocessing";
 import { useKonami } from "~/contexts/konami";
+import { cn } from "~/utils";
 
 interface GLTFResult extends GLTF {
   nodes: {
@@ -74,17 +75,19 @@ useGLTF.preload("/banana-transformed.glb");
 export const BananaCanvas = ({ count = 200, depth = 80 }) => {
   const location = useLocation();
   const { activated } = useKonami();
+
+  const notHome = location.pathname !== "/";
   return (
     <Canvas
       legacy={true}
-      frameloop={location.pathname !== "/" ? "never" : "always"}
+      frameloop={notHome ? "never" : "always"}
       camera={{
         near: 0.01,
         far: 110,
         fov: 30
       }}
       dpr={[1, 1.5]}
-      className={activated ? "z-20" : undefined}
+      className={cn(notHome && "hidden", activated && "z-20")}
     >
       <hemisphereLight
         intensity={0.5}
