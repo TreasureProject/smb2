@@ -371,13 +371,24 @@ export default function Gallery() {
       }
     },
     {
-      from: () => {
-        return [x.get(), y.get()];
-      },
       target: dragRef ?? undefined,
       enabled: !targetSmolId,
-      drag: GESTURE_CONFIG,
-      wheel: GESTURE_CONFIG
+      drag: {
+        from: () => {
+          return [x.get(), y.get()];
+        },
+        bounds: { left: -0, right: 0 },
+        rubberband: true,
+        filterTaps: true
+      },
+      wheel: {
+        from: () => {
+          return [x.get(), y.get()];
+        },
+        bounds: { left: -0, right: 0 },
+        rubberband: true,
+        filterTaps: true
+      }
     }
   );
 
