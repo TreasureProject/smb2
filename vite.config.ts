@@ -11,7 +11,8 @@ export default ({ mode }: { mode: string }) => {
       noExternal: [
         "tinykeys",
         "react-idle-timer",
-        "@react-three/postprocessing"
+        "@react-three/postprocessing",
+        "maath"
       ]
     },
     plugins: [
