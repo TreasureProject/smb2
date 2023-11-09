@@ -1,6 +1,8 @@
 import { create } from "zustand";
 
 interface State {
+  state: "idle" | "open";
+  setState: (state: "idle" | "open") => void;
   index: number;
   selectedModel: number | null;
   setSelectedModel: (index: number | null) => void;
@@ -11,6 +13,8 @@ interface State {
 
 export default create<State>((set) => {
   return {
+    state: "idle",
+    setState: (state) => set({ state }),
     index: 0,
     models: [...new Array(12).fill(undefined)],
     selectedModel: null,

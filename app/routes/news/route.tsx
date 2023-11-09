@@ -3,21 +3,20 @@ import CarVid from "./car.mp4";
 import Smol from "./smol.png";
 import { ClientOnly } from "remix-utils/client-only";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { CSSProperties, Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import {
   CameraControls,
-  Scroll,
-  ScrollControls,
-  useTexture,
-  useVideoTexture,
-  Line,
-  Html
+  Center,
+  MeshTransmissionMaterial,
+  useCursor,
+  useVideoTexture
 } from "@react-three/drei";
-import { damp } from "maath/easing";
+import { damp, damp3, dampC } from "maath/easing";
 import useStore from "./store";
 import { Icon } from "~/components/Icons";
 import * as THREE from "three";
-
+import { Mailbox } from "./Mailbox";
+import { useControls } from "leva";
 const material = new THREE.LineBasicMaterial({ color: "white" });
 const geometry = new THREE.BufferGeometry().setFromPoints([
   new THREE.Vector3(0, -0.5, 0),
@@ -54,7 +53,7 @@ function Minimap() {
           key={i}
           geometry={geometry}
           material={material}
-          position={[i * 0.06 - models.length * 0.03, -height / 2 + 0.6, 0]}
+          position={[i * 0.06 - models.length * 0.03, -height / 2 + 2.5, 0]}
         />
       ))}
     </group>
@@ -74,6 +73,10 @@ const Newspaper = (
   const selected = useStore((state) => state.selectedModel) === props.index;
 
   const texture = useVideoTexture("videos/Issue_1.mp4");
+
+  const [hovered, setHovered] = useState(false);
+
+  useCursor(hovered);
 
   useEffect(() => {
     if (selected && ref.current) {
@@ -96,6 +99,8 @@ const Newspaper = (
     <mesh
       {...props}
       ref={ref}
+      onPointerOver={(e) => (e.stopPropagation(), setHovered(true))}
+      onPointerOut={() => setHovered(false)}
       onClick={() => setSelected(selected ? null : props.index)}
       onPointerMissed={() => setSelected(null)}
     >
@@ -105,13 +110,14 @@ const Newspaper = (
   );
 };
 
-const Scroller = ({ w = 2, gap = 0.15 }) => {
+const Newspapers = ({ w = 2, gap = 0.15 }) => {
   const xW = w + gap;
   const group = useRef<THREE.Group | null>(null);
   const next = useStore((state) => state.next);
   const previous = useStore((state) => state.previous);
   const index = useStore((state) => state.index);
   const models = useStore((state) => state.models);
+  const state = useStore((state) => state.state);
   useEffect(() => {
     const down = (_event: KeyboardEvent) => {
       if (_event.code === "ArrowRight" || _event.code === "Enter") next();
@@ -125,13 +131,13 @@ const Scroller = ({ w = 2, gap = 0.15 }) => {
     };
   }, []);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     const target = -xW * index;
     damp(group.current!.position, "x", target, 0.2, delta);
   });
 
   return (
-    <group ref={group} name="scroller">
+    <group ref={group}>
       {models.map((_, i) => (
         <Newspaper
           key={i}
@@ -176,16 +182,32 @@ const Interface = () => {
   );
 };
 
+const Experience = ({ children }: { children: React.ReactNode }) => {
+  const ref = useRef<THREE.Mesh | null>(null);
+  const groupRef = useRef<THREE.Group | null>(null);
+  const state = useStore((state) => state.state);
+  const { height } = useThree((state) => state.viewport);
+  const isOpen = state === "open";
+
+  useFrame((_, delta) => {
+    if (state === "open") {
+      damp3(groupRef.current!.position, [0, 0, 2.5], 0.1, delta);
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={[0, -height, 0]}>
+      {children}
+    </group>
+  );
+};
+
 export default function News() {
   return (
     <ClientOnly fallback={<div>Loading...</div>}>
       {() => (
         <>
-          <Canvas
-            camera={{
-              position: [0, 0, 2.5]
-            }}
-          >
+          <Canvas>
             <ambientLight intensity={Math.PI / 2} />
             <spotLight
               position={[10, 10, 10]}
@@ -200,9 +222,13 @@ export default function News() {
               intensity={Math.PI}
             />
             <Suspense fallback={null}>
-              <Scroller />
-              <Minimap />
+              <Experience>
+                <Newspapers />
+                <Minimap />
+              </Experience>
+              <Mailbox />
             </Suspense>
+            {/* <CameraRig /> */}
             <CameraControls
               touches={{
                 one: 0,
