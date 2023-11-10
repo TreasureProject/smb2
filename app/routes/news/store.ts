@@ -31,7 +31,7 @@ export default create<State>((set) => {
 
     next: (index) => {
       set((state) => {
-        if (index) return { index };
+        if (index !== undefined) return { index };
         if (state.index < state.models.length - 1) {
           return { index: state.index + 1 };
         }

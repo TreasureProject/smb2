@@ -17,6 +17,14 @@ import { Icon } from "~/components/Icons";
 import * as THREE from "three";
 import { Mailbox } from "./Mailbox";
 import { useControls } from "leva";
+import {
+  HTMLMotionProps,
+  motion,
+  useMotionTemplate,
+  useMotionValueEvent,
+  useSpring
+} from "framer-motion";
+import { cn } from "~/utils";
 const material = new THREE.LineBasicMaterial({ color: "white" });
 const geometry = new THREE.BufferGeometry().setFromPoints([
   new THREE.Vector3(0, -0.5, 0),
@@ -117,7 +125,6 @@ const Newspapers = ({ w = 2, gap = 0.15 }) => {
   const previous = useStore((state) => state.previous);
   const index = useStore((state) => state.index);
   const models = useStore((state) => state.models);
-  const state = useStore((state) => state.state);
   useEffect(() => {
     const down = (_event: KeyboardEvent) => {
       if (_event.code === "ArrowRight" || _event.code === "Enter") next();
@@ -150,12 +157,119 @@ const Newspapers = ({ w = 2, gap = 0.15 }) => {
   );
 };
 
+const longPressThreshold = 1000;
+
+const LongClickButton = ({
+  onLongClick,
+  onClick,
+  children,
+  className,
+  ...props
+}: {
+  children: React.ReactNode;
+  onLongClick?: () => void;
+} & HTMLMotionProps<"button">) => {
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const intentTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const longPressTriggeredRef = useRef(false);
+
+  const height = useSpring(0, {
+    stiffness: 100,
+    damping: 20
+  });
+
+  const h = useMotionTemplate`${height}%`;
+
+  const startPressTimer = () => {
+    const intentTimerId = setTimeout(() => {
+      height.set(100);
+    }, 100);
+
+    const timerId = setTimeout(() => {
+      onLongClick?.();
+      longPressTriggeredRef.current = true;
+    }, longPressThreshold);
+    longPressTriggeredRef.current = false;
+    timerRef.current = timerId;
+    intentTimerRef.current = intentTimerId;
+  };
+
+  const clearPressTimer = (
+    e: React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+
+    if (!timerRef.current || !intentTimerRef.current) return;
+
+    if (!longPressTriggeredRef.current) {
+      onClick?.(e as React.MouseEvent<HTMLButtonElement>);
+    }
+    clearTimeout(intentTimerRef.current);
+    clearTimeout(timerRef.current);
+    timerRef.current = null;
+    intentTimerRef.current = null;
+    height.set(0);
+  };
+
+  const cancelPressTimer = () => {
+    if (!timerRef.current || !intentTimerRef.current) return;
+
+    clearTimeout(timerRef.current);
+    clearTimeout(intentTimerRef.current);
+
+    timerRef.current = null;
+    longPressTriggeredRef.current = false;
+    intentTimerRef.current = null;
+    height.set(0);
+  };
+
+  return (
+    <motion.button
+      onMouseDown={startPressTimer}
+      onMouseUp={clearPressTimer}
+      onMouseLeave={cancelPressTimer}
+      onTouchStart={startPressTimer}
+      onTouchEnd={clearPressTimer}
+      onTouchMove={cancelPressTimer}
+      className={cn("group relative select-none overflow-hidden", className)}
+      {...props}
+    >
+      <div className="relative z-10">{children}</div>
+      <motion.div
+        style={{
+          height: h
+        }}
+        transition={{
+          duration: longPressThreshold
+        }}
+        className="absolute -inset-[0.1px] mt-auto h-full w-full bg-intro"
+      />
+    </motion.button>
+  );
+};
+
+const Kbd = ({ children }) => {
+  return (
+    <kbd
+      className="box-border inline-flex h-6 shrink-0 select-none items-center justify-center whitespace-nowrap rounded-md bg-slate-100 px-2 text-black shadow-md shadow-slate-500/40"
+      style={{
+        fontFamily:
+          "apple-system, BlinkMacSystemFont, helvetica, arial, sans-serif"
+      }}
+    >
+      {children}
+    </kbd>
+  );
+};
+
 const Interface = () => {
   const next = useStore((state) => state.next);
+  const models = useStore((state) => state.models);
   const previous = useStore((state) => state.previous);
   const selectedModel = useStore((state) => state.selectedModel);
+  const state = useStore((state) => state.state);
+  const notSelected = selectedModel === null && state === "open";
 
-  const notSelected = selectedModel === null;
   return (
     <div
       style={{
@@ -163,35 +277,63 @@ const Interface = () => {
         opacity: notSelected ? 1 : 0,
         transform: `scale(${notSelected ? 1 : 0.25})`
       }}
+      className="absolute inset-0"
     >
+      <div className="absolute right-4 top-4 text-white">
+        <div>
+          <Kbd>← / Esc</Kbd>
+          <Kbd>→ / Enter</Kbd>
+          <span
+            style={{
+              fontFamily:
+                "apple-system, BlinkMacSystemFont, helvetica, arial, sans-serif"
+            }}
+          >
+            To Navigate
+          </span>
+        </div>
+        <div
+          style={{
+            fontFamily:
+              "apple-system, BlinkMacSystemFont, helvetica, arial, sans-serif"
+          }}
+        >
+          Longclick to go to first/last
+        </div>
+      </div>
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 space-x-4 sm:bottom-8">
-        <button
-          className="drounded-xl bg-black p-1.5 text-white backdrop-blur-xl transition-transform hover:scale-110"
+        <LongClickButton
+          className="drounded-xl bg-black p-1.5 text-white backdrop-blur-xl"
           onClick={() => previous()}
+          onLongClick={() => {
+            next(0);
+          }}
         >
           <Icon name="chevron-up" className="sm:h7 sm:w7 h-6 w-6 -rotate-90" />
-        </button>
-        <button
-          className="drounded-xl bg-black p-1.5 text-white backdrop-blur-xl transition-transform hover:scale-110"
+        </LongClickButton>
+        <LongClickButton
+          className="drounded-xl bg-black p-1.5 text-white backdrop-blur-xl"
           onClick={() => next()}
+          onLongClick={() => {
+            next(models.length - 1);
+          }}
         >
           <Icon name="chevron-up" className="sm:h7 sm:w7 h-6 w-6 rotate-90" />
-        </button>
+        </LongClickButton>
       </div>
     </div>
   );
 };
 
 const Experience = ({ children }: { children: React.ReactNode }) => {
-  const ref = useRef<THREE.Mesh | null>(null);
   const groupRef = useRef<THREE.Group | null>(null);
   const state = useStore((state) => state.state);
   const { height } = useThree((state) => state.viewport);
   const isOpen = state === "open";
 
   useFrame((_, delta) => {
-    if (state === "open") {
-      damp3(groupRef.current!.position, [0, 0, 2.5], 0.1, delta);
+    if (isOpen) {
+      damp3(groupRef.current!.position, [0, 0, 2.5], 0.6, delta);
     }
   });
 
@@ -228,7 +370,6 @@ export default function News() {
               </Experience>
               <Mailbox />
             </Suspense>
-            {/* <CameraRig /> */}
             <CameraControls
               touches={{
                 one: 0,

@@ -43,11 +43,11 @@ export function Mailbox(props: JSX.IntrinsicElements["group"]) {
     }
 
     if (state === "open") {
-      damp3(centerRef.current!.position, [-width / 2, -0.34, 4], 2, delta);
+      damp3(centerRef.current!.position, [-width / 2, -0.34, 4], 4, delta);
     }
   });
   return (
-    <Center position={[0, -0.34, 4]} ref={centerRef}>
+    <Center position={[0, -0.34, 4.1]} ref={centerRef}>
       <group
         onPointerOver={(e) => (e.stopPropagation(), setHovered(true))}
         onPointerOut={() => setHovered(false)}
@@ -59,7 +59,7 @@ export function Mailbox(props: JSX.IntrinsicElements["group"]) {
         }}
         {...props}
         dispose={null}
-        rotation={[0, 1, 0]}
+        rotation={[0, 0.65, 0]}
       >
         <mesh
           geometry={nodes.Body.geometry}
