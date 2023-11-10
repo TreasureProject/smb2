@@ -262,6 +262,7 @@ const Kbd = ({ children }) => {
   );
 };
 
+// million-ignore
 const Interface = () => {
   const next = useStore((state) => state.next);
   const models = useStore((state) => state.models);
