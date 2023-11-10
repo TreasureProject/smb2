@@ -1,0 +1,29 @@
+<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M19.5 9.00002L21 9.00004L21 7.50002H19.5V9.00002Z" fill="currentColor" />
+  <path d="M16.5 9.00002L15 9.00004L15 7.50002H16.5V9.00002Z" fill="currentColor" />
+  <path d="M27 16.5H28.5V15L27 15L27 16.5Z" fill="currentColor" />
+  <path d="M9 16.5H7.5V15H9V16.5Z" fill="currentColor" />
+  <path d="M27 21H28.5L28.5 19.5L27 19.5V21Z" fill="currentColor" />
+  <path d="M9 21H7.5L7.5 19.5L9 19.5V21Z" fill="currentColor" />
+  <path d="M19.5 28.5L21 28.5L21 27L19.5 27L19.5 28.5Z" fill="currentColor" />
+  <path d="M16.5 28.5L15 28.5L15 27L16.5 27L16.5 28.5Z" fill="currentColor" />
+  <path d="M22.5 15H21V21H22.5V15Z" fill="currentColor" />
+  <path d="M21 15L21 13.5H15L15 15H21Z" fill="currentColor" />
+  <path d="M15 15H13.5V21H15V15Z" fill="currentColor" />
+  <path d="M21 22.5L21 21H15L15 22.5H21Z" fill="currentColor" />
+  <path d="M10.5 25.5L10.5 27H15V25.5L10.5 25.5Z" fill="currentColor" />
+  <path d="M9 25.5H10.5V21L9 21L9 25.5Z" fill="currentColor" />
+  <path d="M7.5 16.5L6 16.5V19.5H7.5L7.5 16.5Z" fill="currentColor" />
+  <path d="M9 15L10.5 15L10.5 10.5L9 10.5L9 15Z" fill="currentColor" />
+  <path d="M15 10.5V9.00004H10.5V10.5H15Z" fill="currentColor" />
+  <path d="M19.5 7.50002L19.5 6H16.5L16.5 7.50002H19.5Z" fill="currentColor" />
+  <path d="M21 9.00004V10.5H25.5V9.00004H21Z" fill="currentColor" />
+  <path d="M25.5 15H27V10.5L25.5 10.5L25.5 15Z" fill="currentColor" />
+  <path d="M30 16.5L28.5 16.5L28.5 19.5H30V16.5Z" fill="currentColor" />
+  <path d="M25.5 25.5H27L27 21L25.5 21V25.5Z" fill="currentColor" />
+  <path d="M25.5 27L25.5 25.5L21 25.5V27H25.5Z" fill="currentColor" />
+  <path d="M19.5 30V28.5H16.5V30H19.5Z" fill="currentColor" />
+  <path fill-rule="evenodd" clip-rule="evenodd"
+    d="M10.5 10.5H15V9H16.5V7.5H19.5V9H21V10.5H25.5V15H27V16.5H28.5V19.5H27V21H25.5V25.5H21V27H19.5V28.5H16.5V27H15V25.5H10.5V21H9V19.5H7.5V16.5H9V15H10.5V10.5ZM15 13.5V15H13.5V21H15V22.5H21V21H22.5V15H21V13.5H15Z"
+    fill="currentColor" />
+</svg>

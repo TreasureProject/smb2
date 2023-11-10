@@ -1,14 +1,14 @@
 import React, { Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { GLTF } from "three-stdlib";
-import { Environment, useGLTF } from "@react-three/drei";
+import { useGLTF, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { useLocation } from "@remix-run/react";
 import {
-  Bloom,
-  DepthOfField,
   EffectComposer,
-  Glitch
+  Select,
+  Selection,
+  SelectiveBloom
 } from "@react-three/postprocessing";
 import { useKonami } from "~/contexts/konami";
 import { cn } from "~/utils";
@@ -72,6 +72,18 @@ function Banana({
 
 useGLTF.preload("/banana-transformed.glb");
 
+// million-ignore
+const Background = () => {
+  const texture = useTexture("/img/stars.webp");
+
+  return (
+    <mesh position={[0, 0, -50]}>
+      <planeGeometry args={[128, 72]} />
+      <meshBasicMaterial map={texture} />
+    </mesh>
+  );
+};
+
 export const BananaCanvas = ({ count = 200, depth = 80 }) => {
   const location = useLocation();
   const { activated } = useKonami();
@@ -79,35 +91,45 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
   const notHome = location.pathname !== "/";
   return (
     <Canvas
-      legacy={true}
+      legacy
       frameloop={notHome ? "never" : "always"}
       camera={{
-        near: 0.01,
+        near: 0.1,
         far: 110,
         fov: 30
+      }}
+      gl={{
+        antialias: false
       }}
       dpr={[1, 1.5]}
       className={cn(notHome && "hidden", activated && "z-20")}
     >
+      <color attach="background" args={["#000000"]} />
+
       <hemisphereLight
         intensity={0.5}
         groundColor={new THREE.Color(0x0e072d)}
       />
-      <Suspense>
-        {Array.from({ length: count }).map((_, i) => (
-          <Banana key={i} z={(-i / count) * depth - 20} />
-        ))}
-      </Suspense>
-      <Suspense fallback={null}>
-        <EffectComposer>
-          <Bloom
+      <Selection>
+        <Suspense>
+          <Select enabled={false}>
+            <Background />
+          </Select>
+          <Select enabled>
+            {Array.from({ length: count }).map((_, i) => (
+              <Banana key={i} z={(-i / count) * depth - 20} />
+            ))}
+          </Select>
+        </Suspense>
+        <EffectComposer multisampling={0}>
+          <SelectiveBloom
             luminanceThreshold={0}
             mipmapBlur
             luminanceSmoothing={0.2}
             intensity={40}
           />
         </EffectComposer>
-      </Suspense>
+      </Selection>
     </Canvas>
   );
 };

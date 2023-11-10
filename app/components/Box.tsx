@@ -7,20 +7,26 @@ import { cn } from "~/utils";
 
 const MotionLink = motion(Link);
 
-type Props =
-  | ({
-      as?: "div";
-    } & React.HTMLAttributes<HTMLDivElement>)
-  | ({
-      as: "button";
-    } & React.HTMLAttributes<HTMLButtonElement>)
-  | ({
-      as: "a";
-    } & AnchorHTMLAttributes<HTMLAnchorElement>)
-  | ({
-      as: "link";
-      state: (node: HTMLAnchorElement | null) => any;
-    } & Omit<RemixLinkProps, "state">);
+interface DivProps extends React.HTMLAttributes<HTMLDivElement> {
+  as?: "div";
+}
+
+interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
+  as: "button";
+}
+
+interface AnchorProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  as: "a";
+}
+
+interface LinkProps extends Omit<RemixLinkProps, "state"> {
+  as: "link";
+  state: (node: HTMLAnchorElement | null) => any;
+}
+
+type Props = (DivProps | ButtonProps | AnchorProps | LinkProps) & {
+  isLoading?: boolean;
+};
 
 export const Box = (props: Props) => {
   const className = cn("relative box", props.className);
