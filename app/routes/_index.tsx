@@ -2,14 +2,15 @@ import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import React, { useState } from "react";
 import { getTransformOrigin } from "~/utils";
 import { Box } from "~/components/Box";
-import Frens from "../assets/frens.webp";
-import Art from "../assets/art.webp";
-import Gallery from "../assets/gallery.webp";
-import Goals from "../assets/goals.webp";
-import News from "../assets/news.webp";
-import Tv from "../assets/tv.webp";
-import Fashion from "../assets/fashion.webp";
-import Spotlight from "../assets/spotlight.webp";
+import Weather from "../assets/apps/Weather.webp";
+import Gallery from "../assets/apps/Gallery.webp";
+import Goals from "../assets/apps/Goals.mp4";
+import News from "../assets/apps/News.webp";
+import Tv from "../assets/apps/TV.webp";
+import Fashion from "../assets/apps/Fashion.webp";
+import CCTV from "../assets/apps/CCTV.webp";
+import CCTVCamera from "../assets/apps/Camera.gif";
+import Games from "../assets/apps/Games.webp";
 import { AnimatePresence, motion, useAnimate } from "framer-motion";
 import { useKonami } from "~/contexts/konami";
 import SmolMusicVideo from "~/assets/smol-musicvideo.mp4";
@@ -124,8 +125,11 @@ export default function Index() {
           </filter>
         </defs>
       </svg>
-      <div className="relative mx-auto flex h-full max-w-7xl items-center justify-center px-8 sm:px-12">
-        <div ref={scope} className="grid h-[36rem] grid-cols-4 gap-8">
+      <div className="relative mx-auto grid h-full max-w-7xl place-items-center px-10 py-12 sm:px-12">
+        <div
+          ref={scope}
+          className="grid grid-cols-2 gap-4 [grid-auto-rows:20%] sm:grid-cols-4 sm:grid-rows-2 sm:gap-8"
+        >
           <Box
             as="link"
             to="/news"
@@ -135,7 +139,7 @@ export default function Index() {
             <img
               src={News}
               alt="News"
-              className="aspect-video h-full w-full"
+              className="aspect-square h-full w-full"
             ></img>
             <AnimatePresence>
               {state === "idle" && (
@@ -150,7 +154,7 @@ export default function Index() {
                     opacity: 0
                   }}
                   src={Peek}
-                  className="absolute bottom-full left-1/2 z-10 h-24 w-24 -translate-x-1/2"
+                  className="absolute bottom-full left-1/2 z-10 h-8 w-8 -translate-x-1/2 sm:h-24 sm:w-24"
                   alt="peek smol"
                 />
               )}
@@ -160,14 +164,14 @@ export default function Index() {
             <img
               src={Gallery}
               alt="gallery"
-              className="aspect-video h-full w-full"
+              className="aspect-square h-full w-full"
             ></img>
           </Box>
           <Box as="link" to="/about" state={getTransformOrigin}>
             <img
-              src={Art}
+              src={Weather}
               alt="art"
-              className="aspect-video h-full w-full"
+              className="aspect-square h-full w-full"
             ></img>
           </Box>
           <Box
@@ -177,8 +181,8 @@ export default function Index() {
             className="relative bg-white/10"
           >
             <img
-              src={Spotlight}
-              alt="spotlight"
+              src={Games}
+              alt="Games"
               className="aspect-square h-full w-full"
             ></img>
             <AnimatePresence>
@@ -194,7 +198,7 @@ export default function Index() {
                     opacity: 0
                   }}
                   src={Peek5}
-                  className="absolute bottom-full right-24 z-10 h-24 w-24"
+                  className="absolute bottom-full right-24 z-10 h-8 w-8 sm:h-24 sm:w-24"
                   alt="peek smol"
                 />
               )}
@@ -212,7 +216,7 @@ export default function Index() {
                     opacity: 0
                   }}
                   src={Peek2}
-                  className="absolute bottom-4 left-full z-10 h-24 w-24 rotate-90"
+                  className="absolute bottom-4 left-full z-10 h-8 w-8 rotate-90 sm:h-24 sm:w-24"
                   alt="peek smol"
                 />
               )}
@@ -237,7 +241,7 @@ export default function Index() {
                     opacity: 0
                   }}
                   src={Peek3}
-                  className="absolute bottom-4 right-full z-10 h-24 w-24 -rotate-90"
+                  className="absolute bottom-4 right-full z-10 h-8 w-8 -rotate-90 sm:h-24 sm:w-24"
                   alt="peek smol"
                 />
               )}
@@ -256,11 +260,21 @@ export default function Index() {
             state={getTransformOrigin}
             className="relative"
           >
-            <img
-              src={Goals}
-              alt="goals"
-              className="aspect-square h-full w-full"
-            ></img>
+            <div className="relative h-full overflow-hidden">
+              <span className="relative z-10 ml-4 inline-block text-white text-8xl leading-none capsize sm:text-[12rem]">
+                GOALS
+              </span>
+              <video
+                preload="auto"
+                playsInline
+                loop
+                muted
+                autoPlay
+                className="absolute -bottom-1/2 -right-[40%] h-[175%] min-w-[175%] -rotate-[30deg] -scale-x-100 object-cover"
+              >
+                <source src={Goals} type="video/mp4" />
+              </video>
+            </div>
             <AnimatePresence>
               {state === "idle" && (
                 <motion.img
@@ -274,24 +288,29 @@ export default function Index() {
                     opacity: 0
                   }}
                   src={Peek4}
-                  className="absolute left-1/2 top-full z-10 h-24 w-24 -translate-x-1/2 -rotate-180"
+                  className="absolute left-1/2 top-full z-10 h-8 w-8 -translate-x-1/2 -rotate-180 sm:h-24 sm:w-24"
                   alt="peek smol"
                 />
               )}
             </AnimatePresence>
           </Box>
           <Box as="link" to="/smolspace" state={getTransformOrigin}>
-            <img
-              src={Frens}
-              alt="frens"
-              className="aspect-square h-full w-full"
-            ></img>
+            <div className="relative h-full overflow-hidden">
+              <img
+                src={CCTV}
+                alt="CCTV"
+                className="aspect-square h-full w-full"
+              ></img>
+              <img
+                src={CCTVCamera}
+                className="absolute -bottom-1/4 left-10 h-full w-full"
+                alt="CCTV Camera"
+              />
+              <div className="absolute inset-0 bg-rage/90 [mask-image:linear-gradient(transparent_75%,black)]"></div>
+            </div>
           </Box>
         </div>
       </div>
-      {/* <div className="mx-auto flex basis-64 items-center">
-          <Dock />
-        </div> */}
     </>
   );
 }

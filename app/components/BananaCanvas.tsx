@@ -87,7 +87,7 @@ const Background = () => {
 export const BananaCanvas = ({ count = 200, depth = 80 }) => {
   const location = useLocation();
   const { activated } = useKonami();
-
+  const ref = React.useRef<THREE.HemisphereLight | null>(null);
   const notHome = location.pathname !== "/";
   return (
     <Canvas
@@ -107,6 +107,7 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
       <color attach="background" args={["#000000"]} />
 
       <hemisphereLight
+        ref={ref}
         intensity={0.5}
         groundColor={new THREE.Color(0x0e072d)}
       />
@@ -123,6 +124,7 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
         </Suspense>
         <EffectComposer multisampling={0}>
           <SelectiveBloom
+            lights={[ref]}
             luminanceThreshold={0}
             mipmapBlur
             luminanceSmoothing={0.2}
