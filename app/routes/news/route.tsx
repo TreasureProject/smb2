@@ -1,27 +1,17 @@
-import { AnimationContainer } from "~/components/AnimationContainer";
-import CarVid from "./car.mp4";
-import Smol from "./smol.png";
 import { ClientOnly } from "remix-utils/client-only";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useRef, useState } from "react";
-import {
-  CameraControls,
-  Center,
-  MeshTransmissionMaterial,
-  useCursor,
-  useVideoTexture
-} from "@react-three/drei";
-import { damp, damp3, dampC } from "maath/easing";
+import { CameraControls, useCursor, useVideoTexture } from "@react-three/drei";
+import { damp, damp3 } from "maath/easing";
 import useStore from "./store";
 import { Icon } from "~/components/Icons";
 import * as THREE from "three";
 import { Mailbox } from "./Mailbox";
-import { useControls } from "leva";
 import {
+  AnimatePresence,
   HTMLMotionProps,
   motion,
   useMotionTemplate,
-  useMotionValueEvent,
   useSpring
 } from "framer-motion";
 import { cn } from "~/utils";
@@ -248,15 +238,9 @@ const LongClickButton = ({
   );
 };
 
-const Kbd = ({ children }) => {
+const Kbd = ({ children }: { children: React.ReactNode }) => {
   return (
-    <kbd
-      className="box-border inline-flex h-6 shrink-0 select-none items-center justify-center whitespace-nowrap rounded-md bg-slate-100 px-2 text-black shadow-md shadow-slate-500/40"
-      style={{
-        fontFamily:
-          "apple-system, BlinkMacSystemFont, helvetica, arial, sans-serif"
-      }}
-    >
+    <kbd className="box-border inline-flex h-6 shrink-0 select-none items-center justify-center whitespace-nowrap rounded-md bg-slate-100 px-2 text-black shadow-md shadow-slate-500/40 font-mono text-xs">
       {children}
     </kbd>
   );
@@ -270,58 +254,79 @@ const Interface = () => {
   const selectedModel = useStore((state) => state.selectedModel);
   const state = useStore((state) => state.state);
   const notSelected = selectedModel === null && state === "open";
-
+  const setMailboxClicked = useStore((state) => state.setMailboxClicked);
+  const setState = useStore((state) => state.setState);
   return (
-    <div
-      style={{
-        transition: "all 0.5s",
-        opacity: notSelected ? 1 : 0,
-        transform: `scale(${notSelected ? 1 : 0.25})`
-      }}
-      className="absolute inset-0"
-    >
-      <div className="absolute right-4 top-4 text-white">
-        <div>
-          <Kbd>← / Esc</Kbd>
-          <Kbd>→ / Enter</Kbd>
-          <span
-            style={{
-              fontFamily:
-                "apple-system, BlinkMacSystemFont, helvetica, arial, sans-serif"
+    <div className="absolute inset-0">
+      {state === "idle" && (
+        <button
+          className="absolute inset-0 h-full w-full"
+          onClick={() => {
+            setMailboxClicked(true);
+            setTimeout(() => {
+              setState("open");
+            }, 2000);
+          }}
+        ></button>
+      )}
+      <AnimatePresence>
+        {notSelected && (
+          <motion.div
+            key="interface"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{
+              delay: 1.5
             }}
           >
-            To Navigate
-          </span>
-        </div>
-        <div
-          style={{
-            fontFamily:
-              "apple-system, BlinkMacSystemFont, helvetica, arial, sans-serif"
-          }}
-        >
-          Longclick to go to first/last
-        </div>
-      </div>
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 space-x-4 sm:bottom-8">
-        <LongClickButton
-          className="drounded-xl bg-black p-1.5 text-white backdrop-blur-xl"
-          onClick={() => previous()}
-          onLongClick={() => {
-            next(0);
-          }}
-        >
-          <Icon name="chevron-up" className="sm:h7 sm:w7 h-6 w-6 -rotate-90" />
-        </LongClickButton>
-        <LongClickButton
-          className="drounded-xl bg-black p-1.5 text-white backdrop-blur-xl"
-          onClick={() => next()}
-          onLongClick={() => {
-            next(models.length - 1);
-          }}
-        >
-          <Icon name="chevron-up" className="sm:h7 sm:w7 h-6 w-6 rotate-90" />
-        </LongClickButton>
-      </div>
+            <div className="absolute right-4 top-4 space-y-3 text-white font-mono">
+              <div className="flex items-center justify-between space-x-8">
+                <div className="space-x-1">
+                  <Kbd>← / Backspace</Kbd>
+                  <Kbd>→ / Enter</Kbd>
+                </div>
+                <span className="text-grayTwo text-xs">Navigate</span>
+              </div>
+              <div className="flex items-center justify-between space-x-8">
+                <div className="space-x-1">
+                  <Kbd>
+                    <Icon name="longpress" className="h-4 w-4" />
+                    Longclick Arrows
+                  </Kbd>
+                </div>
+                <span className="text-grayTwo text-xs">First/Last</span>
+              </div>
+            </div>
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 space-x-4 sm:bottom-8">
+              <LongClickButton
+                className="drounded-xl bg-black p-1.5 text-white backdrop-blur-xl"
+                onClick={() => previous()}
+                onLongClick={() => {
+                  next(0);
+                }}
+              >
+                <Icon
+                  name="chevron-up"
+                  className="sm:h7 sm:w7 h-6 w-6 -rotate-90"
+                />
+              </LongClickButton>
+              <LongClickButton
+                className="drounded-xl bg-black p-1.5 text-white backdrop-blur-xl"
+                onClick={() => next()}
+                onLongClick={() => {
+                  next(models.length - 1);
+                }}
+              >
+                <Icon
+                  name="chevron-up"
+                  className="sm:h7 sm:w7 h-6 w-6 rotate-90"
+                />
+              </LongClickButton>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

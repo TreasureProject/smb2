@@ -254,7 +254,7 @@ const Documents = () => {
               </button>
             </div>
           </div>
-          <p className="mt-4 font-bold text-white font-mono leading-none capsize">
+          <p className="font-neuebit mt-4 font-bold text-white leading-none capsize">
             Here you will find the universal database of all documents. Learn
             more about everyone around you. We are uncovering new facts
             everyday!
@@ -720,7 +720,7 @@ const WhatTheFuckScrollSection = () => {
             ref={(ref) => ref && (slideRefs.current[messageIndex] = ref)}
             className="w-full flex-none snap-center px-4 sm:px-6"
           >
-            <p className="font-bold font-mono text-4xl leading-none capsize">
+            <p className="font-neuebit font-bold text-4xl leading-none capsize">
               {message}
             </p>
           </div>
@@ -928,17 +928,17 @@ export default function About() {
         </div>
 
         <div className="relative z-10 mt-6 flex items-center justify-between bg-acid p-4">
-          <p className="mt-0 font-bold font-mono text-base leading-5 capsize md:text-2xl">
+          <p className="font-neuebit mt-0 font-bold text-base leading-5 capsize md:text-2xl">
             SMOL © 2021-2023 Treasure
           </p>
           <div className="flex space-x-6">
             <a href="#">
-              <p className="font-bold font-mono text-base leading-5 capsize md:text-2xl">
+              <p className="font-neuebit font-bold text-base leading-5 capsize md:text-2xl">
                 Terms of Service
               </p>
             </a>
             <a href="#">
-              <p className="font-bold font-mono text-base leading-5 capsize md:text-2xl">
+              <p className="font-neuebit font-bold text-base leading-5 capsize md:text-2xl">
                 Privacy Policy
               </p>
             </a>

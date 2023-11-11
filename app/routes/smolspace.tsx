@@ -14,7 +14,7 @@ export default function Smolspace() {
   return (
     <AnimationContainer className="bg-acid p-3">
       <h1 className="font-medium italic font-chad text-7xl">Smolspace</h1>
-      <div className="mt-3 flex gap-4 font-bold font-mono">
+      <div className="font-neuebit mt-3 flex gap-4 font-bold">
         <div className="flex basis-72 flex-col gap-4">
           <div className="bg-fud p-1">
             <p className="text-white text-2xl">Hello, Smol #12345!</p>

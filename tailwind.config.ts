@@ -31,7 +31,7 @@ export default {
       },
       fontFamily: {
         sans: ["Norline", ...defaultTheme.fontFamily.sans],
-        mono: ["PPNeueBit", ...defaultTheme.fontFamily.mono],
+        neuebit: ["PPNeueBit", ...defaultTheme.fontFamily.sans],
         chad: ["PPEditorialNew", ...defaultTheme.fontFamily.sans],
         oakley: ["Oakley", ...defaultTheme.fontFamily.sans],
         mondwest: ["PPMondwest", ...defaultTheme.fontFamily.sans],

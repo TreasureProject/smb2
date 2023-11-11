@@ -2,6 +2,8 @@ import { create } from "zustand";
 
 interface State {
   state: "idle" | "open";
+  mailboxClicked: boolean;
+  setMailboxClicked: (clicked: boolean) => void;
   setState: (state: "idle" | "open") => void;
   index: number;
   selectedModel: number | null;
@@ -14,6 +16,8 @@ interface State {
 export default create<State>((set) => {
   return {
     state: "idle",
+    mailboxClicked: false,
+    setMailboxClicked: (clicked) => set({ mailboxClicked: clicked }),
     setState: (state) => set({ state }),
     index: 0,
     models: [...new Array(12).fill(undefined)],

@@ -38,7 +38,9 @@ type State =
     }
   | {
       state: "FUD_SUBMISSION";
-      fudType?: "PRE_DRAFTED" | "CUSTOM";
+    }
+  | {
+      state: "FUD_SUBMITTED";
     }
   | {
       state: "OTHER_ISSUES";
@@ -64,7 +66,6 @@ type Action =
     }
   | {
       type: "SUBMIT_FUD";
-      fudType: "PRE_DRAFTED" | "CUSTOM";
     };
 
 const BASE_TRANSITIONS: TTransition<State, Action> = {
@@ -103,9 +104,12 @@ const transitions: TTransitions<State, Action> = {
     ...BASE_TRANSITIONS
   },
   FUD_SUBMISSION: {
-    SUBMIT_FUD: (ctx, { fudType }) => {
-      return { ...ctx, fudType };
+    SUBMIT_FUD: (ctx) => {
+      return { ...ctx, state: "FUD_SUBMITTED" };
     }
+  },
+  FUD_SUBMITTED: {
+    ...BASE_TRANSITIONS
   },
   OTHER_ISSUES: {}
 };
