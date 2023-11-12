@@ -6,10 +6,10 @@ Files: mailbox.glb [6.4MB] > mailbox-transformed.glb [308.24KB] (95%)
 
 import * as THREE from "three";
 import React, { useRef } from "react";
-import { Center, useCursor, useGLTF } from "@react-three/drei";
+import { Center, useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
 import { useFrame, useThree } from "@react-three/fiber";
-import { damp3, dampE, dampQ } from "maath/easing";
+import { damp3, dampE } from "maath/easing";
 import useStore from "./store";
 
 type GLTFResult = GLTF & {

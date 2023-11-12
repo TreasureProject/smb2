@@ -12,7 +12,8 @@ export default ({ mode }: { mode: string }) => {
         "tinykeys",
         "react-idle-timer",
         "@react-three/postprocessing",
-        "maath"
+        "maath",
+        "react-states"
       ]
     },
     plugins: [
