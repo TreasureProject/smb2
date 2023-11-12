@@ -119,9 +119,7 @@ export default function App() {
             isRoot || overflowHide ? "overflow-hidden" : null
           )}
         >
-          <KonamiProvider>
-            <AppInner />
-          </KonamiProvider>
+          <AppInner />
 
           <ScrollRestoration />
           <script

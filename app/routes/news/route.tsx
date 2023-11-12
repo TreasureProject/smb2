@@ -15,6 +15,8 @@ import {
   useSpring
 } from "framer-motion";
 import { cn } from "~/utils";
+import { tinykeys } from "tinykeys";
+
 const material = new THREE.LineBasicMaterial({ color: "white" });
 const geometry = new THREE.BufferGeometry().setFromPoints([
   new THREE.Vector3(0, -0.5, 0),
@@ -49,6 +51,7 @@ function Minimap() {
       {models.map((_, i) => (
         <line
           key={i}
+          // @ts-ignore
           geometry={geometry}
           material={material}
           position={[i * 0.06 - models.length * 0.03, -height / 2 + 2.5, 0]}
@@ -115,18 +118,18 @@ const Newspapers = ({ w = 2, gap = 0.15 }) => {
   const previous = useStore((state) => state.previous);
   const index = useStore((state) => state.index);
   const models = useStore((state) => state.models);
-  useEffect(() => {
-    const down = (_event: KeyboardEvent) => {
-      if (_event.code === "ArrowRight" || _event.code === "Enter") next();
-      else if (_event.code === "ArrowLeft" || _event.code === "Backspace")
-        previous();
-    };
-    window.addEventListener("keydown", down);
 
+  useEffect(() => {
+    let unsubscribe = tinykeys(window, {
+      ArrowRight: () => next(),
+      ArrowLeft: () => previous(),
+      Enter: () => next(),
+      Backspace: () => previous()
+    });
     return () => {
-      window.removeEventListener("keydown", down);
+      unsubscribe();
     };
-  }, []);
+  });
 
   useFrame((_, delta) => {
     const target = -xW * index;
@@ -257,7 +260,7 @@ const Interface = () => {
   const setMailboxClicked = useStore((state) => state.setMailboxClicked);
   const setState = useStore((state) => state.setState);
   return (
-    <div className="absolute inset-0">
+    <div className={cn(state === "idle" && "absolute inset-0")}>
       {state === "idle" && (
         <button
           className="absolute inset-0 h-full w-full"
@@ -277,7 +280,7 @@ const Interface = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{
-              delay: 1.5
+              delay: 0.2
             }}
           >
             <div className="absolute right-4 top-4 space-y-3 text-white font-mono">

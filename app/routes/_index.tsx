@@ -24,6 +24,7 @@ import {
 import { useKonami } from "~/contexts/konami";
 import SmolMusicVideo from "~/assets/smol-musicvideo.mp4";
 import { useIdleTimer } from "react-idle-timer";
+import { tinykeys } from "tinykeys";
 
 import Peek from "~/assets/peek.gif";
 import Peek2 from "~/assets/peek2.gif";
@@ -216,16 +217,15 @@ const Chat = () => {
   }, [ref]);
 
   useEffect(() => {
-    const down = (_event: KeyboardEvent) => {
-      _event.stopImmediatePropagation();
-      if (_event.code === "Escape") setActivate("close");
-    };
-    window.addEventListener("keydown", down);
-
+    let unsubscribe = tinykeys(window, {
+      Escape: () => {
+        setActivate("close");
+      }
+    });
     return () => {
-      window.removeEventListener("keydown", down);
+      unsubscribe();
     };
-  }, []);
+  });
 
   useEffect(() => {
     if (activate === "close") {

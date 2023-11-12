@@ -104,8 +104,6 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
       dpr={[1, 1.5]}
       className={cn(notHome && "hidden", activated && "z-20")}
     >
-      <color attach="background" args={["#000000"]} />
-
       <hemisphereLight
         ref={ref}
         intensity={0.5}
@@ -113,9 +111,11 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
       />
       <Selection>
         <Suspense>
-          <Select enabled={false}>
-            <Background />
-          </Select>
+          {!activated && (
+            <Select enabled={false}>
+              <Background />
+            </Select>
+          )}
           <Select enabled>
             {Array.from({ length: count }).map((_, i) => (
               <Banana key={i} z={(-i / count) * depth - 20} />
@@ -124,11 +124,12 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
         </Suspense>
         <EffectComposer multisampling={0}>
           <SelectiveBloom
+            // @ts-ignore
             lights={[ref]}
             luminanceThreshold={0}
             mipmapBlur
             luminanceSmoothing={0.2}
-            intensity={40}
+            intensity={activated ? 5 : 40}
           />
         </EffectComposer>
       </Selection>
