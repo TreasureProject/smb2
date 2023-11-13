@@ -141,7 +141,6 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
       dpr={[1, 1.5]}
       className={cn(notHome && "hidden", konamiActivated && "z-20")}
     >
-      <color attach="background" args={["black"]} />
       <hemisphereLight
         ref={ref}
         intensity={0.5}

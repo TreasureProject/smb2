@@ -471,6 +471,8 @@ export default function Index() {
     }
   }, [konamiActivated]);
 
+  console.log(lofiActivated);
+
   return (
     <>
       <AnimatePresence>
