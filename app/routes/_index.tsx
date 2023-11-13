@@ -31,6 +31,8 @@ import Peek2 from "~/assets/peek2.gif";
 import Peek3 from "~/assets/peek3.gif";
 import Peek4 from "~/assets/peek4.gif";
 import Peek5 from "~/assets/peek5.gif";
+import Meem from "~/assets/meem.webp";
+
 import { useChat, Message } from "~/components/Chat";
 import { Icon } from "~/components/Icons";
 
@@ -153,10 +155,6 @@ export function MessageRenderer({
         </ul>
       )}
       {type === "request" && (
-        // There are <X> number of people ahead of you (random number between 100 and 1,000)
-        // Estimated wait time (random number between 1 and 13 days)
-        // **Every 10 seconds, the number of people ahead of you should go up by 1
-
         <div ref={countDivRef} className="hidden flex-col space-y-1.5">
           <span className="first:mt-2">
             There are{" "}
@@ -243,31 +241,38 @@ const Chat = () => {
     state.state === "FUD_SUBMITTING" || state.state === "OTHER_ISSUES";
 
   return (
-    <div className="fixed bottom-4 right-4 z-20">
-      <button
-        onClick={() => {
-          setActivate(activate === "open" ? "close" : "open");
-        }}
-      >
-        <Icon name="longpress" className="h-8 w-8 text-white" />
-      </button>
+    <div className="fixed bottom-6 right-6 z-20">
+      <div className="relative [perspective:1000px]">
+        <img
+          src={Meem}
+          className="relative z-10 h-14 w-14 -scale-x-100 [mask-image:linear-gradient(black_90%,transparent_100%)]"
+          alt="mEEm"
+        />
+        <div className="absolute -bottom-7 -right-1.5 h-16 w-16 select-none rounded-full bg-black/80 [transform:rotateX(75deg)]"></div>
+        <button
+          className="absolute inset-0 z-20 h-full w-full"
+          onClick={() => {
+            setActivate(activate === "open" ? "close" : "open");
+          }}
+        ></button>
+      </div>
       <AnimatePresence>
         {activate === "open" && (
           <motion.div
             initial={{
               opacity: 0,
-              y: 20
+              transform: "scale(0)"
             }}
             animate={{
               opacity: 1,
-              y: 0
+              transform: "scale(1)"
             }}
             exit={{
               opacity: 0,
-              y: 20
+              transform: "scale(0)"
             }}
             ref={ref}
-            className="absolute bottom-3 right-8 w-[calc(100vw-72px)] overflow-hidden rounded-[28px] bg-gradient-to-br from-troll to-acid p-4 shadow-[0_4px_12px_rgba(31,33,36,0.2),0_2px_6px_rgba(31,33,36,0.05)] sm:w-[420px]"
+            className="absolute bottom-0 right-16 w-[calc(100vw-102px)] origin-bottom-right overflow-hidden rounded-[28px] bg-gradient-to-br from-troll to-acid p-4 shadow-[0_4px_12px_rgba(31,33,36,0.2),0_2px_6px_rgba(31,33,36,0.05)] sm:w-[420px]"
           >
             <div className="flex h-[calc(100vh-160px)] flex-col">
               <div
@@ -302,7 +307,7 @@ const Chat = () => {
                             </svg>
                           </span>
                           <div className="mr-12">
-                            <div className="shrink overflow-x-scroll rounded-[12px] border border-solid border-[#EEEFF0] bg-white px-3 py-2 text-[#1F2124] shadow-sm font-mono text-[0.5rem] sm:text-xs">
+                            <div className="shrink overflow-x-scroll rounded-[12px] border border-solid border-[#EEEFF0] bg-white px-3 py-2 text-[#1F2124] shadow-sm font-mono text-xs">
                               <MessageRenderer
                                 message={message}
                                 reducer={reducer}
@@ -316,7 +321,7 @@ const Chat = () => {
                   return (
                     <div className="[overflow-anchor:none]" key={key}>
                       <div className="mb-4 ml-16 flex flex-row-reverse">
-                        <p className="flex flex-col gap-1 overflow-x-scroll rounded-[12px] bg-[#393342] px-3 py-2 text-white font-mono text-[0.5rem] leading-5 sm:text-xs">
+                        <p className="flex flex-col gap-1 overflow-x-scroll rounded-[12px] bg-[#393342] px-3 py-2 text-white font-mono text-xs leading-5">
                           <MessageRenderer
                             message={message}
                             reducer={reducer}
@@ -509,7 +514,7 @@ export default function Index() {
               className="aspect-square h-full w-full"
             ></img>
           </Box>
-          <Box as="link" to="/about" state={getTransformOrigin}>
+          <Box as="link" to="/weather" state={getTransformOrigin}>
             <img
               src={Weather}
               alt="art"
@@ -518,7 +523,9 @@ export default function Index() {
           </Box>
           <Box
             as="link"
+            isLoading
             to="/spotlight"
+            aria-disabled="true"
             state={getTransformOrigin}
             className="relative bg-white/10"
           >
@@ -636,7 +643,13 @@ export default function Index() {
               )}
             </AnimatePresence>
           </Box>
-          <Box as="link" to="/smolspace" state={getTransformOrigin}>
+          <Box
+            isLoading
+            aria-disabled="true"
+            as="link"
+            to="/smolspace"
+            state={getTransformOrigin}
+          >
             <div className="relative h-full overflow-hidden">
               <img
                 src={CCTV}

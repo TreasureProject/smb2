@@ -28,7 +28,7 @@ function Banana({
 }: {
   z: number;
 } & JSX.IntrinsicElements["group"]) {
-  const { nodes, materials } = useGLTF("/banana-transformed.glb") as GLTFResult;
+  const { nodes } = useGLTF("/banana-transformed.glb") as GLTFResult;
   const ref = React.useRef<THREE.Group | null>(null);
   const { viewport, camera } = useThree();
 
@@ -75,9 +75,26 @@ useGLTF.preload("/banana-transformed.glb");
 // million-ignore
 const Background = () => {
   const texture = useTexture("/img/stars.webp");
+  const { viewport, camera } = useThree();
+  const ref = React.useRef<THREE.Mesh | null>(null);
+  const { width } = viewport.getCurrentViewport(camera, [0, 0, -50]);
+
+  useFrame(() => {
+    // endless background moving towards the left
+    ref.current?.position.set(
+      (ref.current.position.x -= 0.02),
+      ref.current.position.y,
+      ref.current.position.z
+    );
+
+    // reset background position to the right
+    if (ref.current!.position.x < -width) {
+      ref.current!.position.set(width, 0, -50);
+    }
+  });
 
   return (
-    <mesh position={[0, 0, -50]}>
+    <mesh ref={ref} position={[0, 0, -50]}>
       <planeGeometry args={[128, 72]} />
       <meshBasicMaterial map={texture} />
     </mesh>
