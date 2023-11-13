@@ -10,7 +10,7 @@ import {
   Selection,
   SelectiveBloom
 } from "@react-three/postprocessing";
-import { useKonami } from "~/contexts/konami";
+import { useEasterEgg } from "~/contexts/easteregg";
 import { cn } from "~/utils";
 
 interface GLTFResult extends GLTF {
@@ -33,7 +33,7 @@ function Banana({
   const { viewport, camera } = useThree();
 
   const { width, height } = viewport.getCurrentViewport(camera, [0, 0, z]);
-  const { activated } = useKonami();
+  const { konamiActivated } = useEasterEgg();
 
   const position = React.useMemo(
     () => ({
@@ -54,7 +54,7 @@ function Banana({
     );
     ref.current?.position.set(
       position.x * width,
-      (position.y += activated ? 0.1 : 0.005),
+      (position.y += konamiActivated ? 0.1 : 0.005),
       z
     );
 
@@ -76,34 +76,54 @@ useGLTF.preload("/banana-transformed.glb");
 const Background = () => {
   const texture = useTexture("/img/stars.webp");
   const { viewport, camera } = useThree();
-  const ref = React.useRef<THREE.Mesh | null>(null);
-  const { width } = viewport.getCurrentViewport(camera, [0, 0, -50]);
+  const ref1 = React.useRef<THREE.Mesh | null>(null);
+  const ref2 = React.useRef<THREE.Mesh | null>(null);
+
+  const { width, height } = viewport.getCurrentViewport(camera, [0, 0, -102]);
+
+  const { lofiActivated } = useEasterEgg();
 
   useFrame(() => {
     // endless background moving towards the left
-    ref.current?.position.set(
-      (ref.current.position.x -= 0.02),
-      ref.current.position.y,
-      ref.current.position.z
+    ref1.current?.position.set(
+      (ref1.current.position.x -= lofiActivated ? 0.3 : 0.01),
+      ref1.current.position.y,
+      ref1.current.position.z
+    );
+
+    ref2.current?.position.set(
+      (ref2.current.position.x -= lofiActivated ? 0.3 : 0.01),
+      ref2.current.position.y,
+      ref2.current.position.z
     );
 
     // reset background position to the right
-    if (ref.current!.position.x < -width) {
-      ref.current!.position.set(width, 0, -50);
+    if (ref1.current!.position.x < -width) {
+      ref1.current!.position.set(width, 0, -102);
+    }
+
+    if (ref2.current!.position.x < -width) {
+      ref2.current!.position.set(width, 0, -102);
     }
   });
 
   return (
-    <mesh ref={ref} position={[0, 0, -50]}>
-      <planeGeometry args={[128, 72]} />
-      <meshBasicMaterial map={texture} />
-    </mesh>
+    <>
+      <mesh ref={ref1} scale-x={1.2} position={[0, 0, -102]}>
+        <planeGeometry args={[width, height]} />
+        <meshBasicMaterial map={texture} />
+      </mesh>
+      <mesh ref={ref2} scale-x={1.2} position={[width, 0, -102]}>
+        <planeGeometry args={[width, height]} />
+        <meshBasicMaterial map={texture} />
+      </mesh>
+    </>
   );
 };
 
 export const BananaCanvas = ({ count = 200, depth = 80 }) => {
   const location = useLocation();
-  const { activated } = useKonami();
+  const { konamiActivated } = useEasterEgg();
   const ref = React.useRef<THREE.HemisphereLight | null>(null);
   const notHome = location.pathname !== "/";
   return (
@@ -119,8 +139,9 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
         antialias: false
       }}
       dpr={[1, 1.5]}
-      className={cn(notHome && "hidden", activated && "z-20")}
+      className={cn(notHome && "hidden", konamiActivated && "z-20")}
     >
+      <color attach="background" args={["black"]} />
       <hemisphereLight
         ref={ref}
         intensity={0.5}
@@ -128,7 +149,7 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
       />
       <Selection>
         <Suspense>
-          {!activated && (
+          {!konamiActivated && (
             <Select enabled={false}>
               <Background />
             </Select>
@@ -146,7 +167,7 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
             luminanceThreshold={0}
             mipmapBlur
             luminanceSmoothing={0.2}
-            intensity={activated ? 5 : 40}
+            intensity={konamiActivated ? 5 : 40}
           />
         </EffectComposer>
       </Selection>

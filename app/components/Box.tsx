@@ -27,7 +27,6 @@ interface LinkProps extends Omit<RemixLinkProps, "state"> {
 
 type Props = (DivProps | ButtonProps | AnchorProps | LinkProps) & {
   isLoading?: boolean;
-  // disabled?: boolean;
 };
 
 const Loading = () => (
@@ -54,7 +53,7 @@ export const Box = (props: Props) => {
   const [ref, setNodeRef] = useState<HTMLAnchorElement | null>(null);
 
   if (!as || as === "div") {
-    const { className: _, as: __, ...rest } = props;
+    const { className: _, as: __, isLoading: ___, ...rest } = props;
     return (
       <div className={className} {...rest}>
         <div className="relative h-full w-full">{children}</div>
@@ -64,7 +63,7 @@ export const Box = (props: Props) => {
   }
 
   if (as === "button") {
-    const { className: _, as: __, ...rest } = props;
+    const { className: _, as: __, isLoading: ___, ...rest } = props;
     return (
       <button className={className} {...rest}>
         <div className="relative h-full w-full">{children}</div>
@@ -73,7 +72,13 @@ export const Box = (props: Props) => {
     );
   }
   if (as === "a") {
-    const { className: _, as: __, target: ___, ...rest } = props;
+    const {
+      className: _,
+      as: __,
+      target: ___,
+      isLoading: ____,
+      ...rest
+    } = props;
 
     const disabled = props["aria-disabled"] === "true";
 
@@ -89,7 +94,7 @@ export const Box = (props: Props) => {
     );
   }
   if (as === "link") {
-    const { className: _, as: __, state, ...rest } = props;
+    const { className: _, as: __, isLoading: ___, state, ...rest } = props;
     const disabled = props["aria-disabled"] === "true";
     return (
       <Link

@@ -21,7 +21,7 @@ import {
   useMotionValue,
   useTransform
 } from "framer-motion";
-import { useKonami } from "~/contexts/konami";
+import { useEasterEgg } from "~/contexts/easteregg";
 import SmolMusicVideo from "~/assets/smol-musicvideo.mp4";
 import { useIdleTimer } from "react-idle-timer";
 import { tinykeys } from "tinykeys";
@@ -376,22 +376,61 @@ const Chat = () => {
   );
 };
 
+const Music = () => {
+  useEffect(() => {
+    const audio = new Audio(
+      "https://t4.bcbits.com/stream/2eca13c9958c53a47049676ee0441bf1/mp3-128/95331399?p=0&ts=1699967136&t=7f95186be2e0786898492c8d8ac1a175c30b3497&token=1699967136_da204a1358533a81857d48f0d92602311816ea48"
+    );
+    audio.loop = true;
+    audio.play();
+
+    return () => {
+      audio.pause();
+    };
+  }, []);
+  return (
+    <div className="flex items-center space-x-2 rounded-lg bg-slate-100/10 px-3 py-2 backdrop-blur-lg">
+      <img src={Weather} className="h-8 w-8 rounded-md object-cover" alt="" />
+      <div className="flex flex-col pr-12">
+        <p className="text-white text-xs">Pink Hat Posse</p>
+        <p className="text-grayOne text-xs">Smol Funk</p>
+      </div>
+      <div className="grid h-full grid-cols-11 justify-center gap-[2px] bg-transparent">
+        {[...Array(11)].map((_, i) => (
+          <motion.div
+            animate={{
+              height: [
+                Math.floor(Math.random() * 20),
+                Math.floor(Math.random() * 20),
+                Math.floor(Math.random() * 20)
+              ]
+            }}
+            transition={{
+              duration: 1,
+              ease: "easeInOut",
+              repeat: Infinity,
+              repeatType: "reverse"
+            }}
+            key={i}
+            className="col-span-1 mx-auto my-auto h-6 w-[1.25px] scale-125 rounded-full bg-gradient-to-t from-troll to-neonRed"
+          ></motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default function Index() {
   const [scope, _animate] = useAnimate();
-  const { activated } = useKonami();
+  const { konamiActivated, lofiActivated } = useEasterEgg();
   const [state, setState] = useState<"idle" | "active">("active");
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
-  const [supportActivated, setSupportActivated] = React.useState(false);
   useIdleTimer({
     onIdle: () => setState("idle"),
     onActive: () => setState("active"),
     timeout: 5000,
     throttle: 500
   });
-
-  const closeSupport = () => setSupportActivated(false);
-
-  const openSupport = () => setSupportActivated(true);
 
   React.useEffect(() => {
     const animation = _animate(
@@ -409,29 +448,29 @@ export default function Index() {
       }
     );
 
-    if (!activated) {
+    if (!konamiActivated) {
       animation.cancel();
     }
 
     return () => animation.cancel();
-  }, [_animate, activated]);
+  }, [_animate, konamiActivated]);
 
   React.useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    if (!activated) {
+    if (!konamiActivated) {
       video.pause();
       video.currentTime = 0;
     } else {
       video.play();
     }
-  }, [activated]);
+  }, [konamiActivated]);
 
   return (
     <>
       <AnimatePresence>
-        {activated && (
+        {konamiActivated && (
           <motion.video
             preload="auto"
             playsInline
@@ -468,7 +507,12 @@ export default function Index() {
         </defs>
       </svg>
 
-      <div className="relative mx-auto grid h-full max-w-7xl place-items-center px-10 py-12 sm:px-12">
+      <motion.div
+        animate={{
+          opacity: lofiActivated ? 0 : 1
+        }}
+        className="relative mx-auto grid h-full max-w-7xl place-items-center px-10 py-12 sm:px-12"
+      >
         <div
           ref={scope}
           className="grid grid-cols-2 gap-4 [grid-auto-rows:20%] sm:grid-cols-4 sm:grid-rows-2 sm:gap-8"
@@ -662,7 +706,25 @@ export default function Index() {
           </Box>
         </div>
         <Chat />
-      </div>
+      </motion.div>
+      <AnimatePresence>
+        {lofiActivated && (
+          <motion.div
+            initial={{
+              opacity: 0
+            }}
+            animate={{
+              opacity: 1
+            }}
+            exit={{
+              opacity: 0
+            }}
+            className="fixed bottom-4 right-4 font-mono"
+          >
+            <Music />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

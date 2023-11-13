@@ -32,7 +32,7 @@ import { useCustomLoaderData } from "./hooks/useCustomLoaderData";
 import iconHref from "./components/icons/sprite.svg";
 import { Icon } from "./components/Icons";
 import { ResponsiveProvider } from "./contexts/responsive";
-import { KonamiProvider, useKonami } from "./contexts/konami";
+import { EasterEggProvider, useEasterEgg } from "./contexts/easteregg";
 
 import "./tailwind.css";
 
@@ -111,7 +111,7 @@ export default function App() {
   const isRoot = location.pathname === "/";
   const overflowHide = location.pathname === "/gallery";
   return (
-    <KonamiProvider>
+    <EasterEggProvider>
       <html lang="en">
         <head>
           <meta charSet="utf-8" />
@@ -137,7 +137,7 @@ export default function App() {
           <Scripts />
         </body>
       </html>
-    </KonamiProvider>
+    </EasterEggProvider>
   );
 }
 
@@ -179,7 +179,7 @@ function AppInner() {
   const animatedFilter = useMotionTemplate`blur(${blur}px) grayscale(${grayscale}%)`;
 
   const heightRef = useRef(0);
-  const { activated } = useKonami();
+  const { konamiActivated } = useEasterEgg();
 
   /* these refs track if the user intends to drag or not, so we only show the smear 
      when they click, not drag.
@@ -287,13 +287,13 @@ function AppInner() {
       ease: "linear"
     });
 
-    if (!activated) {
+    if (!konamiActivated) {
       animation.cancel();
       hue.set(0);
     }
 
     return () => animation.cancel();
-  }, [activated, hue]);
+  }, [konamiActivated, hue]);
 
   const navigation = useLocation();
 
