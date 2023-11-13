@@ -400,13 +400,17 @@ const Music = () => {
           <motion.div
             animate={{
               height: [
+                20 % (i + 1),
                 Math.floor(Math.random() * 20),
                 Math.floor(Math.random() * 20),
-                Math.floor(Math.random() * 20)
+                Math.floor(Math.random() * 20),
+                Math.floor(Math.random() * 20),
+                Math.floor(Math.random() * 20),
+                20 % (i + 1)
               ]
             }}
             transition={{
-              duration: 1,
+              duration: 2,
               ease: "easeInOut",
               repeat: Infinity,
               repeatType: "reverse"
