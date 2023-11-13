@@ -30,6 +30,10 @@ import { cn } from "~/utils";
 import type { loader as loaderType } from "~/routes/location";
 import { lastSeenRoutine } from "./getLastSeen";
 
+import { commonMeta } from "~/seo";
+
+export const meta = commonMeta;
+
 const SPEECH_NAMES = ["Bruce", "Fred", "Junior"];
 // this is the height for the visible area on line 201, h-96.
 const BOX_HEIGHT = 200;

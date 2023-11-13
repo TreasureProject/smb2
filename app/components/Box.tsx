@@ -50,7 +50,7 @@ const Loading = () => (
 export const Box = (props: Props) => {
   const className = cn("relative box", props.className);
 
-  const { children, as } = props;
+  const { children, as, isLoading } = props;
   const [ref, setNodeRef] = useState<HTMLAnchorElement | null>(null);
 
   if (!as || as === "div") {
@@ -58,7 +58,7 @@ export const Box = (props: Props) => {
     return (
       <div className={className} {...rest}>
         <div className="relative h-full w-full">{children}</div>
-        {props.isLoading && <Loading />}
+        {isLoading && <Loading />}
       </div>
     );
   }
@@ -68,7 +68,7 @@ export const Box = (props: Props) => {
     return (
       <button className={className} {...rest}>
         <div className="relative h-full w-full">{children}</div>
-        {props.isLoading && <Loading />}
+        {isLoading && <Loading />}
       </button>
     );
   }
@@ -84,7 +84,7 @@ export const Box = (props: Props) => {
         {...rest}
       >
         <div className="relative h-full w-full">{children}</div>
-        {props.isLoading && <Loading />}
+        {isLoading && <Loading />}
       </a>
     );
   }
@@ -99,7 +99,7 @@ export const Box = (props: Props) => {
         {...rest}
       >
         <div className="relative h-full w-full">{children}</div>
-        {props.isLoading && <Loading />}
+        {isLoading && <Loading />}
       </Link>
     );
   }

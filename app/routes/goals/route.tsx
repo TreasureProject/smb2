@@ -4,6 +4,10 @@ import { motion } from "framer-motion";
 import { ClientOnly } from "remix-utils/client-only";
 import PencilMonke from "./assets/PencilMonke.webp";
 
+import { commonMeta } from "~/seo";
+
+export const meta = commonMeta;
+
 export default function Goals() {
   const navigate = useNavigate();
 
@@ -61,7 +65,7 @@ export default function Goals() {
                   </div>
                 </div>
                 <div className="flex-[1_1_0] overflow-y-auto">
-                  <ul className="font-neuebit relative flex flex-col font-bold text-fud before:absolute before:bottom-0 before:left-6 before:top-0 before:block before:border-l before:border-rage before:content-['']">
+                  <ul className="relative flex flex-col font-bold text-fud font-neuebit before:absolute before:bottom-0 before:left-6 before:top-0 before:block before:border-l before:border-rage before:content-['']">
                     <li className="px-8 pb-[1.2rem]"></li>
                     <li className="border-t border-vroom px-8 py-[1.2rem]"></li>
                     {Array.from({ length: 20 }).map((_, i) => (

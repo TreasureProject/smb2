@@ -35,6 +35,9 @@ import Meem from "~/assets/meem.webp";
 
 import { useChat, Message } from "~/components/Chat";
 import { Icon } from "~/components/Icons";
+import { commonMeta } from "~/seo";
+
+export const meta = commonMeta;
 
 const staggerMenuItems = stagger(0.1, { startDelay: 0.15 });
 
@@ -174,13 +177,6 @@ export function MessageRenderer({
     </div>
   );
 }
-
-export const meta: MetaFunction = () => {
-  return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" }
-  ];
-};
 
 export const links: LinksFunction = () => [
   {

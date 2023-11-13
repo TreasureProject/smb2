@@ -5,6 +5,10 @@ import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
 import { AnimationContainer } from "~/components/AnimationContainer";
 import { useState } from "react";
 
+import { commonMeta } from "~/seo";
+
+export const meta = commonMeta;
+
 type Weather = "sunny" | "rainy" | "cloudy" | "windy" | "fog" | "snowy";
 
 export const loader = async () => {

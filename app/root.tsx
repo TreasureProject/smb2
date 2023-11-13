@@ -1,5 +1,5 @@
 import { json } from "@remix-run/node";
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import {
   Links,
@@ -29,7 +29,6 @@ import { cn, getPublicKeys } from "./utils";
 import { useDrag } from "@use-gesture/react";
 import { interpolate } from "popmotion";
 import { useCustomLoaderData } from "./hooks/useCustomLoaderData";
-import { ShaderCanvas } from "./components/GlslCanvas";
 import iconHref from "./components/icons/sprite.svg";
 import { Icon } from "./components/Icons";
 import { ResponsiveProvider } from "./contexts/responsive";
@@ -39,6 +38,7 @@ import "./tailwind.css";
 
 import NProgress from "nprogress";
 import { BananaCanvas } from "./components/BananaCanvas";
+import { getDomainUrl } from "./seo";
 
 const INITIAL_BLUR_VALUE = 15;
 
@@ -53,11 +53,17 @@ export const links: LinksFunction = () => [
   }
 ];
 
-export const loader = () => {
+export const loader = ({ request }: LoaderFunctionArgs) => {
   return json({
+    requestInfo: {
+      origin: getDomainUrl(request),
+      path: new URL(request.url).pathname
+    },
     ENV: getPublicKeys(process.env)
   });
 };
+
+export type Loader = typeof loader;
 
 export const shouldRevalidate: ShouldRevalidateFunction = () => false;
 

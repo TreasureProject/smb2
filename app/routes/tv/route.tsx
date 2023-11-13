@@ -17,6 +17,10 @@ import { Perf } from "r3f-perf";
 import { Smol } from "./Smol";
 import { Color } from "three";
 
+import { commonMeta } from "~/seo";
+
+export const meta = commonMeta;
+
 export default function Tv() {
   const [perfSucks, degrade] = useState(false);
   const bgColor = new Color(0x0e072d);

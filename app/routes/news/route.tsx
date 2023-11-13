@@ -16,6 +16,9 @@ import {
 } from "framer-motion";
 import { cn } from "~/utils";
 import { tinykeys } from "tinykeys";
+import { commonMeta } from "~/seo";
+
+export const meta = commonMeta;
 
 const material = new THREE.LineBasicMaterial({ color: "white" });
 const geometry = new THREE.BufferGeometry().setFromPoints([
