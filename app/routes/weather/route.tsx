@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion, useAnimation } from "framer-motion";
 import { json } from "@remix-run/node";
 import { client } from "./client.server";
 import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
@@ -7,6 +7,8 @@ import { useState } from "react";
 
 import { commonMeta } from "~/seo";
 import { Header } from "~/components/Header";
+
+import Sunny from "./assets/sunny.png";
 
 export const meta = commonMeta;
 
@@ -110,6 +112,23 @@ const variants = {
   }
 } as const;
 
+const Rainy = () => {
+  return (
+    <motion.div
+      animate={{
+        backgroundPosition: ["0px 0px", "-2000px 2000px"],
+        transition: {
+          duration: 2,
+          ease: "linear",
+          repeat: Infinity,
+          repeatType: "loop"
+        }
+      }}
+      className="absolute inset-0 h-full w-full bg-[url(/img/rain.png)]"
+    ></motion.div>
+  );
+};
+
 export default function News() {
   const data = useCustomLoaderData<typeof loader>();
   const [date, setDate] = useState(0);
@@ -118,12 +137,36 @@ export default function News() {
   return (
     <AnimationContainer>
       <Header name="weather" />
-
       <motion.div
         variants={variants}
         animate={variants[today?.weather || "sunny"]}
-        className="h-full"
+        className="relative h-full"
       >
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            key={today?.fullDate}
+          >
+            {(() => {
+              switch (today?.weather) {
+                case "sunny":
+                  return (
+                    <img
+                      className="absolute right-0 w-32 md:w-auto"
+                      src={Sunny}
+                      alt="sun"
+                    />
+                  );
+                // case "snowy":
+                //   return <img src={Snowy} alt="snow" />;
+                case "rainy":
+                  return <Rainy />;
+              }
+            })()}
+          </motion.div>
+        </AnimatePresence>
         <div className="mx-auto max-w-2xl">
           <div className="flex flex-col items-center">
             <div className="mx-auto mt-12 max-w-max rounded-lg bg-fud px-3 py-2">

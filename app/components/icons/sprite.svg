@@ -208,6 +208,9 @@
         </g>
       </g>
     </symbol>
+    <symbol id="wind" fill="none" viewBox="0 0 190 57">
+      <path fill="currentColor" d="M24 49h166v8H24zM16 41h8v8h-8zM8 32h8v8H8zM0 24h8v8H0zM0 16h8v8H0zM8 8h8v8H8zM16 0h8v8h-8zM24 0h8v8h-8zM32 8h8v8h-8z"/>
+    </symbol>
     <symbol id="work" fill="none" viewBox="0 0 24 24">
       <path fill="#EFF0F0" d="M21 7V6h-4V3H7v3H3v1H2v13h1v1h18v-1h1V7h-1Zm-1 11h-1v1h-2V8h2v1h1v9ZM4 18V9h1V8h2v11H5v-1H4ZM9 5h6v1H9V5Zm0 3h6v11H9V8Z"/>
     </symbol>
