@@ -12,8 +12,8 @@ import {
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { distance } from "@popmotion/popcorn";
-import type { TroveSmolToken, searchSmol } from "~/api";
-import { fetchSmols } from "~/api";
+import type { TroveSmolToken, searchSmol } from "~/api.server";
+import { fetchSmols } from "~/api.server";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
