@@ -42,7 +42,7 @@ export const EasterEggProvider = ({
     return () => {
       unsubscribe();
     };
-  });
+  }, [activated]);
 
   let konamiActivated = activated === "konami";
 

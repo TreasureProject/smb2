@@ -39,6 +39,7 @@ import "./tailwind.css";
 import NProgress from "nprogress";
 import { BananaCanvas } from "./components/BananaCanvas";
 import { getDomainUrl } from "./seo";
+import { tinykeys } from "tinykeys";
 
 const INITIAL_BLUR_VALUE = 15;
 
@@ -144,11 +145,7 @@ export default function App() {
 function AppInner() {
   const data = useCustomLoaderData<typeof loader>();
   const [users, setUsers] = useState(0);
-  const [smear, setSmear] = useState({
-    state: "idle",
-    x: 0,
-    y: 0
-  });
+
   const [flicked, setFlicked] = useState(false);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -157,14 +154,9 @@ function AppInner() {
   const location = useLocation();
   const isRoot = location.pathname === "/";
   const [showIntro, setShowIntro] = useState(isRoot);
-  const blur = useMotionValue(isRoot ? INITIAL_BLUR_VALUE : 0);
   const y = useSpring(0, {
     stiffness: 5000,
     damping: 200
-  });
-  const grayscale = useSpring(0, {
-    stiffness: 20,
-    damping: 20
   });
 
   const hue = useSpring(0, {
@@ -176,16 +168,7 @@ function AppInner() {
 
   const hueFilter = useMotionTemplate`hue-rotate(${hue}deg)`;
 
-  const animatedFilter = useMotionTemplate`blur(${blur}px) grayscale(${grayscale}%)`;
-
-  const heightRef = useRef(0);
   const { konamiActivated } = useEasterEgg();
-
-  /* these refs track if the user intends to drag or not, so we only show the smear 
-     when they click, not drag.
-  */
-  const isPotentialDrag = useRef(false);
-  const isDragging = useRef(false);
 
   useMotionValueEvent(y, "change", (y) => {
     if (!introRef.current) return;
@@ -196,21 +179,20 @@ function AppInner() {
     }
   });
 
-  useMotionValueEvent(y, "change", (y) => {
-    if (!introRef.current) return;
-    const blurValue = introRef.current.getBoundingClientRect().height + y;
-    if (!heightRef.current) {
-      heightRef.current = blurValue;
-    }
-    const b = interpolate(
-      [100, heightRef.current],
-      [0, INITIAL_BLUR_VALUE]
-    )(blurValue);
-    blur.set(b);
-  });
+  useEffect(() => {
+    let unsubscribe = tinykeys(window, {
+      ArrowUp: () => {
+        if (!introRef.current) return;
+        y.set(-introRef.current?.getBoundingClientRect().height);
+      }
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   useDrag(
-    ({ event, down, movement: [, my] }) => {
+    ({ down, movement: [, my] }) => {
       if (my > 0 || !introRef.current) return;
       const isAboveCenter =
         my + introRef.current?.getBoundingClientRect().height / 2 < 0;
@@ -234,31 +216,31 @@ function AppInner() {
       }
     }
   );
-  const ws = usePartySocket({
-    host: data?.ENV.PUBLIC_PARTYKIT_URL || "localhost:1999",
-    room: "my-room",
+  // const ws = usePartySocket({
+  //   host: data?.ENV.PUBLIC_PARTYKIT_URL || "localhost:1999",
+  //   room: "my-room",
 
-    onOpen(e) {
-      console.log("connected", e);
-    },
-    onMessage(e) {
-      const msg = JSON.parse(e.data);
-      console.log({ msg });
-      if (msg.type === "connect" || msg.type === "disconnect") {
-        setUsers(msg.count);
-      }
+  //   onOpen(e) {
+  //     console.log("connected", e);
+  //   },
+  //   onMessage(e) {
+  //     const msg = JSON.parse(e.data);
+  //     console.log({ msg });
+  //     if (msg.type === "connect" || msg.type === "disconnect") {
+  //       setUsers(msg.count);
+  //     }
 
-      if (msg.type === "pee") {
-        setFlicked(true);
-      }
-    },
-    onClose() {
-      console.log("disconnected");
-    },
-    onError(e) {
-      console.log("connected");
-    }
-  });
+  //     if (msg.type === "pee") {
+  //       setFlicked(true);
+  //     }
+  //   },
+  //   onClose() {
+  //     console.log("disconnected");
+  //   },
+  //   onError(e) {
+  //     console.log("connected");
+  //   }
+  // });
 
   useEffect(() => {
     if (!flicked) return;
@@ -267,18 +249,6 @@ function AppInner() {
       setFlicked(false);
     }, 5000);
   }, [flicked]);
-
-  useEffect(() => {
-    if (smear.state === "active") {
-      setTimeout(() => {
-        setSmear({
-          state: "idle",
-          x: 0,
-          y: 0
-        });
-      }, 1000);
-    }
-  }, [smear.state]);
 
   useEffect(() => {
     const animation = animate(hue, 360, {
@@ -464,28 +434,6 @@ function AppInner() {
               </div>
             </motion.div>
           )}
-          <AnimatePresence>
-            {smear.state === "active" && (
-              <MotionSvg
-                key="smear"
-                initial={false}
-                animate={{
-                  opacity: 1,
-                  left: smear.x - 192,
-                  top: smear.y - 192
-                }}
-                exit={{
-                  opacity: 0
-                }}
-                transition={{
-                  duration: 5,
-                  ease: "easeOut"
-                }}
-                name="splash"
-                className="pointer-events-none absolute z-30 h-96 w-96 text-red-500"
-              ></MotionSvg>
-            )}
-          </AnimatePresence>
         </MotionConfig>
       </ResponsiveProvider>
     </motion.div>

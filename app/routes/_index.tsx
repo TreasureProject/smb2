@@ -34,7 +34,6 @@ import Peek5 from "~/assets/peek5.gif";
 import Meem from "~/assets/meem.webp";
 
 import { useChat, Message } from "~/components/Chat";
-import { Icon } from "~/components/Icons";
 import { commonMeta } from "~/seo";
 
 export const meta = commonMeta;

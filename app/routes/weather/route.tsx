@@ -19,16 +19,13 @@ function getCustomDay(date: Date) {
   const utcDate = date.getUTCDate();
   const utcHours = date.getUTCHours();
 
-  // If the time is before 12 PM UTC, adjust the day by subtracting one
   if (utcHours < 12) {
-    // Create a new date object for the previous day at the same time
     const previousDay = new Date(
       Date.UTC(utcYear, utcMonth, utcDate - 1, utcHours)
     );
     return previousDay;
   }
 
-  // If the time is after 12 PM UTC, return the current day
   return new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours));
 }
 
@@ -152,7 +149,10 @@ export default function News() {
               <p className="text-white">7 Day Forcast</p>
               <ul className="space-y-2">
                 {data?.weathers.map((weather, i) => (
-                  <li className="relative flex items-center justify-between bg-[#1938F21A] px-4 py-2">
+                  <li
+                    key={weather.fullDate}
+                    className="relative flex items-center justify-between bg-[#1938F21A] px-4 py-2"
+                  >
                     <div className="flex items-center space-x-4">
                       <p className="font-bold text-white font-neuebit text-3xl leading-none capsize">
                         {weather.weekday}
