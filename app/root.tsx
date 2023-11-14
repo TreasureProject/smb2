@@ -405,8 +405,8 @@ function AppInner() {
                     name="chevron-up"
                     className="mx-auto h-6 w-6 select-none text-white/80 sm:h-8 sm:w-8"
                   />
-                  <div className="mx-auto w-max select-none tracking-wide text-white/80 text-2xl sm:text-4xl">
-                    SWIPE UP TO UNLOCK
+                  <div className="mx-auto w-max select-none font-bold tracking-wide text-white/80 font-formula text-xs sm:text-lg">
+                    SWIPE UP / ↑ KEY TO UNLOCK
                   </div>
                   <motion.div
                     ref={dragRef}
