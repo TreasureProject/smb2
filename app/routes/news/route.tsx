@@ -17,6 +17,7 @@ import {
 import { cn } from "~/utils";
 import { tinykeys } from "tinykeys";
 import { commonMeta } from "~/seo";
+import { Link } from "@remix-run/react";
 
 export const meta = commonMeta;
 
@@ -286,6 +287,14 @@ const Interface = () => {
               delay: 0.2
             }}
           >
+            <div className="absolute left-4 top-4">
+              <Link to="/">
+                <Icon
+                  name="back"
+                  className="h-3 w-3  text-white sm:h-12 sm:w-12"
+                />
+              </Link>
+            </div>
             <div className="absolute right-4 top-4 space-y-3 text-white font-mono">
               <div className="flex items-center justify-between space-x-8">
                 <div className="space-x-1">

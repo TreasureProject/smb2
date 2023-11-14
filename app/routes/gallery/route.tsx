@@ -29,7 +29,7 @@ import { Loading } from "~/components/Loading";
 import { cn } from "~/utils";
 import type { loader as loaderType } from "~/routes/location";
 import { lastSeenRoutine } from "./getLastSeen";
-
+import Glass from "./assets/glass.png";
 import { commonMeta } from "~/seo";
 
 export const meta = commonMeta;
@@ -290,10 +290,15 @@ const GalleryInner = ({
 
   if (!data) return null;
 
+  const splitApp = useMemo(
+    () => splitApps(data ? data : [], isMobile),
+    [data, isMobile]
+  );
+
   return (
     <>
       <div className="relative grid touch-none gap-16 p-4">
-        {splitApps(data ? data : [], isMobile).map((apps) => {
+        {splitApp.map((apps) => {
           const length = isMobile ? 5 : 7;
           if (apps.length === length) {
             return (
@@ -425,7 +430,7 @@ export default function Gallery() {
   }, [smolFetcher]);
 
   useEffect(() => {
-    if (!targetSmolId) return;
+    if (!targetSmolId || Number.isNaN(Number(targetSmolId))) return;
 
     fetcherRef.current.load(
       `/search?${new URLSearchParams({ tokenId: targetSmolId }).toString()}`
@@ -495,14 +500,25 @@ export default function Gallery() {
           )}
         </Sheet>
       </div>
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 text-white text-3xl">
-        <button
-          onClick={() => {
-            setTargetSmolId((smol) => (!smol ? "1000" : null));
+      <div className="fixed bottom-4 left-1/2 z-10 -translate-x-1/2 text-white text-3xl">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const currentTarget = e.currentTarget[0] as HTMLInputElement;
+            setTargetSmolId(
+              currentTarget.value === "" ? null : currentTarget.value
+            );
           }}
         >
-          Set up
-        </button>
+          <input
+            type="text"
+            placeholder="Search By ID"
+            className="bg-neonPink px-3 py-2.5 font-bold text-black font-formula text-base leading-none capsize placeholder:text-grayTwo focus-within:outline-none"
+          />
+          <button type="submit" className="absolute -top-2 right-1">
+            <img src={Glass} alt="Search" className="h-12 w-12" />
+          </button>
+        </form>
       </div>
     </AnimationContainer>
   );

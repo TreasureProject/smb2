@@ -6,20 +6,42 @@ import { AnimationContainer } from "~/components/AnimationContainer";
 import { useState } from "react";
 
 import { commonMeta } from "~/seo";
+import { Header } from "~/components/Header";
 
 export const meta = commonMeta;
 
 type Weather = "sunny" | "rainy" | "cloudy" | "windy" | "fog" | "snowy";
 
+function getCustomDay(date: Date) {
+  // Convert the date to UTC
+  const utcYear = date.getUTCFullYear();
+  const utcMonth = date.getUTCMonth();
+  const utcDate = date.getUTCDate();
+  const utcHours = date.getUTCHours();
+
+  // If the time is before 12 PM UTC, adjust the day by subtracting one
+  if (utcHours < 12) {
+    // Create a new date object for the previous day at the same time
+    const previousDay = new Date(
+      Date.UTC(utcYear, utcMonth, utcDate - 1, utcHours)
+    );
+    return previousDay;
+  }
+
+  // If the time is after 12 PM UTC, return the current day
+  return new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours));
+}
+
 export const loader = async () => {
   const today = new Date();
+  const today_utc = getCustomDay(today);
 
   const weathers = await Promise.all(
     Array.from({ length: 7 }).map(async (_, i) => {
       const targetDay = new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        today.getDate() + i
+        today_utc.getFullYear(),
+        today_utc.getMonth(),
+        today_utc.getDate() + i
       );
 
       const { day, month, year } = {
@@ -98,6 +120,8 @@ export default function News() {
 
   return (
     <AnimationContainer>
+      <Header name="weather" />
+
       <motion.div
         variants={variants}
         animate={variants[today?.weather || "sunny"]}
