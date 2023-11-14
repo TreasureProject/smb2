@@ -367,7 +367,13 @@ const Experience = ({ children }: { children: React.ReactNode }) => {
 
 export default function News() {
   return (
-    <ClientOnly fallback={<div>Loading...</div>}>
+    <ClientOnly
+      fallback={
+        <div className="grid h-full place-items-center text-white font-mono text-lg">
+          Loading...
+        </div>
+      }
+    >
       {() => (
         <>
           <Canvas>

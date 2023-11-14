@@ -37,7 +37,13 @@ export default function Tv() {
   const bgColor = new Color(0x0e072d);
 
   return (
-    <ClientOnly fallback={<div>Loading...</div>}>
+    <ClientOnly
+      fallback={
+        <div className="grid h-full place-items-center text-white font-mono text-lg">
+          Loading...
+        </div>
+      }
+    >
       {() => (
         <>
           <Canvas
