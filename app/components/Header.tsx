@@ -8,7 +8,7 @@ const MotionLink = motion(Link);
 export const Header = ({ name }: { name: string }) => {
   const [hovered, setHovered] = useState(false);
   return (
-    <div className="w-full bg-[url(/img/pinkBg.avif),url(/img/pinkBg.webp)] [background-position:center_30%]">
+    <div className="relative z-20 w-full bg-[url(/img/pinkBg.avif),url(/img/pinkBg.webp)] [background-position:center_30%]">
       <header className="mx-auto flex h-16 items-center px-8 sm:h-24 sm:px-12">
         <h1 className="inline uppercase tracking-wider text-white text-4xl [filter:url(#outline)] sm:text-7xl">
           {name}
