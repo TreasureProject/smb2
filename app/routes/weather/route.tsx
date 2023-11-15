@@ -12,10 +12,9 @@ import Sunny from "./assets/sunny.png";
 import Cloud1 from "./assets/cloud1.png";
 import Cloud2 from "./assets/cloud2.png";
 import { cn } from "~/utils";
+import { fetchWeathers } from "~/api.server";
 
 export const meta = commonMeta;
-
-type Weather = "sunny" | "rainy" | "snowy" | "windy" | "cloudy" | "fog";
 
 function getCustomDay(date: Date) {
   // Convert the date to UTC
@@ -38,57 +37,7 @@ export const loader = async () => {
   const today = new Date();
   const today_utc = getCustomDay(today);
 
-  const weathers = await Promise.all(
-    Array.from({ length: 7 }).map(async (_, i) => {
-      const targetDay = new Date(
-        today_utc.getFullYear(),
-        today_utc.getMonth(),
-        today_utc.getDate() + i
-      );
-
-      const { day, month, year } = {
-        day: targetDay.getDate(),
-        month: targetDay.getMonth() + 1,
-        year: targetDay.getFullYear()
-      };
-      const weather = (await client.readContract({
-        address: "0x4B14Aa64C37bE1aB98DEB2B4D197d42149750eC0",
-        abi: [
-          {
-            inputs: [
-              { internalType: "uint256", name: "day", type: "uint256" },
-              { internalType: "uint256", name: "month", type: "uint256" },
-              { internalType: "uint256", name: "year", type: "uint256" }
-            ],
-            name: "getWeather",
-            outputs: [{ internalType: "string", name: "", type: "string" }],
-            stateMutability: "view",
-            type: "function"
-          },
-          {
-            inputs: [],
-            name: "initialize",
-            outputs: [],
-            stateMutability: "nonpayable",
-            type: "function"
-          }
-        ],
-        functionName: "getWeather",
-        args: [BigInt(day), BigInt(month), BigInt(year)]
-      })) as Weather;
-
-      return {
-        weather,
-        weekday: targetDay.toLocaleString("en-us", { weekday: "long" }),
-        fullDate: `${targetDay.toLocaleString("en-us", {
-          weekday: "long"
-        })} ${targetDay.toLocaleString("en-us", {
-          day: "numeric"
-        })}, ${targetDay.toLocaleString("en-us", { month: "long" })}`,
-        degrees: Math.floor(Math.random() * 100)
-      };
-    })
-  );
+  const weathers = await fetchWeathers(today_utc);
 
   return json({ weathers });
 };

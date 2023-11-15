@@ -7,3 +7,5 @@ export type EnvVar =
 export type Env = {
   [key in EnvVar]: string;
 };
+
+export type Weather = "sunny" | "rainy" | "snowy" | "windy" | "cloudy" | "fog";

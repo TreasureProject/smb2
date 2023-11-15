@@ -1,4 +1,6 @@
 import { cachified } from "./cache.server";
+import { client } from "./routes/weather/client.server";
+import { Weather } from "./types";
 
 const BASE_URL =
   (process.env.CHAIN || "arbgoerli") === "arbgoerli"
@@ -34,6 +36,84 @@ export type TroveSmolToken = {
 };
 
 const LIMIT = "117";
+
+function getCustomDay(date: Date) {
+  // Convert the date to UTC
+  const utcYear = date.getUTCFullYear();
+  const utcMonth = date.getUTCMonth();
+  const utcDate = date.getUTCDate();
+  const utcHours = date.getUTCHours();
+
+  if (utcHours < 12) {
+    const previousDay = new Date(
+      Date.UTC(utcYear, utcMonth, utcDate - 1, utcHours)
+    );
+    return previousDay;
+  }
+
+  return new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours));
+}
+
+export const fetchWeathers = async (currentDay: Date) =>
+  cachified({
+    key: `weathers-${currentDay.getMonth()}-${currentDay.getDate()}`,
+    async getFreshValue() {
+      const weathers = await Promise.all(
+        Array.from({ length: 7 }).map(async (_, i) => {
+          const targetDay = new Date(
+            currentDay.getFullYear(),
+            currentDay.getMonth(),
+            currentDay.getDate() + i
+          );
+
+          const { day, month, year } = {
+            day: targetDay.getDate(),
+            month: targetDay.getMonth() + 1,
+            year: targetDay.getFullYear()
+          };
+          const weather = (await client.readContract({
+            address: "0x4B14Aa64C37bE1aB98DEB2B4D197d42149750eC0",
+            abi: [
+              {
+                inputs: [
+                  { internalType: "uint256", name: "day", type: "uint256" },
+                  { internalType: "uint256", name: "month", type: "uint256" },
+                  { internalType: "uint256", name: "year", type: "uint256" }
+                ],
+                name: "getWeather",
+                outputs: [{ internalType: "string", name: "", type: "string" }],
+                stateMutability: "view",
+                type: "function"
+              },
+              {
+                inputs: [],
+                name: "initialize",
+                outputs: [],
+                stateMutability: "nonpayable",
+                type: "function"
+              }
+            ],
+            functionName: "getWeather",
+            args: [BigInt(day), BigInt(month), BigInt(year)]
+          })) as Weather;
+
+          return {
+            weather,
+            weekday: targetDay.toLocaleString("en-us", { weekday: "long" }),
+            fullDate: `${targetDay.toLocaleString("en-us", {
+              weekday: "long"
+            })} ${targetDay.toLocaleString("en-us", {
+              day: "numeric"
+            })}, ${targetDay.toLocaleString("en-us", { month: "long" })}`,
+            degrees: Math.floor(Math.random() * 100)
+          };
+        })
+      );
+
+      return weathers;
+    },
+    ttl: Infinity
+  });
 
 export const fetchSmols = async (page: number) =>
   cachified({

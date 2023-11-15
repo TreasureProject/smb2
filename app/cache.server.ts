@@ -11,10 +11,10 @@ declare global {
 let lru: LRUCache<string, C.CacheEntry>;
 
 if (process.env.NODE_ENV === "production") {
-  lru = new LRUCache<string, C.CacheEntry>({ max: 1000 });
+  lru = new LRUCache<string, C.CacheEntry>({ max: 300 });
 } else {
   if (!global.__lruCache) {
-    global.__lruCache = new LRUCache<string, C.CacheEntry>({ max: 1000 });
+    global.__lruCache = new LRUCache<string, C.CacheEntry>({ max: 300 });
   }
   lru = global.__lruCache;
 }
