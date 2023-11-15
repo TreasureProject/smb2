@@ -15,6 +15,7 @@ import {
 import {
   AnimatePresence,
   MotionConfig,
+  MotionValue,
   animate,
   motion,
   useMotionTemplate,
@@ -24,7 +25,7 @@ import {
 } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import usePartySocket from "partysocket/react";
-import peeImg from "~/assets/pee.webp";
+import eeeImg from "~/assets/eee.png";
 import { cn, getPublicKeys } from "./utils";
 import { useDrag } from "@use-gesture/react";
 import { interpolate } from "popmotion";
@@ -40,10 +41,7 @@ import NProgress from "nprogress";
 import { BananaCanvas } from "./components/BananaCanvas";
 import { getDomainUrl } from "./seo";
 import { tinykeys } from "tinykeys";
-
-const INITIAL_BLUR_VALUE = 15;
-
-const MotionSvg = motion(Icon);
+import { SocketContextProvider, useSocket } from "./contexts/socket";
 
 export const links: LinksFunction = () => [
   {
@@ -111,6 +109,10 @@ export default function App() {
   const location = useLocation();
   const isRoot = location.pathname === "/";
   const overflowHide = location.pathname === "/gallery";
+
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
   return (
     <EasterEggProvider>
       <html lang="en">
@@ -125,8 +127,15 @@ export default function App() {
             "relative h-[100dvh] bg-[url(/img/stars.webp)] bg-repeat antialiased [overscroll-behavior:none]",
             isRoot || overflowHide ? "overflow-hidden" : null
           )}
+          onMouseMove={({ currentTarget, clientX, clientY }) => {
+            const { left, top } = currentTarget.getBoundingClientRect();
+            mouseX.set(clientX - left - 40);
+            mouseY.set(clientY - top - 40);
+          }}
         >
-          <AppInner />
+          <SocketContextProvider>
+            <AppInner mouseX={mouseX} mouseY={mouseY} />
+          </SocketContextProvider>
 
           <ScrollRestoration />
           <script
@@ -142,13 +151,13 @@ export default function App() {
   );
 }
 
-function AppInner() {
-  const data = useCustomLoaderData<typeof loader>();
-  const [users, setUsers] = useState(0);
-
-  const [flicked, setFlicked] = useState(false);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
+function AppInner({
+  mouseX,
+  mouseY
+}: {
+  mouseX: MotionValue<number>;
+  mouseY: MotionValue<number>;
+}) {
   const dragRef = useRef<HTMLDivElement | null>(null);
   const introRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
@@ -169,6 +178,7 @@ function AppInner() {
   const hueFilter = useMotionTemplate`hue-rotate(${hue}deg)`;
 
   const { konamiActivated } = useEasterEgg();
+  const { flicked, ws } = useSocket();
 
   useMotionValueEvent(y, "change", (y) => {
     if (!introRef.current) return;
@@ -194,8 +204,9 @@ function AppInner() {
   useDrag(
     ({ down, movement: [, my] }) => {
       if (my > 0 || !introRef.current) return;
+
       const isAboveCenter =
-        my + introRef.current?.getBoundingClientRect().height / 2 < 0;
+        my + introRef.current?.getBoundingClientRect().height / 8 < 0;
 
       if (down) {
         y.set(my);
@@ -216,43 +227,6 @@ function AppInner() {
       }
     }
   );
-  const ws = usePartySocket({
-    host: data?.ENV.PUBLIC_PARTYKIT_URL || "localhost:1999",
-    room: "my-room",
-
-    onOpen(e) {
-      console.log("connected", e);
-    },
-    onMessage(e) {
-      const msg = JSON.parse(e.data);
-      console.log({ msg });
-      if (msg.type === "connect" || msg.type === "disconnect") {
-        setUsers(msg.count);
-      }
-
-      if (msg.type === "pee") {
-        setFlicked(true);
-      }
-
-      if (msg.type === "sent") {
-        console.log("sent", msg);
-      }
-    },
-    onClose() {
-      console.log("disconnected");
-    },
-    onError(e) {
-      console.log("connected");
-    }
-  });
-
-  useEffect(() => {
-    if (!flicked) return;
-
-    setTimeout(() => {
-      setFlicked(false);
-    }, 5000);
-  }, [flicked]);
 
   useEffect(() => {
     const animation = animate(hue, 360, {
@@ -362,8 +336,8 @@ function AppInner() {
                   opacity: 0,
                   scale: 0
                 }}
-                src={peeImg}
-                alt="pee"
+                src={eeeImg}
+                alt="eee"
                 className="aspect-square h-auto w-12"
               />
             )}

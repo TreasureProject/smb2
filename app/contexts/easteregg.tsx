@@ -31,6 +31,13 @@ export const EasterEggProvider = ({
           }
           setActivated("konami");
         },
+      "k o n a m i": () => {
+        if (activated === "konami") {
+          setActivated(null);
+          return;
+        }
+        setActivated("konami");
+      },
       "l o f i": () => {
         if (activated === "lofi") {
           setActivated(null);

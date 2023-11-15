@@ -30,10 +30,20 @@ export default class Server implements Party.Server {
   onMessage(message: string, sender: Party.Connection) {
     const msg = JSON.parse(message as string);
 
-    if (msg.type === "pee") {
+    if (msg.type === "poke") {
       const connections = [...this.party.getConnections()].filter(
         (ws) => ws.id !== sender.id
       );
+
+      if (connections.length === 0) {
+        sender.send(
+          JSON.stringify({
+            type: "no-one-available"
+          })
+        );
+
+        return;
+      }
 
       const randomConnection =
         connections[Math.floor(Math.random() * connections.length)];
@@ -47,7 +57,7 @@ export default class Server implements Party.Server {
 
       randomConnection.send(
         JSON.stringify({
-          type: "pee"
+          type: "poke"
         })
       );
     }

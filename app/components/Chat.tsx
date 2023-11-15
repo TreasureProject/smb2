@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import {
   TTransition,
   TTransitions,
@@ -6,6 +6,15 @@ import {
   useDevtools,
   useEnter
 } from "react-states";
+import { useSocket } from "~/contexts/socket";
+
+function getFlagEmoji(countryCode: string) {
+  const codePoints = countryCode
+    .toUpperCase()
+    .split("")
+    .map((char) => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+}
 
 export const options = {
   WHAT_IS_SMOL_BRAIN: "What is a Smol Brain?",
@@ -13,7 +22,8 @@ export const options = {
   WHERE_IS_SMOLVILLE_GAME: "Where is the Smolville game?",
   WHY_IS_MY_SMOL_LESS_RARE: "Why is my Smol less rare than it was before?",
   SUBMIT_FUD: "I would like to submit FUD.",
-  OTHER: "Something else."
+  OTHER: "Something else.",
+  POKE: "Poke"
 };
 
 export const fudOptions = {
@@ -73,6 +83,12 @@ type State = {
       state: "FUD_SUBMITTED";
     }
   | {
+      state: "POKE_REQUEST";
+    }
+  | {
+      state: "POKED";
+    }
+  | {
       state: "OTHER_ISSUES";
       commentCount: number;
     }
@@ -104,6 +120,10 @@ type Action =
   | {
       type: "INSERT_COMMENT";
       message: string;
+    }
+  | {
+      type: "POKE";
+      targetLocation: string;
     }
   | {
       type: "RESET";
@@ -192,6 +212,16 @@ const SELECT_OPTION_TRANSITION: TTransition<State, Action> = {
             ...ctx.messages,
             newMessage(options.OTHER, "user"),
             newMessage("OK, what can I help you with?", "bot")
+          ]
+        };
+      case options.POKE:
+        return {
+          ...ctx,
+          state: "POKE_REQUEST",
+          messages: [
+            ...ctx.messages,
+            newMessage(options.POKE, "user"),
+            newMessage("Sure. Let me poke someone...", "bot")
           ]
         };
       default: {
@@ -332,6 +362,25 @@ const transitions: TTransitions<State, Action> = {
   },
   TRANSFER_REQUEST: {
     RESET: () => ({ state: "INITIAL", messages: [] })
+  },
+  POKE_REQUEST: {
+    POKE: (ctx, { targetLocation }) => ({
+      ...ctx,
+      state: "POKED",
+      messages: [
+        ...ctx.messages,
+        newMessage(
+          targetLocation === "none"
+            ? "Boo. No ones online :("
+            : `Poked a smol from ${getFlagEmoji(targetLocation)}.`,
+          "bot",
+          options
+        )
+      ]
+    })
+  },
+  POKED: {
+    ...BASE_TRANSITIONS
   }
 };
 
@@ -346,6 +395,45 @@ export const useChat = (initialState?: State) => {
       messages: []
     }
   );
+
+  const [state, dispatch] = chatReducer;
+
+  const { ws, pokedTargetLocation, users } = useSocket();
+
+  useEffect(() => {
+    let id: NodeJS.Timeout;
+    if (state.state === "POKE_REQUEST") {
+      if (!pokedTargetLocation) return;
+
+      if (pokedTargetLocation !== "none") {
+        id = setTimeout(() => {
+          dispatch({
+            type: "POKE",
+            targetLocation: pokedTargetLocation
+          });
+        }, 5000);
+
+        return () => clearTimeout(id);
+      } else {
+        id = setTimeout(() => {
+          dispatch({
+            type: "POKE",
+            targetLocation: "none"
+          });
+        }, 5000);
+
+        return () => clearTimeout(id);
+      }
+    }
+  }, [pokedTargetLocation, state.state, dispatch]);
+
+  useEnter(state, "POKE_REQUEST", () => {
+    ws.send(
+      JSON.stringify({
+        type: "poke"
+      })
+    );
+  });
 
   return chatReducer;
 };

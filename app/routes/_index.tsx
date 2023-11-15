@@ -40,6 +40,7 @@ export const meta = commonMeta;
 
 const staggerMenuItems = stagger(0.1, { startDelay: 0.15 });
 
+// million-ignore
 export function MessageRenderer({
   message,
   reducer,
@@ -186,6 +187,7 @@ export const links: LinksFunction = () => [
   }
 ];
 
+// million-ignore
 const Chat = () => {
   const reducer = useChat();
 
@@ -316,12 +318,12 @@ const Chat = () => {
                   return (
                     <div className="[overflow-anchor:none]" key={key}>
                       <div className="mb-4 ml-16 flex flex-row-reverse">
-                        <p className="flex flex-col gap-1 overflow-x-scroll rounded-[12px] bg-[#393342] px-3 py-2 text-white font-mono text-xs leading-5">
+                        <div className="flex flex-col gap-1 rounded-[12px] bg-[#393342] px-3 py-2 text-white font-mono text-xs leading-5">
                           <MessageRenderer
                             message={message}
                             reducer={reducer}
                           />
-                        </p>
+                        </div>
                       </div>
                     </div>
                   );
@@ -376,15 +378,22 @@ const Chat = () => {
 };
 
 const Music = () => {
+  const [mute, setMute] = useState(false);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
-    const audio = new Audio("/lofi.mp3");
-    audio.loop = true;
-    audio.play();
+    audioRef.current = new Audio("/lofi.mp3");
+    audioRef.current.loop = true;
+    audioRef.current.play();
 
     return () => {
-      audio.pause();
+      audioRef.current?.pause();
     };
   }, []);
+
+  useEffect(() => {
+    audioRef.current!.muted = mute;
+  }, [mute]);
+
   return (
     <div className="flex items-center space-x-2 rounded-lg bg-slate-100/10 px-3 py-2 backdrop-blur-lg">
       <img src={Weather} className="h-8 w-8 rounded-md object-cover" alt="" />
@@ -396,26 +405,38 @@ const Music = () => {
         {[...Array(11)].map((_, i) => (
           <motion.div
             animate={{
-              height: [
-                20 % (i + 1),
-                Math.floor(Math.random() * 20),
-                Math.floor(Math.random() * 20),
-                Math.floor(Math.random() * 20),
-                Math.floor(Math.random() * 20),
-                Math.floor(Math.random() * 20),
-                20 % (i + 1)
-              ]
+              height: !mute
+                ? [
+                    20 % (i + 1),
+                    Math.floor(Math.random() * 20),
+                    Math.floor(Math.random() * 20),
+                    Math.floor(Math.random() * 20),
+                    Math.floor(Math.random() * 20),
+                    Math.floor(Math.random() * 20),
+                    20 % (i + 1)
+                  ]
+                : 1
             }}
-            transition={{
-              duration: 2,
-              ease: "easeInOut",
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
+            transition={
+              !mute
+                ? {
+                    duration: 2,
+                    ease: "easeInOut",
+                    repeat: Infinity,
+                    repeatType: "reverse"
+                  }
+                : {}
+            }
             key={i}
             className="col-span-1 mx-auto my-auto h-6 w-[1.25px] scale-125 rounded-full bg-gradient-to-t from-troll to-neonRed"
           ></motion.div>
         ))}
+        <button
+          onClick={() => setMute(!mute)}
+          className="absolute inset-0 h-full w-full"
+        >
+          <span className="sr-only">{mute ? "unmute" : "mute"}</span>
+        </button>
       </div>
     </div>
   );
