@@ -24,11 +24,9 @@ import {
   useSpring
 } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import usePartySocket from "partysocket/react";
 import eeeImg from "~/assets/eee.png";
 import { cn, getPublicKeys } from "./utils";
 import { useDrag } from "@use-gesture/react";
-import { interpolate } from "popmotion";
 import { useCustomLoaderData } from "./hooks/useCustomLoaderData";
 import iconHref from "./components/icons/sprite.svg";
 import { Icon } from "./components/Icons";

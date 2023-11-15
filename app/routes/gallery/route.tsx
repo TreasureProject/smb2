@@ -1,4 +1,4 @@
-import { useDrag, useGesture } from "@use-gesture/react";
+import { useGesture } from "@use-gesture/react";
 import type { MotionValue } from "framer-motion";
 import {
   motion,
@@ -214,8 +214,11 @@ const Item = ({
         }}
         className="relative aspect-square overflow-hidden rounded-full text-white ring-4 ring-transparent ring-offset-2 ring-offset-transparent transition-shadow duration-200 text-xl hover:ring-white/50 hover:ring-offset-black"
       >
-        <motion.img
+        <img
           src={app.image.uri}
+          style={{
+            transform: "translate3d(0,0,0)"
+          }}
           className="h-full w-full touch-none select-none [-webkit-user-drag:none]"
         />
 
