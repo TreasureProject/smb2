@@ -304,7 +304,7 @@ const Chat = () => {
                             </svg>
                           </span>
                           <div className="mr-12">
-                            <div className="shrink overflow-x-scroll rounded-[12px] border border-solid border-[#EEEFF0] bg-white px-3 py-2 text-[#1F2124] shadow-sm font-mono text-xs">
+                            <div className="shrink overflow-hidden rounded-[12px] border border-solid border-[#EEEFF0] bg-white px-3 py-2 text-[#1F2124] shadow-sm font-mono text-xs">
                               <MessageRenderer
                                 message={message}
                                 reducer={reducer}
