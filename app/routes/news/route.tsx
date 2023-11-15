@@ -376,7 +376,7 @@ export default function News() {
     >
       {() => (
         <>
-          <Canvas>
+          <Canvas className="canvas">
             <ambientLight intensity={Math.PI / 2} />
             <spotLight
               position={[10, 10, 10]}

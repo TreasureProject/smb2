@@ -47,6 +47,7 @@ export default function Tv() {
       {() => (
         <>
           <Canvas
+            className="canvas"
             shadows
             dpr={[1, perfSucks ? 1.5 : 2]}
             camera={{ position: [0, 0, 1], fov: 45, near: 1, far: 20 }}

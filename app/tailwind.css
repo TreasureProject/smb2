@@ -332,7 +332,7 @@
   }
 }
 
-canvas {
+.canvas {
   opacity: 0;
   touch-action: none;
   animation: fade-in 5s ease 0.5s forwards;

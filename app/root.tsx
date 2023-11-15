@@ -133,10 +133,7 @@ export default function App() {
             mouseY.set(clientY - top - 40);
           }}
         >
-          <SocketContextProvider>
-            <AppInner mouseX={mouseX} mouseY={mouseY} />
-          </SocketContextProvider>
-
+          <AppInner mouseX={mouseX} mouseY={mouseY} />
           <ScrollRestoration />
           <script
             dangerouslySetInnerHTML={{
@@ -178,7 +175,6 @@ function AppInner({
   const hueFilter = useMotionTemplate`hue-rotate(${hue}deg)`;
 
   const { konamiActivated } = useEasterEgg();
-  const { flicked, ws } = useSocket();
 
   useMotionValueEvent(y, "change", (y) => {
     if (!introRef.current) return;
@@ -254,166 +250,189 @@ function AppInner({
       }}
       className="h-full"
     >
-      <svg width="0" height="0" aria-hidden="true">
-        <defs>
-          <filter id="outline">
-            <feMorphology
-              in="SourceAlpha"
-              result="DILATED"
-              operator="dilate"
-              radius="4"
-            ></feMorphology>
+      <SocketContextProvider>
+        <svg width="0" height="0" aria-hidden="true">
+          <defs>
+            <filter id="outline">
+              <feMorphology
+                in="SourceAlpha"
+                result="DILATED"
+                operator="dilate"
+                radius="4"
+              ></feMorphology>
 
-            <feFlood
-              floodColor="#0E072D"
-              floodOpacity="1"
-              result="FUD"
-            ></feFlood>
-            <feComposite
-              in="FUD"
-              in2="DILATED"
-              operator="in"
-              result="OUTLINE"
-            ></feComposite>
+              <feFlood
+                floodColor="#0E072D"
+                floodOpacity="1"
+                result="FUD"
+              ></feFlood>
+              <feComposite
+                in="FUD"
+                in2="DILATED"
+                operator="in"
+                result="OUTLINE"
+              ></feComposite>
 
-            <feMerge>
-              <feMergeNode in="OUTLINE" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-          <filter id="rgb-split">
-            <feOffset in="SourceGraphic" dx="0.5" dy="0.5" result="layer-one" />
-            <feComponentTransfer in="layer-one" result="red">
-              <feFuncR type="identity" />
-              <feFuncG type="discrete" tableValues="0" />
-              <feFuncB type="discrete" tableValues="0" />
-            </feComponentTransfer>
-
-            <feOffset
-              in="SourceGraphic"
-              dx="-0.5"
-              dy="-0.5"
-              result="layer-two"
-            />
-            <feComponentTransfer in="layer-two" result="cyan">
-              <feFuncR type="discrete" tableValues="0" />
-              <feFuncG type="identity" />
-              <feFuncB type="identity" />
-            </feComponentTransfer>
-
-            <feBlend in="red" in2="cyan" mode="screen" result="color-split" />
-          </filter>
-        </defs>
-      </svg>
-      <ResponsiveProvider>
-        <MotionConfig
-          transition={{
-            duration: 0.25,
-            ease: "easeOut"
-          }}
-        >
-          <AnimatePresence initial={false}>
-            {flicked && (
-              <motion.img
-                transition={{
-                  type: "spring",
-                  mass: 0.6,
-                  duration: 1
-                }}
-                style={{
-                  x: mouseX,
-                  y: mouseY,
-                  position: "absolute",
-                  pointerEvents: "none",
-                  zIndex: 9999
-                }}
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                  rotate: [0, 360]
-                }}
-                exit={{
-                  opacity: 0,
-                  scale: 0
-                }}
-                src={eeeImg}
-                alt="eee"
-                className="aspect-square h-auto w-12"
+              <feMerge>
+                <feMergeNode in="OUTLINE" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <filter id="rgb-split">
+              <feOffset
+                in="SourceGraphic"
+                dx="0.5"
+                dy="0.5"
+                result="layer-one"
               />
-            )}
-          </AnimatePresence>
+              <feComponentTransfer in="layer-one" result="red">
+                <feFuncR type="identity" />
+                <feFuncG type="discrete" tableValues="0" />
+                <feFuncB type="discrete" tableValues="0" />
+              </feComponentTransfer>
 
-          <div className="relative h-full">
-            <BananaCanvas />
+              <feOffset
+                in="SourceGraphic"
+                dx="-0.5"
+                dy="-0.5"
+                result="layer-two"
+              />
+              <feComponentTransfer in="layer-two" result="cyan">
+                <feFuncR type="discrete" tableValues="0" />
+                <feFuncG type="identity" />
+                <feFuncB type="identity" />
+              </feComponentTransfer>
 
-            <AnimatePresence initial={false} mode="popLayout">
-              <motion.div
-                key={navigation.pathname}
-                initial={false}
-                className="absolute inset-0 z-10 h-full"
-                exit={{
-                  scale: 1,
-                  opacity: 0
-                }}
-              >
-                <AnimatedOutlet />
-              </motion.div>
+              <feBlend in="red" in2="cyan" mode="screen" result="color-split" />
+            </filter>
+          </defs>
+        </svg>
+        <ResponsiveProvider>
+          <MotionConfig
+            transition={{
+              duration: 0.25,
+              ease: "easeOut"
+            }}
+          >
+            <AnimatePresence initial={false}>
+              <Flick mouseX={mouseX} mouseY={mouseY} />
             </AnimatePresence>
-          </div>
-          {/* Only show the intro on the root page */}
-          {isRoot && showIntro && (
-            <motion.div
-              style={{
-                transform: yTransform
-              }}
-              ref={introRef}
-              className="absolute inset-0 z-10 h-[100dvh] w-full touch-pan-x bg-intro/90 backdrop-blur-md"
-            >
-              <div className="mx-auto grid h-full max-w-7xl items-center justify-center py-12">
-                <p className="relative text-white">
-                  <span className="absolute -top-12 rotate-[355deg] select-none text-pepe font-oakley text-2xl sm:text-3xl">
-                    WELCOME BACK
-                  </span>
-                  <span className="select-none font-sans text-[20rem] leading-none capsize sm:text-[32rem]">
-                    SMOL
-                  </span>
-                </p>
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-                  <Icon
-                    name="chevron-up"
-                    className="mx-auto h-6 w-6 select-none text-white/80 sm:h-8 sm:w-8"
-                  />
-                  <div className="mx-auto w-max select-none font-bold tracking-wide text-white/80 font-formula text-xs sm:text-lg">
-                    SWIPE UP / ↑ KEY TO UNLOCK
+
+            <div className="relative h-full">
+              <BananaCanvas />
+
+              <AnimatePresence initial={false} mode="popLayout">
+                <motion.div
+                  key={navigation.pathname}
+                  initial={false}
+                  className="absolute inset-0 z-10 h-full"
+                  exit={{
+                    scale: 1,
+                    opacity: 0
+                  }}
+                >
+                  <AnimatedOutlet />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            {/* Only show the intro on the root page */}
+            {isRoot && showIntro && (
+              <motion.div
+                style={{
+                  transform: yTransform
+                }}
+                ref={introRef}
+                className="absolute inset-0 z-10 h-[100dvh] w-full touch-pan-x bg-intro/90 backdrop-blur-md"
+              >
+                <div className="mx-auto grid h-full max-w-7xl items-center justify-center py-12">
+                  <p className="relative text-white">
+                    <span className="absolute -top-12 rotate-[355deg] select-none text-pepe font-oakley text-2xl sm:text-3xl">
+                      WELCOME BACK
+                    </span>
+                    <span className="select-none font-sans text-[20rem] leading-none capsize sm:text-[32rem]">
+                      SMOL
+                    </span>
+                  </p>
+                  <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+                    <Icon
+                      name="chevron-up"
+                      className="mx-auto h-6 w-6 select-none text-white/80 sm:h-8 sm:w-8"
+                    />
+                    <div className="mx-auto w-max select-none font-bold tracking-wide text-white/80 font-formula text-xs sm:text-lg">
+                      SWIPE UP / ↑ KEY TO UNLOCK
+                    </div>
+                    <motion.div
+                      ref={dragRef}
+                      initial={{
+                        y: "50%"
+                      }}
+                      animate={{
+                        y: ["10%", "0%"]
+                      }}
+                      transition={{
+                        y: {
+                          duration: 1.5,
+                          ease: "easeOut",
+                          repeat: Infinity,
+                          repeatType: "reverse"
+                        }
+                      }}
+                      className={cn(
+                        "flex h-12 touch-none select-none items-center px-4"
+                      )}
+                    >
+                      <div className="h-2.5 w-40 rounded-xl bg-gray-400/80 sm:h-4 sm:w-64"></div>
+                    </motion.div>
                   </div>
-                  <motion.div
-                    ref={dragRef}
-                    initial={{
-                      y: "50%"
-                    }}
-                    animate={{
-                      y: ["10%", "0%"]
-                    }}
-                    transition={{
-                      y: {
-                        duration: 1.5,
-                        ease: "easeOut",
-                        repeat: Infinity,
-                        repeatType: "reverse"
-                      }
-                    }}
-                    className={cn(
-                      "flex h-12 touch-none select-none items-center px-4"
-                    )}
-                  >
-                    <div className="h-2.5 w-40 rounded-xl bg-gray-400/80 sm:h-4 sm:w-64"></div>
-                  </motion.div>
                 </div>
-              </div>
-            </motion.div>
-          )}
-        </MotionConfig>
-      </ResponsiveProvider>
+              </motion.div>
+            )}
+          </MotionConfig>
+        </ResponsiveProvider>
+      </SocketContextProvider>
     </motion.div>
   );
 }
+
+const Flick = ({
+  mouseX,
+  mouseY
+}: {
+  mouseX: MotionValue<number>;
+  mouseY: MotionValue<number>;
+}) => {
+  const { flicked } = useSocket();
+
+  return (
+    <>
+      {flicked && (
+        <motion.img
+          transition={{
+            type: "spring",
+            mass: 0.6,
+            duration: 1
+          }}
+          style={{
+            x: mouseX,
+            y: mouseY,
+            position: "absolute",
+            pointerEvents: "none",
+            zIndex: 9999
+          }}
+          animate={{
+            opacity: 1,
+            scale: 1,
+            rotate: [0, 360]
+          }}
+          exit={{
+            opacity: 0,
+            scale: 0
+          }}
+          src={eeeImg}
+          alt="eee"
+          className="aspect-square h-auto w-12"
+        />
+      )}
+    </>
+  );
+};
