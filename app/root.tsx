@@ -216,31 +216,35 @@ function AppInner() {
       }
     }
   );
-  // const ws = usePartySocket({
-  //   host: data?.ENV.PUBLIC_PARTYKIT_URL || "localhost:1999",
-  //   room: "my-room",
+  const ws = usePartySocket({
+    host: data?.ENV.PUBLIC_PARTYKIT_URL || "localhost:1999",
+    room: "my-room",
 
-  //   onOpen(e) {
-  //     console.log("connected", e);
-  //   },
-  //   onMessage(e) {
-  //     const msg = JSON.parse(e.data);
-  //     console.log({ msg });
-  //     if (msg.type === "connect" || msg.type === "disconnect") {
-  //       setUsers(msg.count);
-  //     }
+    onOpen(e) {
+      console.log("connected", e);
+    },
+    onMessage(e) {
+      const msg = JSON.parse(e.data);
+      console.log({ msg });
+      if (msg.type === "connect" || msg.type === "disconnect") {
+        setUsers(msg.count);
+      }
 
-  //     if (msg.type === "pee") {
-  //       setFlicked(true);
-  //     }
-  //   },
-  //   onClose() {
-  //     console.log("disconnected");
-  //   },
-  //   onError(e) {
-  //     console.log("connected");
-  //   }
-  // });
+      if (msg.type === "pee") {
+        setFlicked(true);
+      }
+
+      if (msg.type === "sent") {
+        console.log("sent", msg);
+      }
+    },
+    onClose() {
+      console.log("disconnected");
+    },
+    onError(e) {
+      console.log("connected");
+    }
+  });
 
   useEffect(() => {
     if (!flicked) return;

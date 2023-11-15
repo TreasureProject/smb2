@@ -377,9 +377,7 @@ const Chat = () => {
 
 const Music = () => {
   useEffect(() => {
-    const audio = new Audio(
-      "https://t4.bcbits.com/stream/2eca13c9958c53a47049676ee0441bf1/mp3-128/95331399?p=0&ts=1699967136&t=7f95186be2e0786898492c8d8ac1a175c30b3497&token=1699967136_da204a1358533a81857d48f0d92602311816ea48"
-    );
+    const audio = new Audio("/lofi.mp3");
     audio.loop = true;
     audio.play();
 
