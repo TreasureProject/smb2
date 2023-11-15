@@ -242,10 +242,10 @@ const Chat = () => {
       <div className="relative [perspective:1000px]">
         <img
           src={Meem}
-          className="relative z-10 h-14 w-14 -scale-x-100 [mask-image:linear-gradient(black_90%,transparent_100%)]"
+          className="relative z-10 h-10 w-10 -scale-x-100 [mask-image:linear-gradient(black_90%,transparent_100%)] sm:h-14 sm:w-14"
           alt="mEEm"
         />
-        <div className="absolute -bottom-7 -right-1.5 h-16 w-16 select-none rounded-full bg-black/80 [transform:rotateX(75deg)]"></div>
+        <div className="absolute -bottom-6 -right-1.5 h-12 w-12 select-none rounded-full bg-black/80 [transform:rotateX(75deg)] sm:-bottom-7 sm:h-16 sm:w-16"></div>
         <button
           className="absolute inset-0 z-20 h-full w-full"
           onClick={() => {
@@ -269,7 +269,7 @@ const Chat = () => {
               transform: "scale(0)"
             }}
             ref={ref}
-            className="absolute bottom-0 right-16 w-[calc(100vw-102px)] origin-bottom-right overflow-hidden rounded-[28px] bg-gradient-to-br from-troll to-acid p-4 shadow-[0_4px_12px_rgba(31,33,36,0.2),0_2px_6px_rgba(31,33,36,0.05)] sm:w-[420px]"
+            className="absolute bottom-0 right-12 w-[calc(100vw-92px)] origin-bottom-right overflow-hidden rounded-[28px] bg-gradient-to-br from-troll to-acid p-4 shadow-[0_4px_12px_rgba(31,33,36,0.2),0_2px_6px_rgba(31,33,36,0.05)] sm:right-16 sm:w-[420px]"
           >
             <div className="flex h-[calc(100vh-160px)] flex-col">
               <div
@@ -533,7 +533,10 @@ export default function Index() {
         animate={{
           opacity: lofiActivated ? 0 : 1
         }}
-        className="relative mx-auto grid h-full max-w-7xl place-items-center px-10 py-12 sm:px-12"
+        className={cn(
+          "relative mx-auto grid h-full max-w-7xl place-items-center px-14 py-16 sm:px-12",
+          lofiActivated && "pointer-events-none"
+        )}
       >
         <div
           ref={scope}

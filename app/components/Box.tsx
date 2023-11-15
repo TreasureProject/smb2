@@ -31,16 +31,16 @@ type Props = (DivProps | ButtonProps | AnchorProps | LinkProps) & {
 
 const Loading = () => (
   <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gray-500/20 backdrop-blur-sm">
-    <div className="bg-neonPink p-4">
+    <div className="bg-neonPink p-1.5 sm:p-4">
       <Icon
         name="gear"
-        className="h-16 w-16 animate-[spin_15s_linear_infinite] text-pepe"
+        className="h-8 w-8 animate-[spin_15s_linear_infinite] text-pepe sm:h-16 sm:w-16"
       />
     </div>
-    <div className="mt-4 h-2 w-2/3 bg-gray-300">
+    <div className="mt-4 h-1 w-2/3 bg-gray-300 sm:h-2">
       <div className="h-full w-1/3 bg-neonPink"></div>
     </div>
-    <span className="mt-2 font-bold text-white font-neuebit text-2xl leading-none capsize">
+    <span className="mt-2 font-bold text-white font-neuebit text-lg leading-none capsize sm:text-2xl">
       Installing...
     </span>
   </div>
