@@ -153,74 +153,14 @@ function AppInner({
   mouseX: MotionValue<number>;
   mouseY: MotionValue<number>;
 }) {
-  const dragRef = useRef<HTMLDivElement | null>(null);
-  const introRef = useRef<HTMLDivElement | null>(null);
-  const location = useLocation();
-  const isRoot = location.pathname === "/";
-  const [showIntro, setShowIntro] = useState(isRoot);
-  const y = useSpring(0, {
-    stiffness: 5000,
-    damping: 200
-  });
-
   const hue = useSpring(0, {
     stiffness: 100,
     damping: 20
   });
 
-  const yTransform = useMotionTemplate`translate(0, ${y}px)`;
-
   const hueFilter = useMotionTemplate`hue-rotate(${hue}deg)`;
 
   const { konamiActivated } = useEasterEgg();
-
-  useMotionValueEvent(y, "change", (y) => {
-    if (!introRef.current) return;
-
-    // if we're at the top, unmount the intro
-    if (Math.abs(y) === introRef.current.getBoundingClientRect().height) {
-      setShowIntro(false);
-    }
-  });
-
-  useEffect(() => {
-    let unsubscribe = tinykeys(window, {
-      ArrowUp: () => {
-        if (!introRef.current) return;
-        y.set(-introRef.current?.getBoundingClientRect().height);
-      }
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
-  useDrag(
-    ({ down, movement: [, my] }) => {
-      if (my > 0 || !introRef.current) return;
-
-      const isAboveCenter =
-        my + introRef.current?.getBoundingClientRect().height / 8 < 0;
-
-      if (down) {
-        y.set(my);
-        return;
-      }
-
-      if (!isAboveCenter) {
-        y.set(0);
-      } else {
-        y.set(-introRef.current?.getBoundingClientRect().height);
-      }
-    },
-    {
-      axis: "y",
-      target: dragRef,
-      pointer: {
-        capture: false
-      }
-    }
-  );
 
   useEffect(() => {
     const animation = animate(hue, 360, {
@@ -333,58 +273,6 @@ function AppInner({
                 </motion.div>
               </AnimatePresence>
             </div>
-            {/* Only show the intro on the root page */}
-            {isRoot && showIntro && (
-              <motion.div
-                style={{
-                  transform: yTransform
-                }}
-                ref={introRef}
-                className="absolute inset-0 z-10 h-[100dvh] w-full touch-pan-x bg-intro/90 backdrop-blur-md"
-              >
-                <div className="mx-auto grid h-full max-w-7xl items-center justify-center py-12">
-                  <p className="relative text-white">
-                    <span className="absolute -top-12 rotate-[355deg] select-none text-pepe font-oakley text-2xl sm:text-3xl">
-                      WELCOME BACK
-                    </span>
-                    <span className="select-none font-sans text-[20rem] leading-none capsize sm:text-[32rem]">
-                      SMOL
-                    </span>
-                  </p>
-                  <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-                    <Icon
-                      name="chevron-up"
-                      className="mx-auto h-6 w-6 select-none text-white/80 sm:h-8 sm:w-8"
-                    />
-                    <div className="mx-auto w-max select-none font-bold tracking-wide text-white/80 font-formula text-xs sm:text-lg">
-                      SWIPE UP / ↑ KEY TO UNLOCK
-                    </div>
-                    <motion.div
-                      ref={dragRef}
-                      initial={{
-                        y: "50%"
-                      }}
-                      animate={{
-                        y: ["10%", "0%"]
-                      }}
-                      transition={{
-                        y: {
-                          duration: 1.5,
-                          ease: "easeOut",
-                          repeat: Infinity,
-                          repeatType: "reverse"
-                        }
-                      }}
-                      className={cn(
-                        "flex h-12 touch-none select-none items-center px-4"
-                      )}
-                    >
-                      <div className="h-2.5 w-40 rounded-xl bg-gray-400/80 sm:h-4 sm:w-64"></div>
-                    </motion.div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
           </MotionConfig>
         </ResponsiveProvider>
       </SocketContextProvider>

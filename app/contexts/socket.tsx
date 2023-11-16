@@ -58,7 +58,6 @@ export const SocketContextProvider = ({
 
     onMessage(e) {
       const msg = JSON.parse(e.data);
-      console.log({ msg });
       if (msg.type === "connect" || msg.type === "disconnect") {
         setUsers(msg.count);
       }

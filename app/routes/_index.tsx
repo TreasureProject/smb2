@@ -1,5 +1,5 @@
 import type { LinksFunction, MetaFunction } from "@remix-run/node";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { cn, getTransformOrigin } from "~/utils";
 import { Box } from "~/components/Box";
 import Weather from "../assets/apps/Weather.webp";
@@ -18,13 +18,18 @@ import {
   motion,
   stagger,
   useAnimate,
+  useMotionTemplate,
   useMotionValue,
+  useMotionValueEvent,
+  useSpring,
   useTransform
 } from "framer-motion";
 import { useEasterEgg } from "~/contexts/easteregg";
 import SmolMusicVideo from "~/assets/smol-musicvideo.mp4";
 import { useIdleTimer } from "react-idle-timer";
 import { tinykeys } from "tinykeys";
+import useStore from "~/store";
+import ErrorMp3 from "~/assets/error.mp3";
 
 import Peek from "~/assets/peek.gif";
 import Peek2 from "~/assets/peek2.gif";
@@ -36,6 +41,18 @@ import Meem from "~/assets/meem.webp";
 import { useChat, Message } from "~/components/Chat";
 import { commonMeta } from "~/seo";
 import LofiMp3 from "~/assets/lofi.mp3";
+import { useDrag } from "@use-gesture/react";
+import { Icon } from "~/components/Icons";
+import { Link, useLocation } from "@remix-run/react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "~/components/ui/dialog";
+import { DialogClose } from "@radix-ui/react-dialog";
 
 export const meta = commonMeta;
 
@@ -438,6 +455,18 @@ const Music = () => {
 };
 
 export default function Index() {
+  const introRef = useRef<HTMLDivElement | null>(null);
+  const dragRef = useRef<HTMLDivElement | null>(null);
+
+  const showIntro = useStore((state) => state.showIntro);
+  const setShowIntro = useStore((state) => state.setShowIntro);
+  const [openHighlightErrorModal, setOpenHighlightErrorModal] = useState(false);
+  const y = useSpring(0, {
+    stiffness: 5000,
+    damping: 200
+  });
+  const yTransform = useMotionTemplate`translate(0, ${y}px)`;
+
   const [scope, _animate] = useAnimate();
   const { konamiActivated, lofiActivated } = useEasterEgg();
   const [state, setState] = useState<"idle" | "active">("active");
@@ -449,9 +478,57 @@ export default function Index() {
     throttle: 500
   });
 
+  useMotionValueEvent(y, "change", (y) => {
+    if (!introRef.current) return;
+
+    // if we're at the top, unmount the intro
+    if (Math.abs(y) === introRef.current.getBoundingClientRect().height) {
+      setShowIntro(false);
+    }
+  });
+
+  useEffect(() => {
+    let unsubscribe = tinykeys(window, {
+      ArrowUp: () => {
+        if (!introRef.current) return;
+        y.set(-introRef.current?.getBoundingClientRect().height);
+      }
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  useDrag(
+    ({ down, movement: [, my] }) => {
+      if (my > 0 || !introRef.current) return;
+
+      const isAboveCenter =
+        my + introRef.current?.getBoundingClientRect().height / 8 < 0;
+
+      if (down) {
+        y.set(my);
+        return;
+      }
+
+      if (!isAboveCenter) {
+        y.set(0);
+      } else {
+        y.set(-introRef.current?.getBoundingClientRect().height);
+      }
+    },
+    {
+      axis: "y",
+      target: dragRef,
+      pointer: {
+        capture: false
+      }
+    }
+  );
+
   React.useEffect(() => {
     const animation = _animate(
-      "a",
+      ":scope>.box",
       {
         x: [0, -10, 10, -10, 10, 0],
         y: [0, -5, 5, -5, 5, 0]
@@ -533,198 +610,221 @@ export default function Index() {
           lofiActivated && "pointer-events-none"
         )}
       >
-        <div
-          ref={scope}
-          className="grid grid-cols-2 gap-4 [grid-auto-rows:20%] sm:grid-cols-4 sm:grid-rows-2 sm:gap-8"
-        >
-          <Box
-            as="link"
-            to="/news"
-            state={getTransformOrigin}
-            className="relative"
+        <Dialog>
+          <div
+            ref={scope}
+            className="grid grid-cols-2 gap-4 [grid-auto-rows:20%] sm:grid-cols-4 sm:grid-rows-2 sm:gap-8"
           >
-            <img
-              src={News}
-              alt="News"
-              className="aspect-square h-full w-full"
-            ></img>
-            <AnimatePresence>
-              {state === "idle" && (
-                <motion.img
-                  initial={{
-                    opacity: 0
-                  }}
-                  animate={{
-                    opacity: 1
-                  }}
-                  exit={{
-                    opacity: 0
-                  }}
-                  src={Peek}
-                  className="absolute bottom-full left-1/2 z-10 h-8 w-8 -translate-x-1/2 sm:h-24 sm:w-24"
-                  alt="peek smol"
-                />
-              )}
-            </AnimatePresence>
-          </Box>
-          <Box as="link" to="/gallery" state={getTransformOrigin}>
-            <img
-              src={Gallery}
-              alt="gallery"
-              className="aspect-square h-full w-full"
-            ></img>
-          </Box>
-          <Box as="link" to="/weather" state={getTransformOrigin}>
-            <img
-              src={Weather}
-              alt="art"
-              className="aspect-square h-full w-full"
-            ></img>
-          </Box>
-          <Box
-            as="link"
-            isLoading
-            to="/spotlight"
-            aria-disabled="true"
-            state={getTransformOrigin}
-            className="relative bg-white/10"
-          >
-            <img
-              src={Games}
-              alt="Games"
-              className="aspect-square h-full w-full"
-            ></img>
-            <AnimatePresence>
-              {state === "idle" && (
-                <motion.img
-                  initial={{
-                    opacity: 0
-                  }}
-                  animate={{
-                    opacity: 1
-                  }}
-                  exit={{
-                    opacity: 0
-                  }}
-                  src={Peek5}
-                  className="absolute bottom-full right-24 z-10 h-8 w-8 sm:h-24 sm:w-24"
-                  alt="peek smol"
-                />
-              )}
-            </AnimatePresence>
-            <AnimatePresence>
-              {state === "idle" && (
-                <motion.img
-                  initial={{
-                    opacity: 0
-                  }}
-                  animate={{
-                    opacity: 1
-                  }}
-                  exit={{
-                    opacity: 0
-                  }}
-                  src={Peek2}
-                  className="absolute bottom-4 left-full z-10 h-8 w-8 rotate-90 sm:h-24 sm:w-24"
-                  alt="peek smol"
-                />
-              )}
-            </AnimatePresence>
-          </Box>
-          <Box as="a" href="https://shop.smolverse.lol/" className="relative">
-            <img
-              src={Fashion}
-              alt="fashion"
-              className="aspect-square h-full w-full"
-            ></img>
-            <AnimatePresence>
-              {state === "idle" && (
-                <motion.img
-                  initial={{
-                    opacity: 0
-                  }}
-                  animate={{
-                    opacity: 1
-                  }}
-                  exit={{
-                    opacity: 0
-                  }}
-                  src={Peek3}
-                  className="absolute bottom-4 right-full z-10 h-8 w-8 -rotate-90 sm:h-24 sm:w-24"
-                  alt="peek smol"
-                />
-              )}
-            </AnimatePresence>
-          </Box>
-          <Box as="link" to="/tv" state={getTransformOrigin}>
-            <img
-              src={Tv}
-              alt="tv"
-              className="aspect-square h-full w-full"
-            ></img>
-          </Box>
-          <Box
-            as="link"
-            to="/goals"
-            state={getTransformOrigin}
-            className="relative"
-          >
-            <div className="relative h-full overflow-hidden">
-              <span className="relative z-10 ml-4 inline-block text-white text-8xl leading-none capsize sm:text-[12rem]">
-                GOALS
-              </span>
-              <video
-                preload="auto"
-                playsInline
-                loop
-                muted
-                autoPlay
-                className="absolute -bottom-1/2 -right-[40%] h-[175%] min-w-[175%] -rotate-[30deg] -scale-x-100 object-cover"
-              >
-                <source src={Goals} type="video/mp4" />
-              </video>
-            </div>
-            <AnimatePresence>
-              {state === "idle" && (
-                <motion.img
-                  initial={{
-                    opacity: 0
-                  }}
-                  animate={{
-                    opacity: 1
-                  }}
-                  exit={{
-                    opacity: 0
-                  }}
-                  src={Peek4}
-                  className="absolute left-1/2 top-full z-10 h-8 w-8 -translate-x-1/2 -rotate-180 sm:h-24 sm:w-24"
-                  alt="peek smol"
-                />
-              )}
-            </AnimatePresence>
-          </Box>
-          <Box
-            isLoading
-            aria-disabled="true"
-            as="link"
-            to="/smolspace"
-            state={getTransformOrigin}
-          >
-            <div className="relative h-full overflow-hidden">
+            <Box
+              name="news"
+              as="link"
+              to="/news"
+              state={getTransformOrigin}
+              className="relative"
+            >
               <img
-                src={CCTV}
-                alt="CCTV"
+                src={News}
+                alt="News"
                 className="aspect-square h-full w-full"
               ></img>
+              <AnimatePresence>
+                {state === "idle" && (
+                  <motion.img
+                    initial={{
+                      opacity: 0
+                    }}
+                    animate={{
+                      opacity: 1
+                    }}
+                    exit={{
+                      opacity: 0
+                    }}
+                    src={Peek}
+                    className="absolute bottom-full left-1/2 z-10 h-8 w-8 -translate-x-1/2 sm:h-24 sm:w-24"
+                    alt="peek smol"
+                  />
+                )}
+              </AnimatePresence>
+            </Box>
+            <Box
+              name="gallery"
+              as="link"
+              to="/gallery"
+              state={getTransformOrigin}
+            >
               <img
-                src={CCTVCamera}
-                className="absolute -bottom-1/4 left-10 h-full w-full"
-                alt="CCTV Camera"
-              />
-              <div className="absolute inset-0 bg-rage/90 [mask-image:linear-gradient(transparent_75%,black)]"></div>
-            </div>
-          </Box>
-        </div>
+                src={Gallery}
+                alt="gallery"
+                className="aspect-square h-full w-full"
+              ></img>
+            </Box>
+            <Box
+              name="weather"
+              as="link"
+              to="/weather"
+              state={getTransformOrigin}
+            >
+              <img
+                src={Weather}
+                alt="art"
+                className="aspect-square h-full w-full"
+              ></img>
+            </Box>
+            <DialogTrigger asChild>
+              <Box
+                name="spotlight"
+                as="button"
+                isLoading
+                className="relative bg-white/10"
+              >
+                <img
+                  src={Games}
+                  alt="Games"
+                  className="aspect-square h-full w-full"
+                ></img>
+                <AnimatePresence>
+                  {state === "idle" && (
+                    <motion.img
+                      initial={{
+                        opacity: 0
+                      }}
+                      animate={{
+                        opacity: 1
+                      }}
+                      exit={{
+                        opacity: 0
+                      }}
+                      src={Peek5}
+                      className="absolute bottom-full right-24 z-10 h-8 w-8 sm:h-24 sm:w-24"
+                      alt="peek smol"
+                    />
+                  )}
+                </AnimatePresence>
+                <AnimatePresence>
+                  {state === "idle" && (
+                    <motion.img
+                      initial={{
+                        opacity: 0
+                      }}
+                      animate={{
+                        opacity: 1
+                      }}
+                      exit={{
+                        opacity: 0
+                      }}
+                      src={Peek2}
+                      className="absolute bottom-4 left-full z-10 h-8 w-8 rotate-90 sm:h-24 sm:w-24"
+                      alt="peek smol"
+                    />
+                  )}
+                </AnimatePresence>
+              </Box>
+            </DialogTrigger>
+            <Box
+              name="fashion"
+              as="a"
+              href="https://shop.smolverse.lol/"
+              className="relative"
+            >
+              <img
+                src={Fashion}
+                alt="fashion"
+                className="aspect-square h-full w-full"
+              ></img>
+              <AnimatePresence>
+                {state === "idle" && (
+                  <motion.img
+                    initial={{
+                      opacity: 0
+                    }}
+                    animate={{
+                      opacity: 1
+                    }}
+                    exit={{
+                      opacity: 0
+                    }}
+                    src={Peek3}
+                    className="absolute bottom-4 right-full z-10 h-8 w-8 -rotate-90 sm:h-24 sm:w-24"
+                    alt="peek smol"
+                  />
+                )}
+              </AnimatePresence>
+            </Box>
+            <Box name="tv" as="link" to="/tv" state={getTransformOrigin}>
+              <img
+                src={Tv}
+                alt="tv"
+                className="aspect-square h-full w-full"
+              ></img>
+            </Box>
+            <Box
+              name="goals"
+              as="link"
+              to="/goals"
+              state={getTransformOrigin}
+              className="relative"
+            >
+              <div className="relative h-full overflow-hidden">
+                <span className="relative z-10 ml-4 inline-block text-white text-8xl leading-none capsize sm:text-[12rem]">
+                  GOALS
+                </span>
+                <video
+                  preload="auto"
+                  playsInline
+                  loop
+                  muted
+                  autoPlay
+                  className="absolute -bottom-1/2 -right-[40%] h-[175%] min-w-[175%] -rotate-[30deg] -scale-x-100 object-cover"
+                >
+                  <source src={Goals} type="video/mp4" />
+                </video>
+              </div>
+              <AnimatePresence>
+                {state === "idle" && (
+                  <motion.img
+                    initial={{
+                      opacity: 0
+                    }}
+                    animate={{
+                      opacity: 1
+                    }}
+                    exit={{
+                      opacity: 0
+                    }}
+                    src={Peek4}
+                    className="absolute left-1/2 top-full z-10 h-8 w-8 -translate-x-1/2 -rotate-180 sm:h-24 sm:w-24"
+                    alt="peek smol"
+                  />
+                )}
+              </AnimatePresence>
+            </Box>
+            <Box
+              name="rainbow"
+              isLoading
+              aria-disabled="true"
+              as="link"
+              to="/smolspace"
+              state={getTransformOrigin}
+            >
+              <div className="relative h-full overflow-hidden">
+                <img
+                  src={CCTV}
+                  alt="CCTV"
+                  className="aspect-square h-full w-full"
+                ></img>
+                <img
+                  src={CCTVCamera}
+                  className="absolute -bottom-1/4 left-10 h-full w-full"
+                  alt="CCTV Camera"
+                />
+                <div className="absolute inset-0 bg-rage/90 [mask-image:linear-gradient(transparent_75%,black)]"></div>
+              </div>
+            </Box>
+          </div>
+          <DialogContent className="border-none p-0 font-mono sm:rounded-none">
+            <ErrorDialog />
+          </DialogContent>
+        </Dialog>
         <Chat />
       </motion.div>
       <AnimatePresence>
@@ -745,6 +845,108 @@ export default function Index() {
           </motion.div>
         )}
       </AnimatePresence>
+      {showIntro && (
+        <motion.div
+          style={{
+            transform: yTransform
+          }}
+          ref={introRef}
+          className="absolute inset-0 z-50 h-[100dvh] w-full touch-pan-x bg-intro/90 backdrop-blur-md"
+        >
+          <div className="mx-auto grid h-full max-w-7xl items-center justify-center py-12">
+            <p className="relative text-white">
+              <span className="absolute -top-12 rotate-[355deg] select-none text-pepe font-oakley text-2xl sm:text-3xl">
+                WELCOME BACK
+              </span>
+              <span className="select-none font-sans text-[20rem] leading-none capsize sm:text-[32rem]">
+                SMOL
+              </span>
+            </p>
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+              <Icon
+                name="chevron-up"
+                className="mx-auto h-6 w-6 select-none text-white/80 sm:h-8 sm:w-8"
+              />
+              <div className="mx-auto w-max select-none font-bold tracking-wide text-white/80 font-formula text-xs sm:text-lg">
+                SWIPE UP / ↑ KEY TO UNLOCK
+              </div>
+              <motion.div
+                ref={dragRef}
+                initial={{
+                  y: "50%"
+                }}
+                animate={{
+                  y: ["10%", "0%"]
+                }}
+                transition={{
+                  y: {
+                    duration: 1.5,
+                    ease: "easeOut",
+                    repeat: Infinity,
+                    repeatType: "reverse"
+                  }
+                }}
+                className={cn(
+                  "flex h-12 touch-none select-none items-center px-4"
+                )}
+              >
+                <div className="h-2.5 w-40 rounded-xl bg-gray-400/80 sm:h-4 sm:w-64"></div>
+              </motion.div>
+            </div>
+          </div>
+        </motion.div>
+      )}
     </>
   );
 }
+
+const ErrorDialog = () => {
+  useEffect(() => {
+    const audio = new Audio(ErrorMp3);
+    audio.play();
+
+    return () => audio.pause();
+  }, []);
+
+  return (
+    <>
+      <div className="flex items-center justify-between p-2">
+        <div className="flex items-center space-x-2">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
+            <Icon name="x" className="h-4 w-4 text-white" />
+          </div>
+          <h1 className="text-lg">Error</h1>
+        </div>
+        <DialogClose asChild>
+          <button className="text-gray-500 focus:outline-none">
+            <Icon name="x" className="h-5 w-5" />
+            <span className="sr-only">Close</span>
+          </button>
+        </DialogClose>
+      </div>
+      <div className="flex p-5">
+        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-500">
+          <Icon name="x" className="h-8 w-8 text-white" />
+        </div>
+        <p className="ml-4 text-sm">
+          Uh oh! It looks like you fat fingered the keyboard. Which app did you
+          want to open?
+        </p>
+      </div>
+      <div className="flex justify-around bg-grayTwo p-5">
+        <Link
+          to="/weather"
+          className="border-2 border-black px-4 py-2 focus:outline-none"
+        >
+          WEATHER
+        </Link>
+        <Link
+          to="/weather"
+          className="border-2 border-black px-4 py-2 focus:outline-none"
+        >
+          SMOLVILLE GAME
+        </Link>
+      </div>
+    </>
+  );
+};
