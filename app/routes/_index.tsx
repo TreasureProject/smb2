@@ -254,10 +254,10 @@ const Chat = () => {
       <div className="relative [perspective:1000px]">
         <img
           src={Meem}
-          className="relative z-10 h-10 w-10 -scale-x-100 [mask-image:linear-gradient(black_90%,transparent_100%)] sm:h-14 sm:w-14"
+          className="relative z-10 h-10 w-10 -scale-x-100 [mask-image:linear-gradient(black_90%,transparent_100%)] sm:bottom-4 sm:right-1 sm:h-24 sm:w-24"
           alt="mEEm"
         />
-        <div className="absolute -bottom-6 -right-1.5 h-12 w-12 select-none rounded-full bg-black/80 [transform:rotateX(75deg)] sm:-bottom-7 sm:h-16 sm:w-16"></div>
+        <div className="absolute -bottom-6 -right-1.5 h-12 w-12 select-none rounded-full bg-black/50 [transform:rotateX(75deg)] sm:-bottom-10 sm:h-28 sm:w-28"></div>
         <button
           className="absolute inset-0 z-20 h-full w-full"
           onClick={() => {

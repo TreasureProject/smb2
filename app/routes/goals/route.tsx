@@ -6,8 +6,18 @@ import PencilMonke from "./assets/PencilMonke.webp";
 
 import { commonMeta } from "~/seo";
 import { Header } from "~/components/Header";
+import { Icon } from "~/components/Icons";
 
 export const meta = commonMeta;
+
+const GOALS = [
+  { value: "Go to school", checked: true },
+  { value: "Water the plants", checked: true },
+  { value: "Invent new types of NFTs", checked: true },
+  { value: "Space exploration", checked: true },
+  { value: "Make a video game", checked: false },
+  { value: "Miniature Smols reality TV show", checked: false }
+];
 
 export default function Goals() {
   const navigate = useNavigate();
@@ -65,16 +75,25 @@ export default function Goals() {
                   <div className="absolute right-0 top-6 [perspective:500px]">
                     <div className="relative flex flex-col bg-pepe px-4 py-2 font-lazer before:absolute before:-bottom-0.5 before:left-0 before:-z-10 before:block before:h-4 before:w-full before:skew-y-3 before:bg-gray-500 after:absolute after:left-full after:top-0 after:-z-10 after:block after:h-full after:w-4 after:bg-[#CACF20] after:content-[''] after:[transform-origin:center_left] after:[transform:rotateY(70deg)_skewY(20deg)]">
                       <span className="text-xs">LAST UPDATED:</span>
-                      <span className="text-2xl">10/06/2023</span>
+                      <span className="text-2xl">
+                        {new Date().toLocaleDateString()}
+                      </span>
                     </div>
                   </div>
                   <div className="flex-[1_1_0] overflow-y-auto">
                     <ul className="relative flex flex-col font-bold text-fud font-neuebit before:absolute before:bottom-0 before:left-6 before:top-0 before:block before:border-l before:border-rage before:content-['']">
                       <li className="px-8 pb-[1.2rem]"></li>
                       <li className="border-t border-vroom px-8 py-[1.2rem]"></li>
-                      {Array.from({ length: 20 }).map((_, i) => (
-                        <li key={i} className="border-t border-vroom px-8 py-2">
-                          Lorem ipsum dolor sit amet consectetur
+                      {GOALS.map((goal) => (
+                        <li
+                          key={goal.value}
+                          className="flex items-center space-x-2 border-t border-vroom px-8 py-2"
+                        >
+                          <Icon
+                            name={goal.checked ? "check-square" : "square"}
+                            className="h-7 w-7"
+                          />
+                          <span className="text-2xl">{goal.value}</span>
                         </li>
                       ))}
                     </ul>

@@ -35,15 +35,29 @@ type Props = (DivProps | ButtonProps | AnchorProps | LinkProps) & {
   name: string;
 };
 
-const Loading = ({ playAnimation = false }: { playAnimation?: boolean }) => {
+const Loading = ({
+  playAnimation,
+  appInstalled,
+  name
+}: {
+  playAnimation: boolean;
+  appInstalled: boolean;
+  name: string;
+}) => {
   const width = useMotionValue(33);
   const ref = useRef<HTMLDivElement | null>(null);
-  const [installed, setInstalled] = useState(false);
   const showIntro = useStore((state) => state.showIntro);
+  const installedApps = useStore((state) => state.installedApps);
+
+  const [installed] = useState(() => appInstalled);
+
+  const recentlyInstalled = appInstalled && !installed;
+
+  const setInstalledApps = useStore((state) => state.setInstalledApps);
 
   useEffect(() => {
     const play = async () => {
-      if (playAnimation && !showIntro) {
+      if (playAnimation && !showIntro && !installed) {
         await animate(width, 100, {
           duration: 3,
           ease: "easeOut"
@@ -51,6 +65,7 @@ const Loading = ({ playAnimation = false }: { playAnimation?: boolean }) => {
 
         const audio = new Audio(SuccessMp3);
         audio.play();
+        audio.volume = 0.5;
 
         return () => audio.pause();
       }
@@ -61,16 +76,18 @@ const Loading = ({ playAnimation = false }: { playAnimation?: boolean }) => {
   const widthPx = useMotionTemplate`${width}%`;
 
   useMotionValueEvent(width, "change", (value) => {
-    if (value === 100) setInstalled(true);
+    if (value === 100) {
+      setInstalledApps([...installedApps, name]);
+    }
   });
 
   return (
     <motion.div
       initial={{
-        opacity: 1
+        opacity: installed ? 0 : 1
       }}
       animate={
-        installed
+        recentlyInstalled
           ? {
               opacity: 0,
               transition: {
@@ -100,7 +117,7 @@ const Loading = ({ playAnimation = false }: { playAnimation?: boolean }) => {
         ></motion.div>
       </div>
       <span className="mt-2 font-bold text-white font-neuebit text-lg leading-none capsize sm:text-2xl">
-        {installed ? "Installed!" : "Installing..."}
+        {appInstalled ? "Installed!" : "Installing..."}
       </span>
     </motion.div>
   );
@@ -113,13 +130,22 @@ export const Box = (props: Props) => {
   const [ref, setNodeRef] = useState<HTMLAnchorElement | null>(null);
 
   const animate = props.name === "spotlight";
+  const installedApps = useStore((state) => state.installedApps);
+
+  const appInstalled = installedApps.includes(props.name);
 
   if (!as || as === "div") {
     const { className: _, as: __, isLoading: ___, ...rest } = props;
     return (
       <div className={className} {...rest}>
         <div className="relative h-full w-full">{children}</div>
-        {isLoading && <Loading playAnimation={animate} />}
+        {isLoading && (
+          <Loading
+            name={props.name}
+            playAnimation={animate}
+            appInstalled={appInstalled}
+          />
+        )}
       </div>
     );
   }
@@ -130,7 +156,13 @@ export const Box = (props: Props) => {
       <div className={className}>
         <div className="relative h-full w-full">
           {children}
-          {isLoading && <Loading playAnimation={animate} />}
+          {isLoading && (
+            <Loading
+              name={props.name}
+              playAnimation={animate}
+              appInstalled={appInstalled}
+            />
+          )}
           <button {...rest} className="absolute inset-0 z-30 h-full w-full">
             <span className="sr-only">{rest.name}</span>
           </button>
@@ -156,7 +188,13 @@ export const Box = (props: Props) => {
         {...rest}
       >
         <div className="relative h-full w-full">{children}</div>
-        {isLoading && <Loading playAnimation={animate} />}
+        {isLoading && (
+          <Loading
+            name={props.name}
+            playAnimation={animate}
+            appInstalled={appInstalled}
+          />
+        )}
       </a>
     );
   }
@@ -171,7 +209,13 @@ export const Box = (props: Props) => {
         {...rest}
       >
         <div className="relative h-full w-full">{children}</div>
-        {isLoading && <Loading playAnimation={animate} />}
+        {isLoading && (
+          <Loading
+            name={props.name}
+            playAnimation={animate}
+            appInstalled={appInstalled}
+          />
+        )}
       </Link>
     );
   }
