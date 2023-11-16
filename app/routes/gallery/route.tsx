@@ -16,14 +16,13 @@ import type { TroveSmolToken, searchSmol } from "~/api.server";
 import { fetchSmols } from "~/api.server";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { interpolate } from "popmotion";
 import { Icon } from "~/components/Icons";
 import { AnimationContainer } from "~/components/AnimationContainer";
 import { Header } from "~/components/Header";
 import { useResponsive } from "~/contexts/responsive";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import PurpleMonke from "./assets/purpleMonke.webp";
 import { Loading } from "~/components/Loading";
 import { cn } from "~/utils";
@@ -249,7 +248,7 @@ const GalleryInner = ({
   };
   triggerModal: (id: string) => void;
 }) => {
-  const initialData = useCustomLoaderData<typeof loader>();
+  const initialData = useLoaderData<typeof loader>();
   const [pageData, setPageData] = useState(initialData?.data);
   const fetcher = useFetcher<typeof loader>();
   const { isMobile } = useResponsive();
@@ -441,8 +440,8 @@ export default function Gallery() {
   }, [targetSmolId]);
 
   return (
-    <AnimationContainer
-      className="relative flex h-full flex-col bg-[url(/img/stars.webp)] bg-repeat brightness-125"
+    <motion.div
+      className="relative flex h-full min-h-full flex-col bg-[url(/img/stars.webp)] bg-repeat brightness-125"
       style={{
         backgroundPosition
       }}
@@ -523,7 +522,7 @@ export default function Gallery() {
           </button>
         </form>
       </div>
-    </AnimationContainer>
+    </motion.div>
   );
 }
 

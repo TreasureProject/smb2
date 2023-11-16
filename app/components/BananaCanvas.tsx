@@ -138,6 +138,10 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
       gl={{
         antialias: false
       }}
+      style={{
+        position: "absolute",
+        inset: 0
+      }}
       dpr={[1, 1.5]}
       className={cn(notHome && "hidden", konamiActivated && "z-20")}
     >

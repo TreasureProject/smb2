@@ -8,9 +8,10 @@ import {
   Scripts,
   ScrollRestoration,
   useLocation,
-  useOutlet,
   useNavigation,
-  useFetchers
+  useFetchers,
+  Outlet,
+  useLoaderData
 } from "@remix-run/react";
 import {
   AnimatePresence,
@@ -26,10 +27,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import eeeImg from "~/assets/eee.png";
 import { cn, getPublicKeys } from "./utils";
-import { useDrag } from "@use-gesture/react";
-import { useCustomLoaderData } from "./hooks/useCustomLoaderData";
 import iconHref from "./components/icons/sprite.svg";
-import { Icon } from "./components/Icons";
 import { ResponsiveProvider } from "./contexts/responsive";
 import { EasterEggProvider, useEasterEgg } from "./contexts/easteregg";
 
@@ -38,7 +36,6 @@ import "./tailwind.css";
 import NProgress from "nprogress";
 import { BananaCanvas } from "./components/BananaCanvas";
 import { getDomainUrl } from "./seo";
-import { tinykeys } from "tinykeys";
 import { SocketContextProvider, useSocket } from "./contexts/socket";
 
 export const links: LinksFunction = () => [
@@ -96,13 +93,8 @@ function useNProgress() {
   }, [state]);
 }
 
-function AnimatedOutlet() {
-  const [outlet] = useState(useOutlet());
-  return outlet;
-}
-
 export default function App() {
-  const data = useCustomLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
 
   const location = useLocation();
   const isRoot = location.pathname === "/";
@@ -258,20 +250,7 @@ function AppInner({
 
             <div className="relative h-full">
               <BananaCanvas />
-
-              <AnimatePresence initial={false} mode="popLayout">
-                <motion.div
-                  key={navigation.pathname}
-                  initial={false}
-                  className="absolute inset-0 z-10 h-full"
-                  exit={{
-                    scale: 1,
-                    opacity: 0
-                  }}
-                >
-                  <AnimatedOutlet />
-                </motion.div>
-              </AnimatePresence>
+              <Outlet />
             </div>
           </MotionConfig>
         </ResponsiveProvider>

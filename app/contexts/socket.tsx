@@ -1,8 +1,6 @@
 import { useRouteLoaderData } from "@remix-run/react";
 import usePartySocket from "partysocket/react";
 import { createContext, useContext, useEffect, useState } from "react";
-import { tinykeys } from "tinykeys";
-import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
 import { loader } from "~/root";
 
 const SocketContext = createContext<{

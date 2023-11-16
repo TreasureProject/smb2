@@ -1,8 +1,5 @@
 import { AnimatePresence, motion, useAnimation } from "framer-motion";
 import { json } from "@remix-run/node";
-import { client } from "./client.server";
-import { useCustomLoaderData } from "~/hooks/useCustomLoaderData";
-import { AnimationContainer } from "~/components/AnimationContainer";
 import { useEffect, useState } from "react";
 
 import { commonMeta } from "~/seo";
@@ -13,6 +10,7 @@ import Cloud1 from "./assets/cloud1.png";
 import Cloud2 from "./assets/cloud2.png";
 import { cn } from "~/utils";
 import { fetchWeathers } from "~/api.server";
+import { useLoaderData } from "@remix-run/react";
 
 export const meta = commonMeta;
 
@@ -329,12 +327,12 @@ const Cloudy = () => {
 };
 
 export default function News() {
-  const data = useCustomLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
   const [date, setDate] = useState(0);
   const today = data?.weathers[date];
 
   return (
-    <AnimationContainer>
+    <>
       <Header name="weather" />
       <motion.div
         variants={variants}
@@ -461,6 +459,6 @@ export default function News() {
           </div>
         </div>
       </motion.div>
-    </AnimationContainer>
+    </>
   );
 }

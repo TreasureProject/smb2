@@ -7,7 +7,6 @@ import {
   useMotionValue,
   useMotionValueEvent
 } from "framer-motion";
-import type { AnchorHTMLAttributes } from "react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "~/utils";
 import { Icon } from "./Icons";
