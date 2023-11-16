@@ -703,22 +703,26 @@ export function Computers(props: JSX.IntrinsicElements["group"]) {
       <ScreenVideo
         frame="Object_206"
         panel="Object_207"
+        path="1"
+        meshPosition={[-3.47, 0.84, 0]}
+        meshScale={[1.65, 1.3, 1]}
         position={[0.27, 1.53, -2.61]}
-        videoPosition={[2.87, -0.7, 9.06]}
       />
       <ScreenVideo
         frame="Object_209"
         panel="Object_210"
         path="2"
-        videoPosition={[0.04, -2.2, 6.4]}
         position={[-1.43, 2.5, -1.8]}
+        meshPosition={[-0.1, 3.9, 0]}
+        meshScale={[1.7, 1.3, 1]}
         rotation={[0, 1, 0]}
       />
       <ScreenVideo
         frame="Object_212"
         panel="Object_213"
         path="3"
-        videoPosition={[0.04, -0.6, 6.74]}
+        meshPosition={[-3.45, 3.8, 0]}
+        meshScale={[1.61, 1.2, 1]}
         position={[-2.73, 0.63, -0.52]}
         rotation={[0, 1.09, 0]}
       />
@@ -727,52 +731,57 @@ export function Computers(props: JSX.IntrinsicElements["group"]) {
         panel="Object_216"
         path="4"
         position={[1.84, 0.38, -1.77]}
-        videoPosition={[0, -0.3, 7.39]}
+        meshPosition={[-0.06, 0.76, 0]}
+        meshScale={[1.63, 1.25, 1]}
         rotation={[0, -Math.PI / 9, 0]}
       />
       <ScreenVideo
         frame="Object_218"
         panel="Object_219"
-        path="3"
-        videoPosition={[0.04, -0.6, 6.74]}
+        path="5"
         position={[3.11, 2.15, -0.18]}
+        meshPosition={[-3.45, 0.85, 0]}
+        meshScale={[1.63, 1.25, 1]}
         rotation={[0, -0.79, 0]}
         scale={0.81}
       />
       <ScreenVideo
         frame="Object_221"
         panel="Object_222"
-        path="3"
-        videoPosition={[0.04, -0.6, 6.74]}
+        path="6"
+        meshPosition={[-0.1, 3.85, 0]}
+        meshScale={[1.8, 1.2, 1]}
         position={[-3.42, 3.06, 1.3]}
         rotation={[0, 1.22, 0]}
         scale={0.9}
       />
       <ScreenVideo
         frame="Object_224"
-        path="3"
-        videoPosition={[0.04, -0.6, 6.74]}
+        path="7"
         panel="Object_225"
+        meshPosition={[-0.06, 0.77, 0]}
+        meshScale={[1.63, 1.25, 1]}
         position={[-3.9, 4.29, -2.64]}
         rotation={[0, 0.54, 0]}
       />
       <ScreenVideo
         frame="Object_227"
         panel="Object_228"
-        path="3"
-        videoPosition={[0.04, -0.6, 6.74]}
+        path="8"
         position={[0.96, 4.28, -4.2]}
+        meshPosition={[-0.06, 0.77, 0]}
+        meshScale={[1.63, 1.25, 1]}
         rotation={[0, -0.65, 0]}
       />
       <ScreenVideo
         frame="Object_230"
-        path="3"
-        videoPosition={[0.04, -0.6, 6.74]}
+        path="9"
         panel="Object_231"
+        meshPosition={[-0.06, 0.77, 0]}
+        meshScale={[1.63, 1.25, 1]}
         position={[4.68, 4.29, -1.56]}
         rotation={[0, -Math.PI / 3, 0]}
       />
-      {/* <Leds instances={instances} /> */}
     </group>
   );
 }
@@ -790,6 +799,7 @@ function Screen({
   const { nodes, materials } = useGLTF(
     "/computers_1-transformed.glb"
   ) as GLTFResult;
+
   return (
     <group {...props}>
       <mesh
@@ -812,29 +822,30 @@ function Screen({
 
 function ScreenVideo({
   path = "1",
-  videoPosition,
   bg = "black",
+  meshPosition = [0, 0, 0],
+  meshScale = [1, 1, 1],
   ...props
 }: {
   frame: string;
   panel: string;
   path?: string;
   bg?: string;
-  videoPosition: [number, number, number];
+  meshScale?: [number, number, number];
+  meshPosition?: [number, number, number];
 } & JSX.IntrinsicElements["group"]) {
   const texture = useVideoTexture(`/videos/${path}.mp4`);
-
   return (
     <Screen {...props}>
       <PerspectiveCamera
         makeDefault
         manual
         aspect={1 / 1}
-        position={videoPosition}
+        position={[0, 0, 11]}
       />
 
-      <color attach="background" args={[bg]} />
-      <mesh position={[0, 0, 0]}>
+      <color attach="background" args={["orange"]} />
+      <mesh position={meshPosition} scale={meshScale}>
         <planeGeometry args={[1.5, 1.5, 1]} />
         <meshBasicMaterial map={texture} toneMapped={false} />
       </mesh>

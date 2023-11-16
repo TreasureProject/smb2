@@ -178,7 +178,7 @@ function AppInner({
       style={{
         filter: hueFilter
       }}
-      className="h-full"
+      className="root h-full"
     >
       <SocketContextProvider>
         <svg width="0" height="0" aria-hidden="true">
