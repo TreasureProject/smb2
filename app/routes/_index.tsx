@@ -8,8 +8,7 @@ import Goals from "../assets/apps/Goals.mp4";
 import News from "../assets/apps/News.webp";
 import Tv from "../assets/apps/TV.webp";
 import Fashion from "../assets/apps/Fashion.webp";
-import CCTV from "../assets/apps/CCTV.webp";
-import CCTVCamera from "../assets/apps/Camera.gif";
+import Reactor from "../assets/apps/reactor.gif";
 import Games from "../assets/apps/Games.webp";
 import {
   AnimatePresence,
@@ -765,7 +764,7 @@ export default function Index() {
               className="relative"
             >
               <div className="relative h-full overflow-hidden">
-                <span className="relative z-10 ml-4 inline-block text-white text-8xl leading-none capsize sm:text-[12rem]">
+                <span className="relative z-10 ml-4 inline-block text-white text-8xl leading-none capsize sm:text-[7rem] lg:text-[9.5rem]">
                   GOALS
                 </span>
                 <video
@@ -806,18 +805,14 @@ export default function Index() {
               to="/smolspace"
               state={getTransformOrigin}
             >
-              <div className="relative h-full overflow-hidden">
+              <div className="relative h-full overflow-hidden bg-rage">
+                <span className="relative z-10 ml-4 inline-block text-white text-8xl leading-none capsize sm:text-[7rem] lg:text-[9.5rem]">
+                  REACTOR
+                </span>
                 <img
-                  src={CCTV}
-                  alt="CCTV"
-                  className="aspect-square h-full w-full"
-                ></img>
-                <img
-                  src={CCTVCamera}
-                  className="absolute -bottom-1/4 left-10 h-full w-full"
-                  alt="CCTV Camera"
+                  src={Reactor}
+                  className="absolute bottom-0 w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-rage/90 [mask-image:linear-gradient(transparent_75%,black)]"></div>
               </div>
             </Box>
           </div>
