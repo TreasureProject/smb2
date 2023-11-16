@@ -250,7 +250,7 @@ const Chat = () => {
     state.state === "FUD_SUBMITTING" || state.state === "OTHER_ISSUES";
 
   return (
-    <div className="fixed bottom-6 right-6 z-20">
+    <div className="fixed bottom-6 right-6 z-50">
       <div className="relative [perspective:1000px]">
         <img
           src={Meem}
@@ -281,7 +281,7 @@ const Chat = () => {
               transform: "scale(0)"
             }}
             ref={ref}
-            className="absolute bottom-0 right-12 w-[calc(100vw-92px)] origin-bottom-right overflow-hidden rounded-[28px] bg-gradient-to-br from-troll to-acid p-4 shadow-[0_4px_12px_rgba(31,33,36,0.2),0_2px_6px_rgba(31,33,36,0.05)] sm:right-16 sm:w-[420px]"
+            className="absolute bottom-0 right-12 w-[calc(100vw-92px)] origin-bottom-right overflow-hidden rounded-[28px] bg-gradient-to-br from-troll to-acid p-4 shadow-[0_4px_12px_rgba(31,33,36,0.2),0_2px_6px_rgba(31,33,36,0.05)] sm:right-28 sm:w-[420px]"
           >
             <div className="flex h-[calc(100vh-160px)] flex-col">
               <div
