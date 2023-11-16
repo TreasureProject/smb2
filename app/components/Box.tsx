@@ -163,7 +163,7 @@ export const Box = (props: Props) => {
               appInstalled={appInstalled}
             />
           )}
-          <button {...rest} className="absolute inset-0 z-30 h-full w-full">
+          <button {...rest} className="absolute inset-0 z-40 h-full w-full">
             <span className="sr-only">{rest.name}</span>
           </button>
         </div>

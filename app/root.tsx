@@ -38,12 +38,57 @@ import { BananaCanvas } from "./components/BananaCanvas";
 import { getDomainUrl } from "./seo";
 import { SocketContextProvider, useSocket } from "./contexts/socket";
 
+import HangingSmol1 from "../public/img/HangingSmol1.png";
+import HangingSmol2 from "../public/img/HangingSmol2.png";
+import HangingSmol3 from "../public/img/HangingSmol3.png";
+import HangingSmol4 from "../public/img/HangingSmol4.png";
+import HangingSmol5 from "../public/img/HangingSmol5.png";
+import HangingSmol6 from "../public/img/HangingSmol6.png";
+
+NProgress.settings.template = `<div class="bar" role="bar"><div class="smol"></div><div class="peg"></div></div><div class="spinner" role="spinner"><div class="spinner-icon"></div></div>`;
+
 export const links: LinksFunction = () => [
   {
     rel: "preload",
     href: iconHref,
     as: "image",
     type: "image/svg+xml"
+  },
+  {
+    rel: "preload",
+    href: HangingSmol1,
+    as: "image",
+    type: "image/png"
+  },
+  {
+    rel: "preload",
+    href: HangingSmol2,
+    as: "image",
+    type: "image/png"
+  },
+  {
+    rel: "preload",
+    href: HangingSmol3,
+    as: "image",
+    type: "image/png"
+  },
+  {
+    rel: "preload",
+    href: HangingSmol4,
+    as: "image",
+    type: "image/png"
+  },
+  {
+    rel: "preload",
+    href: HangingSmol5,
+    as: "image",
+    type: "image/png"
+  },
+  {
+    rel: "preload",
+    href: HangingSmol6,
+    as: "image",
+    type: "image/png"
   }
 ];
 
@@ -88,7 +133,7 @@ function useNProgress() {
     // and when it's something else it means it's either submitting a form or
     // waiting for the loaders of the next location so we start it
     if (state === "loading") NProgress.start();
-    // when the state is idle then we can to complete the progress bar
+    // // when the state is idle then we can to complete the progress bar
     if (state === "idle") NProgress.done();
   }, [state]);
 }

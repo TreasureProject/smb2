@@ -245,7 +245,7 @@
 }
 
 #nprogress .bar {
-  background: #29d;
+  background: #95f22a;
 
   position: fixed;
   z-index: 1031;
@@ -264,8 +264,8 @@
   width: 100px;
   height: 100%;
   box-shadow:
-    0 0 10px #29d,
-    0 0 5px #29d;
+    0 0 10px #95f22a,
+    0 0 5px #95f22a;
   opacity: 1;
 
   -webkit-transform: rotate(3deg) translate(0px, -4px);
@@ -282,14 +282,50 @@
   right: 15px;
 }
 
+#nprogress .smol {
+  display: block;
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  right: 0;
+  animation-name: backgroundCrossfade;
+  animation-timing-function: step-start;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  background-size: contain;
+  top: -28px;
+}
+
+@keyframes backgroundCrossfade {
+  0% {
+    background-image: url("/img/HangingSmol1.png");
+  }
+  20% {
+    background-image: url("/img/HangingSmol2.png");
+  }
+  40% {
+    background-image: url("/img/HangingSmol3.png");
+  }
+  60% {
+    background-image: url("/img/HangingSmol4.png");
+  }
+  80% {
+    background-image: url("/img/HangingSmol5.png");
+  }
+  100% {
+    background-image: url("/img/HangingSmol6.png");
+  }
+}
+
 #nprogress .spinner-icon {
   width: 18px;
   height: 18px;
   box-sizing: border-box;
 
   border: solid 2px transparent;
-  border-top-color: #29d;
-  border-left-color: #29d;
+  border-top-color: #95f22a;
+  border-left-color: #95f22a;
   border-radius: 50%;
 
   -webkit-animation: nprogress-spinner 400ms linear infinite;
