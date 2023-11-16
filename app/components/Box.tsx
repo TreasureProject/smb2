@@ -59,13 +59,13 @@ const Loading = ({
     const play = async () => {
       if (playAnimation && !showIntro && !installed) {
         await animate(width, 100, {
-          duration: 3,
+          duration: 1.3,
           ease: "easeOut"
         });
 
         const audio = new Audio(SuccessMp3);
         audio.play();
-        audio.volume = 0.5;
+        audio.volume = 0.1;
 
         return () => audio.pause();
       }
