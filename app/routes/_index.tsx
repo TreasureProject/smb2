@@ -35,6 +35,7 @@ import Meem from "~/assets/meem.webp";
 
 import { useChat, Message } from "~/components/Chat";
 import { commonMeta } from "~/seo";
+import LofiMp3 from "~/assets/lofi.mp3";
 
 export const meta = commonMeta;
 
@@ -50,7 +51,7 @@ export function MessageRenderer({
   reducer: ReturnType<typeof useChat>;
 } & HTMLMotionProps<"span">) {
   const count = useMotionValue(0);
-  const { by, options, type } = message;
+  const { by, options, type, custom } = message;
   const [state, dispatch] = reducer;
   const rounded = useTransform(count, (latest) => Math.round(latest));
   const displayText = useTransform(rounded, (latest) =>
@@ -76,11 +77,11 @@ export function MessageRenderer({
         ease: "easeInOut"
       });
 
-      if (type === "request" && countDivRef.current) {
+      if (countDivRef.current) {
         await animate(
           countDivRef.current,
           {
-            display: "flex",
+            display: "block",
             opacity: [0, 1]
           },
           {
@@ -118,9 +119,14 @@ export function MessageRenderer({
 
   return (
     <div ref={scope}>
-      <motion.span {...props}>
+      <motion.span className="whitespace-pre-line" {...props}>
         {by === "bot" ? displayText : message.message}
       </motion.span>
+      {custom && (
+        <div className="mt-2 hidden" ref={countDivRef}>
+          {custom}
+        </div>
+      )}
       {options && (
         <ul
           className={cn(
@@ -144,7 +150,7 @@ export function MessageRenderer({
                       type:
                         type === "initial"
                           ? "SELECT_INITIAL_OPTION"
-                          : "SELECT_FUD_OPTION",
+                          : "OTHER_OPTION",
                       option
                     });
                   }}
@@ -157,23 +163,6 @@ export function MessageRenderer({
           })}
         </ul>
       )}
-      {type === "request" && (
-        <div ref={countDivRef} className="hidden flex-col space-y-1.5">
-          <span className="first:mt-2">
-            There are{" "}
-            <span className="font-bold">
-              {Math.floor(Math.random() * 100000)}
-            </span>{" "}
-            people ahead of you.
-          </span>
-          <span>
-            Estimated wait time:{" "}
-            <span className="font-bold">
-              {Math.floor(Math.random() * 5000)} days
-            </span>
-          </span>
-        </div>
-      )}
     </div>
   );
 }
@@ -184,6 +173,12 @@ export const links: LinksFunction = () => [
     href: SmolMusicVideo,
     as: "video",
     type: "video/mp4"
+  },
+  {
+    rel: "preload",
+    href: LofiMp3,
+    as: "audio",
+    type: "aduio/mpeg"
   }
 ];
 
@@ -381,7 +376,7 @@ const Music = () => {
   const [mute, setMute] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
-    audioRef.current = new Audio("/lofi.mp3");
+    audioRef.current = new Audio(LofiMp3);
     audioRef.current.loop = true;
     audioRef.current.play();
 

@@ -109,11 +109,11 @@ const Background = () => {
 
   return (
     <>
-      <mesh ref={ref1} scale-x={1.2} position={[0, 0, -102]}>
+      <mesh ref={ref1} scale={[2.5, 2.5, 0]} position={[0, 0, -102]}>
         <planeGeometry args={[width, height]} />
         <meshBasicMaterial map={texture} />
       </mesh>
-      <mesh ref={ref2} scale-x={1.2} position={[width, 0, -102]}>
+      <mesh ref={ref2} scale={[2.5, 2.5, 0]} position={[width, 0, -102]}>
         <planeGeometry args={[width, height]} />
         <meshBasicMaterial map={texture} />
       </mesh>
