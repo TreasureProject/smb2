@@ -4,7 +4,8 @@ import {
   BakeShadows,
   PerformanceMonitor,
   FirstPersonControls,
-  Environment
+  Environment,
+  OrbitControls
 } from "@react-three/drei";
 import {
   EffectComposer,
@@ -20,38 +21,30 @@ import { Link } from "@remix-run/react";
 
 import { commonMeta } from "~/seo";
 import { Icon } from "~/components/Icons";
+import { Header } from "~/components/Header";
 
 export const meta = commonMeta;
-
-const Interface = () => {
-  return (
-    <div className="absolute left-4 top-4">
-      <Link to="/">
-        <Icon name="back" className="h-3 w-3  text-white sm:h-12 sm:w-12" />
-      </Link>
-    </div>
-  );
-};
 
 export default function Tv() {
   const [perfSucks, degrade] = useState(false);
   const bgColor = new Color(0x0e072d);
 
   return (
-    <ClientOnly
-      fallback={
-        <div className="grid h-full place-items-center text-white font-mono text-lg">
-          Loading...
-        </div>
-      }
-    >
-      {() => (
-        <>
+    <div className="flex h-full flex-col">
+      <Header name="TV" />
+      <ClientOnly
+        fallback={
+          <div className="grid h-full place-items-center text-white font-mono text-lg">
+            Loading...
+          </div>
+        }
+      >
+        {() => (
           <Canvas
-            className="canvas"
+            className="canvas flex-1"
             shadows
             dpr={[1, perfSucks ? 1.5 : 2]}
-            camera={{ position: [0, 0, 2.5], fov: 45, near: 1, far: 20 }}
+            camera={{ position: [0, 0, 1], fov: 45, near: 1, far: 20 }}
             eventSource={document.getElementById("root")!}
             eventPrefix="client"
           >
@@ -71,9 +64,9 @@ export default function Tv() {
                 <Computers scale={0.5} />
               </Instances>
               <Smol
-                scale={0.01}
-                position={[1, 0, 1.2]}
                 rotation={[0, Math.PI, 0]}
+                scale={0.03}
+                position={[0, 0, 3]}
               />
               <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
                 <planeGeometry args={[50, 50]} />
@@ -108,12 +101,17 @@ export default function Tv() {
               />
             </EffectComposer>
 
-            <FirstPersonControls movementSpeed={0} lookSpeed={0.05} />
+            <OrbitControls
+              enableZoom={false}
+              enablePan={false}
+              minPolarAngle={Math.PI / 2}
+              minAzimuthAngle={-Math.PI / 2}
+              minDistance={1} // Set your desired minimum distance
+            />
             <BakeShadows />
           </Canvas>
-          <Interface />
-        </>
-      )}
-    </ClientOnly>
+        )}
+      </ClientOnly>
+    </div>
   );
 }

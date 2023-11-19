@@ -170,7 +170,7 @@ export const fetchMisc = async (tokenId: string) =>
     key: `smol-misc-${tokenId}`,
     async getFreshValue() {
       const data = await fetch(
-        `https://cloudflare-ipfs.com/ipfs/QmXk3GFkkZpTehsQvwdDgiPbE43ktxUuZfg2S7Wf8pzePx/${tokenId}.json`
+        `https://cloudflare-ipfs.com/ipfs/QmTBkdb8nXR8betmBTX6kPY8KDMR25Wh7MypqNQ8mZcVGn/${tokenId}.json`
       );
 
       const res = await data.json();
@@ -179,7 +179,11 @@ export const fetchMisc = async (tokenId: string) =>
 
       const voicemail = res.Voicemail as string;
 
-      return { location, voicemail };
+      const jobs = res.Job as string;
+
+      const timeLastSeen = Math.floor(Math.random() * 60);
+
+      return { location, voicemail, jobs, timeLastSeen };
     },
     ttl: 1000 * 60 * 60 * 24 * 7, // 1 week
     staleWhileRevalidate: 1000 * 60 * 60 * 24 // 1 day

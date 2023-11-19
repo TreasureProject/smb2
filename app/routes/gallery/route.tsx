@@ -562,7 +562,6 @@ const useSpeechSynthesis = () => {
 };
 
 const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
-  const [color, setColor] = useState<string | null>(null);
   const [seconds, setSeconds] = useState(0);
   const gender =
     smol.metadata.attributes.find((a) => a.trait_type === "Gender")?.value ??
@@ -629,11 +628,6 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
     }
   }, [speaking]);
 
-  const location = useMemo(
-    () => lastSeenRoutine(new Date().getHours(), smol.tokenId),
-    [smol.tokenId]
-  );
-
   return (
     <div className="relative flex h-full flex-col">
       <img
@@ -645,43 +639,9 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
         src={smol.image.uri}
         crossOrigin="anonymous"
         className="w-full"
-        onLoad={(e) => {
-          const canvas = document.createElement("canvas");
-          canvas.width = e.currentTarget.width;
-          canvas.height = e.currentTarget.height;
-          const ctx = canvas.getContext("2d");
-
-          if (!ctx) return;
-
-          ctx.drawImage(e.currentTarget, 0, 0);
-
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-          // get the first three values of the first pixel
-          const r = imageData.data[0];
-          const g = imageData.data[1];
-          const b = imageData.data[2];
-
-          // get the rgb string
-          const rgb = `rgb(${r},${g},${b})`;
-          setColor(rgb);
-        }}
-        alt=""
+        alt={`Smol Brain #${smol.tokenId}`}
       />
-      <Icon
-        name="splash"
-        style={{
-          color: color ?? "white"
-        }}
-        className="pointer-events-none absolute -left-12 top-48 z-10 h-36 w-32 fill-current sm:top-72 sm:w-40 lg:top-64 lg:h-48"
-      />
-      <Icon
-        name="splash"
-        style={{
-          color: color ?? "white"
-        }}
-        className="pointer-events-none absolute -right-12 top-44 z-10 h-36 w-32 fill-current sm:top-[17rem] lg:top-60 lg:h-48 lg:w-40"
-      />
+
       <div className="relative flex h-full flex-col gap-4 p-4">
         <div className="flex justify-between">
           <div className="flex flex-col space-y-2">
@@ -710,17 +670,17 @@ const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
                 <Icon name="geotag" className="h-6 w-6 text-white" />
                 <div className="flex flex-col space-y-1.5">
                   <span className="font-bold uppercase text-grayTwo font-formula leading-none capsize">
-                    {location[0]}
+                    {fetcher.data?.location}
                   </span>
                   <span className="font-bold text-grayOne font-formula text-[0.6rem] leading-none">
-                    Last seen {location[1]} Minutes Ago
+                    Last seen {fetcher.data?.timeLastSeen} Minutes Ago
                   </span>
                 </div>
               </div>
               <div className="flex items-center space-x-2 bg-[#36225E] px-4 py-2.5">
                 <Icon name="work" className="h-6 w-6 text-white" />
                 <span className="font-bold text-grayTwo font-formula leading-none capsize">
-                  DESIGNER
+                  {fetcher.data?.jobs}
                 </span>
               </div>
             </div>

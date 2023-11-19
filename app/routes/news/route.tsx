@@ -21,6 +21,7 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { fetchSmolNews } from "~/api.server";
 import { json } from "@remix-run/node";
 import { useStore } from "zustand";
+import { Header } from "~/components/Header";
 
 export const meta = commonMeta;
 
@@ -325,14 +326,6 @@ const Interface = () => {
               delay: 0.2
             }}
           >
-            <div className="absolute left-4 top-4">
-              <Link to="/">
-                <Icon
-                  name="back"
-                  className="h-3 w-3  text-white sm:h-12 sm:w-12"
-                />
-              </Link>
-            </div>
             <div className="absolute right-4 top-4 space-y-3 text-white font-mono">
               <div className="flex items-center justify-between space-x-8">
                 <div className="space-x-1">
@@ -415,55 +408,58 @@ export default function News() {
 
   return (
     <StoreProvider medias={data.medias}>
-      <ClientOnly
-        fallback={
-          <div className="grid h-full place-items-center text-white font-mono text-lg">
-            Loading...
-          </div>
-        }
-      >
-        {() => (
-          <>
-            <Canvas className="canvas">
-              <ambientLight intensity={Math.PI / 2} />
-              <spotLight
-                position={[10, 10, 10]}
-                angle={0.15}
-                penumbra={1}
-                decay={0}
-                intensity={Math.PI}
-              />
-              <pointLight
-                position={[-10, -10, -10]}
-                decay={0}
-                intensity={Math.PI}
-              />
-              <Suspense fallback={null}>
-                <Experience>
-                  <Newspapers />
-                  <Minimap />
-                </Experience>
-                <Mailbox />
-              </Suspense>
-              <CameraControls
-                touches={{
-                  one: 0,
-                  two: 0,
-                  three: 0
-                }}
-                mouseButtons={{
-                  left: 0,
-                  right: 0,
-                  wheel: 0,
-                  middle: 0
-                }}
-                makeDefault
-              />
-            </Canvas>
-            <Interface />
-          </>
-        )}
-      </ClientOnly>
+      <div className="flex h-full flex-col">
+        <Header name="News" />
+        <ClientOnly
+          fallback={
+            <div className="grid h-full place-items-center text-white font-mono text-lg">
+              Loading...
+            </div>
+          }
+        >
+          {() => (
+            <div className="relative flex-1">
+              <Canvas className="canvas">
+                <ambientLight intensity={Math.PI / 2} />
+                <spotLight
+                  position={[10, 10, 10]}
+                  angle={0.15}
+                  penumbra={1}
+                  decay={0}
+                  intensity={Math.PI}
+                />
+                <pointLight
+                  position={[-10, -10, -10]}
+                  decay={0}
+                  intensity={Math.PI}
+                />
+                <Suspense fallback={null}>
+                  <Experience>
+                    <Newspapers />
+                    <Minimap />
+                  </Experience>
+                  <Mailbox />
+                </Suspense>
+                <CameraControls
+                  touches={{
+                    one: 0,
+                    two: 0,
+                    three: 0
+                  }}
+                  mouseButtons={{
+                    left: 0,
+                    right: 0,
+                    wheel: 0,
+                    middle: 0
+                  }}
+                  makeDefault
+                />
+              </Canvas>
+              <Interface />
+            </div>
+          )}
+        </ClientOnly>
+      </div>
     </StoreProvider>
   );
 }
