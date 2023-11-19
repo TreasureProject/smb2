@@ -10,7 +10,8 @@ import { Center, useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
 import { useFrame, useThree } from "@react-three/fiber";
 import { damp3, dampE } from "maath/easing";
-import useStore from "./store";
+import { useModelStore } from "./store";
+import { useStore } from "zustand";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -28,12 +29,12 @@ export function Mailbox(props: JSX.IntrinsicElements["group"]) {
   const { nodes, materials } = useGLTF(
     "/mailbox-transformed.glb"
   ) as GLTFResult;
-
+  const store = useModelStore();
   const ref = useRef<THREE.Group | null>(null);
   const { width } = useThree((state) => state.viewport);
   const centerRef = useRef<THREE.Group | null>(null);
-  const state = useStore((state) => state.state);
-  const mailboxClicked = useStore((state) => state.mailboxClicked);
+  const state = useStore(store, (state) => state.state);
+  const mailboxClicked = useStore(store, (state) => state.mailboxClicked);
   useFrame((_, delta) => {
     if (mailboxClicked) {
       dampE(ref.current!.rotation, new THREE.Euler(1, 0, 0), 1, delta);

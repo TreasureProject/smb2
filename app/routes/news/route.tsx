@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { CameraControls, useCursor, useVideoTexture } from "@react-three/drei";
 import { damp, damp3 } from "maath/easing";
-import useStore from "./store";
+import { useModelStore, StoreProvider } from "./store";
 import { Icon } from "~/components/Icons";
 import * as THREE from "three";
 import { Mailbox } from "./Mailbox";
@@ -17,7 +17,10 @@ import {
 import { cn } from "~/utils";
 import { tinykeys } from "tinykeys";
 import { commonMeta } from "~/seo";
-import { Link } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
+import { fetchSmolNews } from "~/api.server";
+import { json } from "@remix-run/node";
+import { useStore } from "zustand";
 
 export const meta = commonMeta;
 
@@ -29,10 +32,11 @@ const geometry = new THREE.BufferGeometry().setFromPoints([
 
 function Minimap() {
   const ref = useRef<THREE.Group | null>(null);
-  const models = useStore((state) => state.models);
+  const store = useModelStore();
+  const models = useStore(store, (s) => s.models);
   const { height } = useThree((state) => state.viewport);
+  const cameraIndex = useStore(store, (s) => s.index);
 
-  const cameraIndex = useStore((state) => state.index);
   useFrame((state, delta) => {
     ref.current!.children.forEach((child, index) => {
       const y =
@@ -68,16 +72,23 @@ function Minimap() {
 const Newspaper = (
   props: JSX.IntrinsicElements["mesh"] & {
     index: number;
+    model: {
+      url: string;
+      title: string;
+    };
   }
 ) => {
   const ref = useRef<THREE.Mesh | null>(null);
   const controls = useThree(
     (state) => state.controls as unknown as CameraControls
   );
-  const setSelected = useStore((state) => state.setSelectedModel);
-  const selected = useStore((state) => state.selectedModel) === props.index;
+  const store = useModelStore();
 
-  const texture = useVideoTexture("videos/Issue_1.mp4");
+  const setSelected = useStore(store, (state) => state.setSelectedModel);
+  const selected =
+    useStore(store, (state) => state.selectedModel) === props.index;
+
+  const texture = useVideoTexture(props.model.url);
 
   const [hovered, setHovered] = useState(false);
 
@@ -107,10 +118,16 @@ const Newspaper = (
       onPointerOver={(e) => (e.stopPropagation(), setHovered(true))}
       onPointerOut={() => setHovered(false)}
       onClick={() => setSelected(selected ? null : props.index)}
-      onPointerMissed={() => setSelected(null)}
+      onPointerMissed={() => {
+        if (selected) setSelected(null);
+      }}
     >
       <planeGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial map={texture} />
+      <Suspense
+        fallback={<meshStandardMaterial side={THREE.DoubleSide} wireframe />}
+      >
+        <meshStandardMaterial map={texture} />
+      </Suspense>
     </mesh>
   );
 };
@@ -118,17 +135,36 @@ const Newspaper = (
 const Newspapers = ({ w = 2, gap = 0.15 }) => {
   const xW = w + gap;
   const group = useRef<THREE.Group | null>(null);
-  const next = useStore((state) => state.next);
-  const previous = useStore((state) => state.previous);
-  const index = useStore((state) => state.index);
-  const models = useStore((state) => state.models);
+  const store = useModelStore();
+  const next = useStore(store, (state) => state.next);
+  const previous = useStore(store, (state) => state.previous);
+  const index = useStore(store, (state) => state.index);
+  const models = useStore(store, (state) => state.models);
+  const selectedModel = useStore(store, (state) => state.selectedModel);
 
+  const hasSelectedModel = selectedModel !== null;
   useEffect(() => {
     let unsubscribe = tinykeys(window, {
-      ArrowRight: () => next(),
-      ArrowLeft: () => previous(),
-      Enter: () => next(),
-      Backspace: () => previous()
+      ArrowRight: () => {
+        if (!hasSelectedModel) {
+          next();
+        }
+      },
+      ArrowLeft: () => {
+        if (!hasSelectedModel) {
+          previous();
+        }
+      },
+      Enter: () => {
+        if (!hasSelectedModel) {
+          next();
+        }
+      },
+      Backspace: () => {
+        if (!hasSelectedModel) {
+          previous();
+        }
+      }
     });
     return () => {
       unsubscribe();
@@ -142,10 +178,11 @@ const Newspapers = ({ w = 2, gap = 0.15 }) => {
 
   return (
     <group ref={group}>
-      {models.map((_, i) => (
+      {models.map((model, i) => (
         <Newspaper
           key={i}
           index={i}
+          model={model}
           position={[i * xW, 0, 0]}
           scale={[w, 2, 1]}
         />
@@ -255,14 +292,15 @@ const Kbd = ({ children }: { children: React.ReactNode }) => {
 
 // million-ignore
 const Interface = () => {
-  const next = useStore((state) => state.next);
-  const models = useStore((state) => state.models);
-  const previous = useStore((state) => state.previous);
-  const selectedModel = useStore((state) => state.selectedModel);
-  const state = useStore((state) => state.state);
+  const store = useModelStore();
+  const next = useStore(store, (state) => state.next);
+  const models = useStore(store, (state) => state.models);
+  const previous = useStore(store, (state) => state.previous);
+  const selectedModel = useStore(store, (state) => state.selectedModel);
+  const state = useStore(store, (state) => state.state);
   const notSelected = selectedModel === null && state === "open";
-  const setMailboxClicked = useStore((state) => state.setMailboxClicked);
-  const setState = useStore((state) => state.setState);
+  const setMailboxClicked = useStore(store, (state) => state.setMailboxClicked);
+  const setState = useStore(store, (state) => state.setState);
   return (
     <div className={cn(state === "idle" && "absolute inset-0")}>
       {state === "idle" && (
@@ -348,7 +386,8 @@ const Interface = () => {
 
 const Experience = ({ children }: { children: React.ReactNode }) => {
   const groupRef = useRef<THREE.Group | null>(null);
-  const state = useStore((state) => state.state);
+  const store = useModelStore();
+  const state = useStore(store, (state) => state.state);
   const { height } = useThree((state) => state.viewport);
   const isOpen = state === "open";
 
@@ -365,56 +404,66 @@ const Experience = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+export const loader = async () => {
+  const medias = await fetchSmolNews();
+
+  return json({ medias });
+};
+
 export default function News() {
+  const data = useLoaderData<typeof loader>();
+
   return (
-    <ClientOnly
-      fallback={
-        <div className="grid h-full place-items-center text-white font-mono text-lg">
-          Loading...
-        </div>
-      }
-    >
-      {() => (
-        <>
-          <Canvas className="canvas">
-            <ambientLight intensity={Math.PI / 2} />
-            <spotLight
-              position={[10, 10, 10]}
-              angle={0.15}
-              penumbra={1}
-              decay={0}
-              intensity={Math.PI}
-            />
-            <pointLight
-              position={[-10, -10, -10]}
-              decay={0}
-              intensity={Math.PI}
-            />
-            <Suspense fallback={null}>
-              <Experience>
-                <Newspapers />
-                <Minimap />
-              </Experience>
-              <Mailbox />
-            </Suspense>
-            <CameraControls
-              touches={{
-                one: 0,
-                two: 0,
-                three: 0
-              }}
-              mouseButtons={{
-                left: 0,
-                right: 0,
-                wheel: 0,
-                middle: 0
-              }}
-              makeDefault
-            />
-          </Canvas>
-          <Interface />
-        </>
-      )}
-    </ClientOnly>
+    <StoreProvider medias={data.medias}>
+      <ClientOnly
+        fallback={
+          <div className="grid h-full place-items-center text-white font-mono text-lg">
+            Loading...
+          </div>
+        }
+      >
+        {() => (
+          <>
+            <Canvas className="canvas">
+              <ambientLight intensity={Math.PI / 2} />
+              <spotLight
+                position={[10, 10, 10]}
+                angle={0.15}
+                penumbra={1}
+                decay={0}
+                intensity={Math.PI}
+              />
+              <pointLight
+                position={[-10, -10, -10]}
+                decay={0}
+                intensity={Math.PI}
+              />
+              <Suspense fallback={null}>
+                <Experience>
+                  <Newspapers />
+                  <Minimap />
+                </Experience>
+                <Mailbox />
+              </Suspense>
+              <CameraControls
+                touches={{
+                  one: 0,
+                  two: 0,
+                  three: 0
+                }}
+                mouseButtons={{
+                  left: 0,
+                  right: 0,
+                  wheel: 0,
+                  middle: 0
+                }}
+                makeDefault
+              />
+            </Canvas>
+            <Interface />
+          </>
+        )}
+      </ClientOnly>
+    </StoreProvider>
   );
 }

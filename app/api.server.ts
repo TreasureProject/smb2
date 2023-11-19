@@ -184,3 +184,51 @@ export const fetchMisc = async (tokenId: string) =>
     ttl: 1000 * 60 * 60 * 24 * 7, // 1 week
     staleWhileRevalidate: 1000 * 60 * 60 * 24 // 1 day
   });
+
+export const fetchSmolNews = async () => {
+  const res = await fetch(
+    "https://graphql.contentful.com/content/v1/spaces/0inadimdhi52/environments/master",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        query: `
+        query {
+          # add your query
+          newsSmolCollection {
+            items {
+              videosCollection {
+                items {
+                  url
+                  title
+                }
+              }
+            }
+          }
+        }
+        
+        `
+      }),
+      headers: {
+        Authorization: `Bearer ${process.env.CONTENTFUL_ACCESS_TOKEN}`,
+        "Content-Type": "application/json"
+      }
+    }
+  );
+
+  const data = (await res.json()) as {
+    data: {
+      newsSmolCollection: {
+        items: {
+          videosCollection: {
+            items: {
+              url: string;
+              title: string;
+            }[];
+          };
+        }[];
+      };
+    };
+  };
+
+  return data.data.newsSmolCollection.items[0].videosCollection.items;
+};

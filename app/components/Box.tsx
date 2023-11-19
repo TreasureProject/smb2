@@ -59,7 +59,7 @@ const Loading = ({
     const play = async () => {
       if (playAnimation && !showIntro && !installed) {
         await animate(width, 100, {
-          duration: 1.3,
+          duration: 10,
           ease: "easeOut"
         });
 

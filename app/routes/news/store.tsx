@@ -1,6 +1,14 @@
-import { create } from "zustand";
+import { createStore } from "zustand";
+import { createContext, useContext, useRef } from "react";
 
-interface State {
+interface Props {
+  models: {
+    url: string;
+    title: string;
+  }[];
+}
+
+interface State extends Props {
   state: "idle" | "open";
   mailboxClicked: boolean;
   setMailboxClicked: (clicked: boolean) => void;
@@ -8,19 +16,22 @@ interface State {
   index: number;
   selectedModel: number | null;
   setSelectedModel: (index: number | null) => void;
-  models: undefined[];
   previous: () => void;
   next: (index?: number) => void;
 }
 
-export default create<State>((set) => {
-  return {
+type Store = ReturnType<typeof createModelStore>;
+
+export const storeContext = createContext<Store | null>(null);
+
+export const createModelStore = (initProps: Props) => {
+  return createStore<State>()((set) => ({
+    ...initProps,
     state: "idle",
     mailboxClicked: false,
     setMailboxClicked: (clicked) => set({ mailboxClicked: clicked }),
     setState: (state) => set({ state }),
     index: 0,
-    models: [...new Array(12).fill(undefined)],
     selectedModel: null,
     setSelectedModel: (index) => {
       set({ selectedModel: index });
@@ -42,5 +53,33 @@ export default create<State>((set) => {
         return state;
       });
     }
-  };
-});
+  }));
+};
+
+export function useModelStore() {
+  const store = useContext(storeContext);
+  if (!store) {
+    throw new Error("useStore must be used within a StoreProvider");
+  }
+  return store;
+}
+
+export function StoreProvider({
+  children,
+  medias
+}: {
+  children: React.ReactNode;
+  medias: {
+    url: string;
+    title: string;
+  }[];
+}) {
+  const store = useRef(
+    createModelStore({
+      models: medias
+    })
+  ).current;
+  return (
+    <storeContext.Provider value={store}>{children}</storeContext.Provider>
+  );
+}
