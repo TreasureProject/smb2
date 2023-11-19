@@ -337,7 +337,7 @@ export default function News() {
       <motion.div
         variants={variants}
         animate={variants[today?.weather || "sunny"]}
-        className="relative h-full"
+        className="relative h-full overflow-hidden"
       >
         <AnimatePresence>
           <motion.div

@@ -46,7 +46,7 @@ function Banana({
     []
   );
 
-  useFrame(() => {
+  useFrame((state, delta) => {
     ref.current?.rotation.set(
       (position.rX += 0.001),
       (position.rY += 0.001),
@@ -54,7 +54,7 @@ function Banana({
     );
     ref.current?.position.set(
       position.x * width,
-      (position.y += konamiActivated ? 0.1 : 0.005),
+      (position.y += konamiActivated ? delta * 10 : delta / 2),
       z
     );
 

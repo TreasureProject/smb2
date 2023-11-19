@@ -195,6 +195,12 @@ export const links: LinksFunction = () => [
     href: LofiMp3,
     as: "audio",
     type: "aduio/mpeg"
+  },
+  {
+    rel: "preload",
+    href: ErrorMp3,
+    as: "audio",
+    type: "aduio/mpeg"
   }
 ];
 
@@ -896,6 +902,7 @@ export default function Index() {
 }
 
 const ErrorDialog = () => {
+  const [troll, setTroll] = useState(false);
   useEffect(() => {
     const audio = new Audio(ErrorMp3);
     audio.play();
@@ -937,9 +944,15 @@ const ErrorDialog = () => {
         </Link>
         <Link
           to="/weather"
+          onMouseEnter={() => {
+            setTroll(true);
+          }}
+          onMouseLeave={() => {
+            setTroll(false);
+          }}
           className="border-2 border-black px-4 py-2 focus:outline-none"
         >
-          SMOLVILLE GAME
+          {troll ? "WEATHER" : "SMOLVILLE GAME"}
         </Link>
       </div>
     </>
