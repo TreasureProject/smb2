@@ -18,7 +18,7 @@ import { tinykeys } from "tinykeys";
 import { commonMeta } from "~/seo";
 import { Await, useLoaderData } from "@remix-run/react";
 import { fetchSmolNews } from "~/api.server";
-import { defer, json } from "@remix-run/node";
+import { defer } from "@remix-run/node";
 import { useStore } from "zustand";
 import { Header } from "~/components/Header";
 

@@ -37,23 +37,6 @@ export type TroveSmolToken = {
 
 const LIMIT = "117";
 
-function getCustomDay(date: Date) {
-  // Convert the date to UTC
-  const utcYear = date.getUTCFullYear();
-  const utcMonth = date.getUTCMonth();
-  const utcDate = date.getUTCDate();
-  const utcHours = date.getUTCHours();
-
-  if (utcHours < 12) {
-    const previousDay = new Date(
-      Date.UTC(utcYear, utcMonth, utcDate - 1, utcHours)
-    );
-    return previousDay;
-  }
-
-  return new Date(Date.UTC(utcYear, utcMonth, utcDate, utcHours));
-}
-
 export const fetchWeathers = async (currentDay: Date) =>
   cachified({
     key: `weathers-${currentDay.getMonth()}-${currentDay.getDate()}`,
@@ -189,50 +172,54 @@ export const fetchMisc = async (tokenId: string) =>
     staleWhileRevalidate: 1000 * 60 * 60 * 24 // 1 day
   });
 
-export const fetchSmolNews = async () => {
-  const res = await fetch(
-    "https://graphql.contentful.com/content/v1/spaces/0inadimdhi52/environments/master",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        query: `
-        query {
-          # add your query
-          newsSmolCollection {
-            items {
-              videosCollection {
-                items {
-                  url
-                  title
+export const fetchSmolNews = async () =>
+  cachified({
+    key: `smol-news`,
+    async getFreshValue() {
+      const res = await fetch(
+        "https://graphql.contentful.com/content/v1/spaces/0inadimdhi52/environments/master",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            query: `
+          query {
+            # add your query
+            newsSmolCollection {
+              items {
+                videosCollection {
+                  items {
+                    url
+                    title
+                  }
                 }
               }
             }
           }
+          
+          `
+          }),
+          headers: {
+            Authorization: `Bearer ${process.env.CONTENTFUL_ACCESS_TOKEN}`,
+            "Content-Type": "application/json"
+          }
         }
-        
-        `
-      }),
-      headers: {
-        Authorization: `Bearer ${process.env.CONTENTFUL_ACCESS_TOKEN}`,
-        "Content-Type": "application/json"
-      }
-    }
-  );
+      );
 
-  const data = (await res.json()) as {
-    data: {
-      newsSmolCollection: {
-        items: {
-          videosCollection: {
+      const data = (await res.json()) as {
+        data: {
+          newsSmolCollection: {
             items: {
-              url: string;
-              title: string;
+              videosCollection: {
+                items: {
+                  url: string;
+                  title: string;
+                }[];
+              };
             }[];
           };
-        }[];
+        };
       };
-    };
-  };
 
-  return data.data.newsSmolCollection.items[0].videosCollection.items;
-};
+      return data.data.newsSmolCollection.items[0].videosCollection.items;
+    }
+  });
