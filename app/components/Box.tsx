@@ -91,7 +91,7 @@ const Loading = ({
           : undefined
       }
       className={cn(
-        "absolute inset-0 flex flex-col items-center justify-center bg-gray-500/20 backdrop-blur-sm",
+        "absolute inset-0 flex cursor-wait flex-col items-center justify-center bg-gray-500/20 backdrop-blur-sm",
         appInstalled ? "z-10" : "z-50"
       )}
     >
@@ -117,6 +117,7 @@ const Loading = ({
   );
 };
 
+// million-ignore
 export const Box = (props: Props) => {
   const className = cn("relative box", props.className);
 

@@ -108,6 +108,8 @@ const Newspaper = (
     } else {
       controls?.reset(true);
       texture.image.muted = true;
+      texture.image.pause();
+      texture.image.currentTime = 0;
     }
   }, [selected]);
 
@@ -325,7 +327,7 @@ const Interface = () => {
               delay: 0.2
             }}
           >
-            <div className="absolute right-4 top-4 space-y-3 text-white font-mono">
+            <div className="absolute right-4 top-4 hidden space-y-3 text-white font-mono sm:block">
               <div className="flex items-center justify-between space-x-8">
                 <div className="space-x-1">
                   <Kbd>← / Backspace</Kbd>

@@ -261,10 +261,10 @@ const Chat = () => {
       <div className="relative [perspective:1000px]">
         <img
           src={Meem}
-          className="relative z-10 h-10 w-10 -scale-x-100 [mask-image:linear-gradient(black_90%,transparent_100%)] sm:bottom-4 sm:right-1 sm:h-24 sm:w-24"
+          className="relative z-10 h-8 w-8 -scale-x-100 [mask-image:linear-gradient(black_90%,transparent_100%)] sm:bottom-4 sm:right-1 sm:h-24 sm:w-24"
           alt="mEEm"
         />
-        <div className="absolute -bottom-6 -right-1.5 h-12 w-12 select-none rounded-full bg-black/50 [transform:rotateX(75deg)] sm:-bottom-10 sm:h-28 sm:w-28"></div>
+        <div className="absolute -bottom-6 -right-2 h-12 w-12 select-none rounded-full bg-black/90 [transform:rotateX(75deg)] sm:-bottom-10 sm:h-28 sm:w-28"></div>
         <button
           className="absolute inset-0 z-20 h-full w-full"
           onClick={() => {
@@ -607,110 +607,31 @@ export default function Index() {
         </defs>
       </svg>
 
-      <motion.div
-        animate={{
-          opacity: lofiActivated ? 0 : 1
-        }}
-        className={cn(
-          "absolute bottom-12 left-1/2 z-10 flex -translate-x-1/2 space-x-8 sm:space-x-12",
-          lofiActivated && "pointer-events-none"
-        )}
-      >
-        {SOCIALS.map((social) => (
-          <a
-            key={social.name}
-            href={social.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group"
-          >
-            <Icon
-              name={social.name}
-              className="h-10 w-10 text-intro transition-transform group-hover:scale-110 sm:h-12 sm:w-12"
-            />
-          </a>
-        ))}
-      </motion.div>
-
-      <motion.div
-        animate={{
-          opacity: lofiActivated ? 0 : 1
-        }}
-        className={cn(
-          "relative mx-auto grid h-full max-w-7xl place-items-center px-14 py-16 sm:px-12",
-          lofiActivated && "pointer-events-none"
-        )}
-      >
-        <Dialog>
-          <div
-            ref={scope}
-            className="grid grid-cols-2 gap-4 [grid-auto-rows:20%] sm:grid-cols-4 sm:grid-rows-2 sm:gap-8"
-          >
-            <Box
-              name="news"
-              as="link"
-              to="/news"
-              state={getTransformOrigin}
-              className="relative"
+      <div className="relative mx-auto flex h-full max-w-7xl flex-col">
+        <motion.div
+          animate={{
+            opacity: lofiActivated ? 0 : 1
+          }}
+          className={cn(
+            "grid flex-1 place-items-center px-14 sm:px-12",
+            lofiActivated && "pointer-events-none"
+          )}
+        >
+          <Dialog>
+            <div
+              ref={scope}
+              className="grid grid-cols-2 gap-4 [grid-auto-rows:1fr] sm:grid-cols-4 sm:grid-rows-2 sm:gap-8 sm:[grid-auto-rows:20%]"
             >
-              <img
-                src={News}
-                alt="News"
-                className="aspect-square h-full w-full"
-              ></img>
-              <AnimatePresence>
-                {state === "idle" && (
-                  <motion.img
-                    initial={{
-                      opacity: 0
-                    }}
-                    animate={{
-                      opacity: 1
-                    }}
-                    exit={{
-                      opacity: 0
-                    }}
-                    src={Peek}
-                    className="absolute bottom-full left-1/2 z-10 h-8 w-8 -translate-x-1/2 sm:h-24 sm:w-24"
-                    alt="peek smol"
-                  />
-                )}
-              </AnimatePresence>
-            </Box>
-            <Box
-              name="gallery"
-              as="link"
-              to="/gallery"
-              state={getTransformOrigin}
-            >
-              <img
-                src={Gallery}
-                alt="gallery"
-                className="aspect-square h-full w-full"
-              ></img>
-            </Box>
-            <Box
-              name="weather"
-              as="link"
-              to="/weather"
-              state={getTransformOrigin}
-            >
-              <img
-                src={Weather}
-                alt="art"
-                className="aspect-square h-full w-full"
-              ></img>
-            </Box>
-            <DialogTrigger asChild>
               <Box
-                name="spotlight"
-                as="button"
-                isLoading
-                className="relative bg-white/10"
+                name="news"
+                as="link"
+                to="/news"
+                state={getTransformOrigin}
+                className="relative"
               >
                 <img
-                  src={Games}
-                  alt="Games"
+                  src={News}
+                  alt="News"
                   className="aspect-square h-full w-full"
                 ></img>
                 <AnimatePresence>
@@ -725,12 +646,98 @@ export default function Index() {
                       exit={{
                         opacity: 0
                       }}
-                      src={Peek5}
-                      className="absolute bottom-full right-24 z-10 h-8 w-8 sm:h-24 sm:w-24"
+                      src={Peek}
+                      className="absolute bottom-full left-1/2 z-10 h-8 w-8 -translate-x-1/2 sm:h-24 sm:w-24"
                       alt="peek smol"
                     />
                   )}
                 </AnimatePresence>
+              </Box>
+              <Box
+                name="gallery"
+                as="link"
+                to="/gallery"
+                state={getTransformOrigin}
+              >
+                <img
+                  src={Gallery}
+                  alt="gallery"
+                  className="aspect-square h-full w-full"
+                ></img>
+              </Box>
+              <Box
+                name="weather"
+                as="link"
+                to="/weather"
+                state={getTransformOrigin}
+              >
+                <img
+                  src={Weather}
+                  alt="art"
+                  className="aspect-square h-full w-full"
+                ></img>
+              </Box>
+              <DialogTrigger asChild>
+                <Box
+                  name="spotlight"
+                  as="button"
+                  isLoading
+                  className="relative bg-white/10"
+                >
+                  <img
+                    src={Games}
+                    alt="Games"
+                    className="aspect-square h-full w-full"
+                  ></img>
+                  <AnimatePresence>
+                    {state === "idle" && (
+                      <motion.img
+                        initial={{
+                          opacity: 0
+                        }}
+                        animate={{
+                          opacity: 1
+                        }}
+                        exit={{
+                          opacity: 0
+                        }}
+                        src={Peek5}
+                        className="absolute bottom-full right-24 z-10 h-8 w-8 sm:h-24 sm:w-24"
+                        alt="peek smol"
+                      />
+                    )}
+                  </AnimatePresence>
+                  <AnimatePresence>
+                    {state === "idle" && (
+                      <motion.img
+                        initial={{
+                          opacity: 0
+                        }}
+                        animate={{
+                          opacity: 1
+                        }}
+                        exit={{
+                          opacity: 0
+                        }}
+                        src={Peek2}
+                        className="absolute bottom-4 left-full z-10 h-8 w-8 rotate-90 sm:h-24 sm:w-24"
+                        alt="peek smol"
+                      />
+                    )}
+                  </AnimatePresence>
+                </Box>
+              </DialogTrigger>
+              <Box
+                name="fashion"
+                as="a"
+                href="https://shop.smolverse.lol/"
+                className="relative"
+              >
+                <img
+                  src={Fashion}
+                  alt="fashion"
+                  className="aspect-square h-full w-full"
+                ></img>
                 <AnimatePresence>
                   {state === "idle" && (
                     <motion.img
@@ -743,117 +750,112 @@ export default function Index() {
                       exit={{
                         opacity: 0
                       }}
-                      src={Peek2}
-                      className="absolute bottom-4 left-full z-10 h-8 w-8 rotate-90 sm:h-24 sm:w-24"
+                      src={Peek3}
+                      className="absolute bottom-4 right-full z-10 h-8 w-8 -rotate-90 sm:h-24 sm:w-24"
                       alt="peek smol"
                     />
                   )}
                 </AnimatePresence>
               </Box>
-            </DialogTrigger>
-            <Box
-              name="fashion"
-              as="a"
-              href="https://shop.smolverse.lol/"
-              className="relative"
-            >
-              <img
-                src={Fashion}
-                alt="fashion"
-                className="aspect-square h-full w-full"
-              ></img>
-              <AnimatePresence>
-                {state === "idle" && (
-                  <motion.img
-                    initial={{
-                      opacity: 0
-                    }}
-                    animate={{
-                      opacity: 1
-                    }}
-                    exit={{
-                      opacity: 0
-                    }}
-                    src={Peek3}
-                    className="absolute bottom-4 right-full z-10 h-8 w-8 -rotate-90 sm:h-24 sm:w-24"
-                    alt="peek smol"
-                  />
-                )}
-              </AnimatePresence>
-            </Box>
-            <Box name="tv" as="link" to="/tv" state={getTransformOrigin}>
-              <img
-                src={Tv}
-                alt="tv"
-                className="aspect-square h-full w-full"
-              ></img>
-            </Box>
-            <Box
-              name="goals"
-              as="link"
-              to="/goals"
-              state={getTransformOrigin}
-              className="relative"
-            >
-              <div className="relative h-full overflow-hidden">
-                <span className="relative z-10 ml-4 inline-block text-white text-8xl leading-none capsize sm:text-[7rem] lg:text-[9.5rem]">
-                  GOALS
-                </span>
-                <video
-                  preload="auto"
-                  playsInline
-                  loop
-                  muted
-                  autoPlay
-                  className="absolute -bottom-1/2 -right-[40%] h-[175%] min-w-[175%] -rotate-[30deg] -scale-x-100 object-cover"
-                >
-                  <source src={Goals} type="video/mp4" />
-                </video>
-              </div>
-              <AnimatePresence>
-                {state === "idle" && (
-                  <motion.img
-                    initial={{
-                      opacity: 0
-                    }}
-                    animate={{
-                      opacity: 1
-                    }}
-                    exit={{
-                      opacity: 0
-                    }}
-                    src={Peek4}
-                    className="absolute left-1/2 top-full z-10 h-8 w-8 -translate-x-1/2 -rotate-180 sm:h-24 sm:w-24"
-                    alt="peek smol"
-                  />
-                )}
-              </AnimatePresence>
-            </Box>
-            <Box
-              name="rainbow"
-              isLoading
-              aria-disabled="true"
-              as="link"
-              to="/smolspace"
-              state={getTransformOrigin}
-            >
-              <div className="relative h-full overflow-hidden bg-rage">
-                <span className="relative z-10 ml-4 inline-block text-white text-8xl leading-none capsize sm:text-[7rem] lg:text-[9.5rem]">
-                  REACTOR
-                </span>
+              <Box name="tv" as="link" to="/tv" state={getTransformOrigin}>
                 <img
-                  src={Reactor}
-                  className="absolute bottom-0 w-full object-cover"
-                />
-              </div>
-            </Box>
-          </div>
-          <DialogContent className="border-none p-0 font-mono sm:rounded-none">
-            <ErrorDialog />
-          </DialogContent>
-        </Dialog>
-        <Chat />
-      </motion.div>
+                  src={Tv}
+                  alt="tv"
+                  className="aspect-square h-full w-full"
+                ></img>
+              </Box>
+              <Box
+                name="goals"
+                as="link"
+                to="/goals"
+                state={getTransformOrigin}
+                className="relative"
+              >
+                <div className="relative h-full overflow-hidden">
+                  <span className="relative z-10 ml-4 inline-block text-white text-7xl leading-none capsize sm:text-[7rem] lg:text-[9.5rem]">
+                    GOALS
+                  </span>
+                  <video
+                    preload="auto"
+                    playsInline
+                    loop
+                    muted
+                    autoPlay
+                    className="absolute -bottom-1/2 -right-[40%] h-[175%] min-w-[175%] -rotate-[30deg] -scale-x-100 object-cover"
+                  >
+                    <source src={Goals} type="video/mp4" />
+                  </video>
+                </div>
+                <AnimatePresence>
+                  {state === "idle" && (
+                    <motion.img
+                      initial={{
+                        opacity: 0
+                      }}
+                      animate={{
+                        opacity: 1
+                      }}
+                      exit={{
+                        opacity: 0
+                      }}
+                      src={Peek4}
+                      className="absolute left-1/2 top-full z-10 h-8 w-8 -translate-x-1/2 -rotate-180 sm:h-24 sm:w-24"
+                      alt="peek smol"
+                    />
+                  )}
+                </AnimatePresence>
+              </Box>
+              <Box
+                name="rainbow"
+                isLoading
+                aria-disabled="true"
+                as="link"
+                to="/smolspace"
+                state={getTransformOrigin}
+              >
+                <div className="relative h-full overflow-hidden bg-rage">
+                  <span className="relative z-10 ml-4 inline-block text-white text-7xl leading-none capsize sm:text-[7rem] lg:text-[9.5rem]">
+                    REACTOR
+                  </span>
+                  <img
+                    src={Reactor}
+                    className="absolute bottom-0 w-full object-cover"
+                  />
+                </div>
+              </Box>
+            </div>
+            <DialogContent className="border-none p-0 font-mono sm:rounded-none">
+              <ErrorDialog />
+            </DialogContent>
+          </Dialog>
+          <Chat />
+        </motion.div>
+
+        <motion.div
+          animate={{
+            opacity: lofiActivated ? 0 : 1
+          }}
+          className={cn(
+            "z-10 mx-auto flex h-12 justify-center space-x-8 sm:absolute sm:bottom-12 sm:left-1/2 sm:-translate-x-1/2 sm:space-x-12",
+            lofiActivated && "pointer-events-none"
+          )}
+        >
+          {SOCIALS.map((social) => (
+            <a
+              key={social.name}
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group"
+            >
+              <Icon
+                name={social.name}
+                className="h-7 w-7 text-intro transition-transform group-hover:scale-110 sm:h-12 sm:w-12"
+              />
+            </a>
+          ))}
+        </motion.div>
+      </div>
       <AnimatePresence>
         {lofiActivated && (
           <motion.div
@@ -964,7 +966,7 @@ const ErrorDialog = () => {
       <div className="flex justify-around bg-grayTwo p-5">
         <Link
           to="/weather"
-          className="border-2 border-black px-4 py-2 focus:outline-none"
+          className="inline-flex w-44 justify-center border-2 border-black px-4 py-2 focus:outline-none"
         >
           WEATHER
         </Link>
@@ -976,7 +978,7 @@ const ErrorDialog = () => {
           onMouseLeave={() => {
             setTroll(false);
           }}
-          className="border-2 border-black px-4 py-2 focus:outline-none"
+          className="inline-flex w-44 justify-center border-2 border-black px-4 py-2 focus:outline-none"
         >
           {troll ? "WEATHER" : "SMOLVILLE GAME"}
         </Link>
