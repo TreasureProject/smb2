@@ -368,7 +368,7 @@ export default function News() {
       <motion.div
         variants={variants}
         animate={variants[today?.weather || "sunny"]}
-        className="relative h-full overflow-hidden"
+        className="relative min-h-full"
       >
         <AnimatePresence>
           <motion.div
@@ -376,7 +376,7 @@ export default function News() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             key={today?.fullDate}
-            className="pointer-events-none absolute inset-0 h-full w-full"
+            className="pointer-events-none absolute inset-0 h-full w-full overflow-hidden"
           >
             {(() => {
               switch (today?.weather) {
@@ -456,9 +456,9 @@ export default function News() {
               src={weatherSmol.type}
               alt={weatherSmol.alt}
             />
-            <div className="mx-auto mb-12 mt-12 w-full max-w-xl self-stretch bg-fud p-4 px-4 font-bold font-neuebit">
-              <p className="text-white">7 Day Forcast</p>
-              <ul className="space-y-2">
+            <div className="mx-auto mt-12 w-full max-w-xl self-stretch bg-fud p-4 px-4 font-bold font-neuebit sm:mb-12">
+              <p className="text-white text-lg">7 Day Forcast</p>
+              <ul className="mt-2 space-y-2">
                 {data?.weathers.map((weather, i) => (
                   <li
                     key={weather.fullDate}

@@ -768,7 +768,7 @@ export default function Index() {
                 as="link"
                 to="/goals"
                 state={getTransformOrigin}
-                className="relative"
+                className="relative bg-black"
               >
                 <div className="relative h-full overflow-hidden">
                   <span className="relative z-10 ml-4 inline-block text-white text-7xl leading-none capsize sm:text-[7rem] lg:text-[9.5rem]">
