@@ -124,7 +124,8 @@ export const Box = (props: Props) => {
   const { children, as, isLoading } = props;
   const [ref, setNodeRef] = useState<HTMLAnchorElement | null>(null);
 
-  const animate = props.name === "spotlight";
+  // const animate = props.name === "spotlight";
+  const animate = false;
   const installedApps = useStore((state) => state.installedApps);
 
   const appInstalled = installedApps.includes(props.name);
