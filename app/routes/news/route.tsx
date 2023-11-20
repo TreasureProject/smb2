@@ -1,4 +1,3 @@
-import { ClientOnly } from "remix-utils/client-only";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { CameraControls, useCursor, useVideoTexture } from "@react-three/drei";
@@ -17,9 +16,9 @@ import {
 import { cn } from "~/utils";
 import { tinykeys } from "tinykeys";
 import { commonMeta } from "~/seo";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Await, useLoaderData } from "@remix-run/react";
 import { fetchSmolNews } from "~/api.server";
-import { json } from "@remix-run/node";
+import { defer, json } from "@remix-run/node";
 import { useStore } from "zustand";
 import { Header } from "~/components/Header";
 
@@ -398,68 +397,73 @@ const Experience = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const loader = async () => {
-  const medias = await fetchSmolNews();
+  const medias = fetchSmolNews();
 
-  return json({ medias });
+  return defer({ medias });
 };
 
 export default function News() {
-  const data = useLoaderData<typeof loader>();
+  const { medias } = useLoaderData<typeof loader>();
 
   return (
-    <StoreProvider medias={data.medias}>
-      <div className="flex h-full flex-col">
-        <Header name="News" />
-        <ClientOnly
-          fallback={
-            <div className="grid h-full place-items-center text-white font-mono text-lg">
-              Loading...
-            </div>
-          }
-        >
-          {() => (
-            <div className="relative flex-1">
-              <Canvas className="canvas">
-                <ambientLight intensity={Math.PI / 2} />
-                <spotLight
-                  position={[10, 10, 10]}
-                  angle={0.15}
-                  penumbra={1}
-                  decay={0}
-                  intensity={Math.PI}
-                />
-                <pointLight
-                  position={[-10, -10, -10]}
-                  decay={0}
-                  intensity={Math.PI}
-                />
-                <Suspense fallback={null}>
-                  <Experience>
-                    <Newspapers />
-                    <Minimap />
-                  </Experience>
-                  <Mailbox />
-                </Suspense>
-                <CameraControls
-                  touches={{
-                    one: 0,
-                    two: 0,
-                    three: 0
-                  }}
-                  mouseButtons={{
-                    left: 0,
-                    right: 0,
-                    wheel: 0,
-                    middle: 0
-                  }}
-                  makeDefault
-                />
-              </Canvas>
-              <Interface />
-            </div>
-          )}
-        </ClientOnly>
-      </div>
-    </StoreProvider>
+    <Suspense
+      fallback={
+        <div className="grid h-full place-items-center text-white font-mono text-lg">
+          Loading...
+        </div>
+      }
+    >
+      <Await resolve={medias}>
+        {(mediaList) => {
+          return (
+            <StoreProvider medias={mediaList}>
+              <div className="flex h-full flex-col">
+                <Header name="News" />
+
+                <div className="relative flex-1">
+                  <Canvas className="canvas">
+                    <ambientLight intensity={Math.PI / 2} />
+                    <spotLight
+                      position={[10, 10, 10]}
+                      angle={0.15}
+                      penumbra={1}
+                      decay={0}
+                      intensity={Math.PI}
+                    />
+                    <pointLight
+                      position={[-10, -10, -10]}
+                      decay={0}
+                      intensity={Math.PI}
+                    />
+                    <Suspense fallback={null}>
+                      <Experience>
+                        <Newspapers />
+                        <Minimap />
+                      </Experience>
+                      <Mailbox />
+                    </Suspense>
+                    <CameraControls
+                      touches={{
+                        one: 0,
+                        two: 0,
+                        three: 0
+                      }}
+                      mouseButtons={{
+                        left: 0,
+                        right: 0,
+                        wheel: 0,
+                        middle: 0
+                      }}
+                      makeDefault
+                    />
+                  </Canvas>
+                  <Interface />
+                </div>
+              </div>
+            </StoreProvider>
+          );
+        }}
+      </Await>
+    </Suspense>
   );
 }

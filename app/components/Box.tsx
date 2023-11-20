@@ -56,21 +56,12 @@ const Loading = ({
   const setInstalledApps = useStore((state) => state.setInstalledApps);
 
   useEffect(() => {
-    const play = async () => {
-      if (playAnimation && !showIntro && !installed) {
-        await animate(width, 100, {
-          duration: 10,
-          ease: "easeOut"
-        });
-
-        const audio = new Audio(SuccessMp3);
-        audio.play();
-        audio.volume = 0.1;
-
-        return () => audio.pause();
-      }
-    };
-    play();
+    if (playAnimation && !showIntro && !installed) {
+      animate(width, 100, {
+        duration: 10,
+        ease: "easeOut"
+      });
+    }
   }, [playAnimation, width, showIntro]);
 
   const widthPx = useMotionTemplate`${width}%`;
@@ -78,6 +69,9 @@ const Loading = ({
   useMotionValueEvent(width, "change", (value) => {
     if (value === 100) {
       setInstalledApps([...installedApps, name]);
+      const audio = new Audio(SuccessMp3);
+      audio.play();
+      audio.volume = 0.1;
     }
   });
 

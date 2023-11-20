@@ -11,6 +11,10 @@ import Cloud2 from "./assets/cloud2.png";
 import { cn } from "~/utils";
 import { fetchWeathers } from "~/api.server";
 import { useLoaderData } from "@remix-run/react";
+import SunnySmol from "./assets/sunnySmol.png";
+import RainySmol from "./assets/rainySmol.png";
+import ColdSmol from "./assets/coldSmol.png";
+import SleepySmol from "./assets/sleepySmol.png";
 
 export const meta = commonMeta;
 
@@ -331,6 +335,32 @@ export default function News() {
   const [date, setDate] = useState(0);
   const today = data?.weathers[date];
 
+  const getWeatherSmol = () => {
+    const isCold = today?.degrees < 50;
+
+    switch (today?.weather) {
+      case "sunny":
+        return { type: SunnySmol, alt: "sunny smol" };
+      case "rainy":
+        return { type: RainySmol, alt: "rainy smol" };
+      case "cloudy":
+      case "fog":
+      case "windy":
+      case "snowy":
+        return {
+          type: isCold ? ColdSmol : SleepySmol,
+          alt: isCold ? "cold smol" : "sleepy smol"
+        };
+      default:
+        return {
+          type: isCold ? ColdSmol : SleepySmol,
+          alt: isCold ? "cold smol" : "sleepy smol"
+        };
+    }
+  };
+
+  const weatherSmol = getWeatherSmol();
+
   return (
     <>
       <Header name="weather" />
@@ -420,11 +450,11 @@ export default function News() {
             >
               {today?.weather}
             </p>
-            <div className="mx-auto mt-12 grid h-48 w-48 place-content-center border border-black">
-              <span className="tracking-wide text-white text-6xl">
-                Placeholder
-              </span>
-            </div>
+            <img
+              className="mt-8 h-40 w-auto sm:h-48"
+              src={weatherSmol.type}
+              alt={weatherSmol.alt}
+            />
             <div className="mx-auto mb-12 mt-12 w-full max-w-xl self-stretch bg-fud p-4 px-4 font-bold font-neuebit">
               <p className="text-white">7 Day Forcast</p>
               <ul className="space-y-2">
