@@ -90,6 +90,8 @@ const Newspaper = (
 
   const texture = useVideoTexture(props.model.url);
 
+  texture.image.muted = true;
+
   const [hovered, setHovered] = useState(false);
 
   useCursor(hovered);
@@ -102,6 +104,7 @@ const Newspaper = (
         paddingBottom: 0.05,
         paddingTop: 0.05
       });
+      texture.image.playsInline = true;
       texture.image.muted = false;
       texture.image.volume = 0.4;
       texture.image.play();
@@ -119,7 +122,11 @@ const Newspaper = (
       ref={ref}
       onPointerOver={(e) => (e.stopPropagation(), setHovered(true))}
       onPointerOut={() => setHovered(false)}
-      onClick={() => setSelected(selected ? null : props.index)}
+      onClick={() => {
+        setSelected(selected ? null : props.index);
+        // need this for mobile safari
+        texture.image.muted = false;
+      }}
       onPointerMissed={() => {
         if (selected) setSelected(null);
       }}

@@ -216,10 +216,11 @@ const Chat = () => {
     "idle"
   );
   const ref = React.useRef<HTMLDivElement | null>(null);
-
+  const buttonRef = React.useRef<HTMLButtonElement | null>(null);
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      event.stopPropagation();
+      if (event.target === buttonRef.current) return;
+
       if (ref.current && !ref.current.contains(event.target as Node)) {
         setActivate("close");
       }
@@ -266,8 +267,9 @@ const Chat = () => {
         />
         <div className="absolute -bottom-6 -right-2 h-12 w-12 select-none rounded-full bg-black/90 [transform:rotateX(75deg)] sm:-bottom-10 sm:h-28 sm:w-28"></div>
         <button
+          ref={buttonRef}
           className="absolute inset-0 z-20 h-full w-full"
-          onClick={() => {
+          onClick={(e) => {
             setActivate(activate === "open" ? "close" : "open");
           }}
         ></button>
