@@ -144,28 +144,19 @@ const Newspapers = ({ w = 2, gap = 0.15 }) => {
   const models = useStore(store, (state) => state.models);
   const selectedModel = useStore(store, (state) => state.selectedModel);
 
-  const hasSelectedModel = selectedModel !== null;
   useEffect(() => {
     let unsubscribe = tinykeys(window, {
       ArrowRight: () => {
-        if (!hasSelectedModel) {
-          next();
-        }
+        next();
       },
       ArrowLeft: () => {
-        if (!hasSelectedModel) {
-          previous();
-        }
+        previous();
       },
       Enter: () => {
-        if (!hasSelectedModel) {
-          next();
-        }
+        next();
       },
       Backspace: () => {
-        if (!hasSelectedModel) {
-          previous();
-        }
+        previous();
       }
     });
     return () => {
