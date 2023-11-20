@@ -112,9 +112,11 @@ export const commonMeta: MetaFunction<unknown, { root: Loader }> = ({
 
   const url = getUrl(requestInfo);
 
+  console.log(`${url}${requestInfo?.path === "/" ? "/index" : ""}.png`);
+
   return getSocialMetas({
     title: generateTitle(location.pathname),
     url: getUrl(requestInfo),
-    image: `${url}.png`
+    image: `${url}${requestInfo?.path === "/" ? "/index" : ""}.png`
   });
 };
