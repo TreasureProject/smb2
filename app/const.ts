@@ -4,8 +4,8 @@ export const SOCIALS = [
     url: "https://discord.gg/smolbrains"
   },
   {
-    name: "twitter",
-    url: "https://twitter.com/smolverse"
+    name: "x_twitter",
+    url: "https://x.com/smolverse"
   },
   {
     name: "trove",

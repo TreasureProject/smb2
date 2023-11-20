@@ -31,4 +31,5 @@ export type IconName =
 	| "twitter"
 	| "windy"
 	| "work"
+	| "x_twitter"
 	| "x"

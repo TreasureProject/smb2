@@ -106,7 +106,7 @@ const Newspaper = (
       });
       texture.image.playsInline = true;
       texture.image.muted = false;
-      texture.image.volume = 0.4;
+      texture.image.volume = 0.1;
       texture.image.play();
     } else {
       controls?.reset(true);

@@ -95,10 +95,10 @@ const Loading = ({
         appInstalled ? "z-10" : "z-50"
       )}
     >
-      <div className="bg-neonPink p-1.5 sm:p-4">
+      <div className="bg-neonPink p-1 sm:p-4">
         <Icon
           name="gear"
-          className="h-8 w-8 animate-[spin_15s_linear_infinite] text-pepe sm:h-16 sm:w-16"
+          className="h-6 w-6 animate-[spin_15s_linear_infinite] text-pepe sm:h-16 sm:w-16"
         />
       </div>
       <div className="mt-4 h-1 w-2/3 bg-gray-300 sm:h-2">
@@ -110,7 +110,7 @@ const Loading = ({
           className="h-full bg-neonPink"
         ></motion.div>
       </div>
-      <span className="mt-2 font-bold text-white font-neuebit text-lg leading-none capsize sm:text-2xl">
+      <span className="mt-2 font-bold text-white font-neuebit leading-none capsize sm:text-2xl">
         {appInstalled ? "Installed!" : "Installing..."}
       </span>
     </motion.div>
@@ -124,8 +124,7 @@ export const Box = (props: Props) => {
   const { children, as, isLoading } = props;
   const [ref, setNodeRef] = useState<HTMLAnchorElement | null>(null);
 
-  // const animate = props.name === "spotlight";
-  const animate = false;
+  const animate = props.name === "spotlight";
   const installedApps = useStore((state) => state.installedApps);
 
   const appInstalled = installedApps.includes(props.name);

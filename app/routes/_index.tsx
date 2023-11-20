@@ -9,7 +9,10 @@ import News from "../assets/apps/News.webp";
 import Tv from "../assets/apps/TV.webp";
 import Fashion from "../assets/apps/Fashion.webp";
 import Reactor from "../assets/apps/reactor.gif";
-import Games from "../assets/apps/Games.webp";
+import Games from "../assets/apps/Games.mp4";
+import Gym from "../assets/apps/Gym.webp";
+import School from "../assets/apps/School.webp";
+
 import {
   AnimatePresence,
   HTMLMotionProps,
@@ -42,15 +45,8 @@ import { commonMeta } from "~/seo";
 import LofiMp3 from "~/assets/lofi.mp3";
 import { useDrag } from "@use-gesture/react";
 import { Icon } from "~/components/Icons";
-import { Link, useLocation } from "@remix-run/react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from "~/components/ui/dialog";
+import { Link } from "@remix-run/react";
+import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { SOCIALS } from "~/const";
 
@@ -614,14 +610,14 @@ export default function Index() {
             opacity: lofiActivated ? 0 : 1
           }}
           className={cn(
-            "grid flex-1 place-items-center px-14 sm:px-12",
+            "grid flex-1 place-items-center px-24 sm:px-12",
             lofiActivated && "pointer-events-none"
           )}
         >
           <Dialog>
             <div
               ref={scope}
-              className="grid grid-cols-2 gap-4 [grid-auto-rows:1fr] sm:grid-cols-4 sm:grid-rows-2 sm:gap-8 sm:[grid-auto-rows:20%]"
+              className="grid grid-cols-2 gap-6 [grid-auto-rows:1fr] sm:grid-cols-5 sm:grid-rows-2 sm:gap-8 sm:[grid-auto-rows:20%]"
             >
               <Box
                 name="news"
@@ -678,6 +674,47 @@ export default function Index() {
                   className="aspect-square h-full w-full"
                 ></img>
               </Box>
+              <Box
+                name="goals"
+                as="link"
+                to="/goals"
+                state={getTransformOrigin}
+                className="relative bg-black"
+              >
+                <div className="relative h-full overflow-hidden">
+                  <span className="relative z-10 ml-2 inline-block text-white text-5xl leading-none capsize sm:ml-4 sm:text-[5rem] lg:text-[9.5rem]">
+                    GOALS
+                  </span>
+                  <video
+                    preload="auto"
+                    playsInline
+                    loop
+                    muted
+                    autoPlay
+                    className="absolute -bottom-1/2 -right-[40%] h-[175%] min-w-[175%] -rotate-[30deg] -scale-x-100 object-cover"
+                  >
+                    <source src={Goals} type="video/mp4" />
+                  </video>
+                </div>
+                <AnimatePresence>
+                  {state === "idle" && (
+                    <motion.img
+                      initial={{
+                        opacity: 0
+                      }}
+                      animate={{
+                        opacity: 1
+                      }}
+                      exit={{
+                        opacity: 0
+                      }}
+                      src={Peek4}
+                      className="absolute left-1/2 top-full z-10 h-8 w-8 -translate-x-1/2 -rotate-180 sm:h-24 sm:w-24"
+                      alt="peek smol"
+                    />
+                  )}
+                </AnimatePresence>
+              </Box>
               <DialogTrigger asChild>
                 <Box
                   name="spotlight"
@@ -685,11 +722,17 @@ export default function Index() {
                   isLoading
                   className="relative bg-white/10"
                 >
-                  <img
-                    src={Games}
-                    alt="Games"
+                  <video
+                    preload="auto"
+                    playsInline
+                    loop
+                    muted
+                    autoPlay
                     className="aspect-square h-full w-full"
-                  ></img>
+                  >
+                    <source src={Games} type="video/mp4" />
+                  </video>
+
                   <AnimatePresence>
                     {state === "idle" && (
                       <motion.img
@@ -703,7 +746,7 @@ export default function Index() {
                           opacity: 0
                         }}
                         src={Peek5}
-                        className="absolute bottom-full right-24 z-10 h-8 w-8 sm:h-24 sm:w-24"
+                        className="absolute bottom-full right-8 z-10 h-8 w-8 sm:right-24 sm:h-24 sm:w-24"
                         alt="peek smol"
                       />
                     )}
@@ -721,7 +764,7 @@ export default function Index() {
                           opacity: 0
                         }}
                         src={Peek2}
-                        className="absolute bottom-4 left-full z-10 h-8 w-8 rotate-90 sm:h-24 sm:w-24"
+                        className="absolute bottom-12 left-full z-10 h-8 w-8 rotate-90 sm:h-24 sm:w-24"
                         alt="peek smol"
                       />
                     )}
@@ -766,45 +809,22 @@ export default function Index() {
                 ></img>
               </Box>
               <Box
-                name="goals"
-                as="link"
-                to="/goals"
-                state={getTransformOrigin}
-                className="relative bg-black"
+                name="school"
+                as="a"
+                href="https://legacy.smolverse.lol/school"
               >
-                <div className="relative h-full overflow-hidden">
-                  <span className="relative z-10 ml-4 inline-block text-white text-7xl leading-none capsize sm:text-[7rem] lg:text-[9.5rem]">
-                    GOALS
-                  </span>
-                  <video
-                    preload="auto"
-                    playsInline
-                    loop
-                    muted
-                    autoPlay
-                    className="absolute -bottom-1/2 -right-[40%] h-[175%] min-w-[175%] -rotate-[30deg] -scale-x-100 object-cover"
-                  >
-                    <source src={Goals} type="video/mp4" />
-                  </video>
-                </div>
-                <AnimatePresence>
-                  {state === "idle" && (
-                    <motion.img
-                      initial={{
-                        opacity: 0
-                      }}
-                      animate={{
-                        opacity: 1
-                      }}
-                      exit={{
-                        opacity: 0
-                      }}
-                      src={Peek4}
-                      className="absolute left-1/2 top-full z-10 h-8 w-8 -translate-x-1/2 -rotate-180 sm:h-24 sm:w-24"
-                      alt="peek smol"
-                    />
-                  )}
-                </AnimatePresence>
+                <img
+                  src={School}
+                  alt="school"
+                  className="aspect-square h-full w-full"
+                ></img>
+              </Box>
+              <Box name="gym" as="a" href="https://legacy.smolverse.lol/gym">
+                <img
+                  src={Gym}
+                  alt="gym"
+                  className="aspect-square h-full w-full"
+                ></img>
               </Box>
               <Box
                 name="rainbow"
@@ -815,7 +835,7 @@ export default function Index() {
                 state={getTransformOrigin}
               >
                 <div className="relative h-full overflow-hidden bg-rage">
-                  <span className="relative z-10 ml-4 inline-block text-white text-7xl leading-none capsize sm:text-[7rem] lg:text-[9.5rem]">
+                  <span className="relative z-10 ml-2 inline-block text-white text-5xl leading-none capsize sm:ml-4 sm:text-[7rem] lg:text-[9.5rem]">
                     REACTOR
                   </span>
                   <img
