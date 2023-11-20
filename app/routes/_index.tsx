@@ -288,7 +288,7 @@ const Chat = () => {
               transform: "scale(0)"
             }}
             ref={ref}
-            className="absolute bottom-0 right-12 w-[calc(100vw-92px)] origin-bottom-right overflow-hidden rounded-[28px] bg-gradient-to-br from-troll to-acid p-4 shadow-[0_4px_12px_rgba(31,33,36,0.2),0_2px_6px_rgba(31,33,36,0.05)] sm:right-28 sm:w-[420px]"
+            className="absolute bottom-0 right-12 w-[calc(100vw-92px)] origin-bottom-right overflow-hidden rounded-[28px] bg-gradient-to-br from-troll to-acid p-4 shadow-[0_4px_12px_rgba(31,33,36,0.2),0_2px_6px_rgba(31,33,36,0.05)] sm:right-28 sm:w-[520px]"
           >
             <div className="flex h-[calc(100vh-160px)] flex-col">
               <div
@@ -415,7 +415,6 @@ const Music = () => {
 
   return (
     <div className="flex items-center space-x-2 rounded-lg bg-slate-100/10 px-3 py-2 backdrop-blur-lg">
-      <img src={Weather} className="h-8 w-8 rounded-md object-cover" alt="" />
       <div className="flex flex-col pr-12">
         <p className="text-white text-xs">Pink Hat Posse</p>
         <p className="text-grayOne text-xs">Smol Funk</p>

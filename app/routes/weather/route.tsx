@@ -15,6 +15,7 @@ import SunnySmol from "./assets/sunnySmol.png";
 import RainySmol from "./assets/rainySmol.png";
 import ColdSmol from "./assets/coldSmol.png";
 import SleepySmol from "./assets/sleepySmol.png";
+import { Icon } from "~/components/Icons";
 
 export const meta = commonMeta;
 
@@ -467,7 +468,15 @@ export default function News() {
                       <p className="font-bold text-white font-neuebit text-3xl leading-none capsize">
                         {weather.weekday}
                       </p>
-                      <p>{weather.weather}</p>
+                      <Icon
+                        name={weather.weather}
+                        className={cn(
+                          "h-6 w-6",
+                          weather.weather === "sunny"
+                            ? "text-yellow-400"
+                            : "text-grayOne"
+                        )}
+                      />
                     </div>
                     <p className="font-bold text-white font-neuebit text-3xl leading-none capsize">
                       {weather.degrees}°

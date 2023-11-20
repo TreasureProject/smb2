@@ -26,7 +26,8 @@ export const options = {
   SUBMIT_FUD: "I would like to submit a complaint.",
   WHY_AM_I_SPECIAL: "Why am I special?",
   OTHER: "Something else.",
-  POKE: "Poke"
+  POKE: "Poke",
+  CHECK_IN: "I’d like to check-in to the school and/or gym."
 };
 
 const fudOptions = {
@@ -341,6 +342,28 @@ const SELECT_OPTION_TRANSITION: TTransition<State, Action> = {
             newMessage("Sure. Let me poke someone...", "bot")
           ]
         };
+      case options.CHECK_IN:
+        return {
+          ...ctx,
+          messages: [
+            ...ctx.messages,
+            newMessage(options.CHECK_IN, "user"),
+            newMessage(
+              "Please check-in at legacy.smolverse.lol in the meantime until the new school/gym is built.",
+              "bot",
+              options,
+              "initial",
+              <a
+                className="text-rage underline decoration-rage"
+                target="_blank"
+                rel="noreferrer"
+                href="https://legacy.smolverse.lol"
+              >
+                legacy.smolverse.lol
+              </a>
+            )
+          ]
+        };
       default: {
         return ctx;
       }
@@ -373,7 +396,7 @@ const transitions: TTransitions<State, Action> = {
     })
   },
   WELCOME: {
-    ...SELECT_OPTION_TRANSITION
+    ...BASE_TRANSITIONS
   },
   HELP_BANANA_PHONE: {
     OTHER_OPTION: (ctx, { option }) => {
