@@ -5,7 +5,7 @@ export function getSocialMetas({
   url,
   title = generateTitle(),
   description = "WE ARE SMOL.",
-  keywords = "treasure, NFT, games, community, imagination, magic",
+  keywords = "treasure, NFT, games, community, imagination, magic, smol, smolbrain, smolverse",
   image
 }: {
   image?: string;
@@ -110,8 +110,11 @@ export const commonMeta: MetaFunction<unknown, { root: Loader }> = ({
   const requestInfo = matches.find((match) => match.id === "root")?.data
     .requestInfo;
 
+  const url = getUrl(requestInfo);
+
   return getSocialMetas({
     title: generateTitle(location.pathname),
-    url: getUrl(requestInfo)
+    url: getUrl(requestInfo),
+    image: `${url}.png`
   });
 };

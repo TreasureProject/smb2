@@ -98,7 +98,7 @@ const Loading = ({
       }
       className={cn(
         "absolute inset-0 flex flex-col items-center justify-center bg-gray-500/20 backdrop-blur-sm",
-        installed ? "z-10" : "z-40"
+        appInstalled ? "z-10" : "z-50"
       )}
     >
       <div className="bg-neonPink p-1.5 sm:p-4">

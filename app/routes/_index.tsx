@@ -52,6 +52,7 @@ import {
   DialogTrigger
 } from "~/components/ui/dialog";
 import { DialogClose } from "@radix-ui/react-dialog";
+import { SOCIALS } from "~/const";
 
 export const meta = commonMeta;
 
@@ -89,8 +90,9 @@ export function MessageRenderer({
 
       await animate(count, message.message.length, {
         type: "tween",
-        duration: 2.5,
-        ease: "easeInOut"
+        // slow down duration based on message length
+        duration: message.message.length * 0.04,
+        ease: "linear"
       });
 
       if (countDivRef.current) {
@@ -465,7 +467,6 @@ export default function Index() {
 
   const showIntro = useStore((state) => state.showIntro);
   const setShowIntro = useStore((state) => state.setShowIntro);
-  const [openHighlightErrorModal, setOpenHighlightErrorModal] = useState(false);
   const y = useSpring(0, {
     stiffness: 5000,
     damping: 200
@@ -605,6 +606,31 @@ export default function Index() {
           </filter>
         </defs>
       </svg>
+
+      <motion.div
+        animate={{
+          opacity: lofiActivated ? 0 : 1
+        }}
+        className={cn(
+          "absolute bottom-12 left-1/2 z-10 flex -translate-x-1/2 space-x-8 sm:space-x-12",
+          lofiActivated && "pointer-events-none"
+        )}
+      >
+        {SOCIALS.map((social) => (
+          <a
+            key={social.name}
+            href={social.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group"
+          >
+            <Icon
+              name={social.name}
+              className="h-10 w-10 text-intro transition-transform group-hover:scale-110 sm:h-12 sm:w-12"
+            />
+          </a>
+        ))}
+      </motion.div>
 
       <motion.div
         animate={{

@@ -23,15 +23,14 @@ export const options = {
   GO_SHOPPING: "Go shopping.",
   SOCIAL_CALENDAR: "Social calendar.",
   DL_SMOLVILLE_GAME: "I need help downloading the Smolville Game.",
-  SUBMIT_FUD: "I would like to submit FUD.",
+  SUBMIT_FUD: "I would like to submit a complaint.",
   WHY_AM_I_SPECIAL: "Why am I special?",
   OTHER: "Something else.",
   POKE: "Poke"
 };
 
 const fudOptions = {
-  PRICE_LOW:
-    "The price has gone down since I bought it, which makes me unhappy.",
+  PRICE_LOW: "I bought an NFT that has gone down in price.",
   GAME_NOT_HERE: "The game is not here yet.",
   OWN_FUD: "Make my own FUD"
 };
@@ -53,7 +52,7 @@ const vitaminPurchaseOptions = {
 };
 
 const helpOptions2 = {
-  KEYS_STICKY: "Keys are Sticky",
+  KEYS_STICKY: "Keys are sticky",
   SERVICE_DISCONNECTED: "My service has been disconnected",
   DOWNLOAD_GAME: "I need help downloading the Smolville Game",
   ORDER_VITAMINS: "Order more Rainbow Treasure vitamins",
@@ -164,9 +163,6 @@ type State = {
       state: "HELP_BANANA_PHONE";
     }
   | {
-      state: "HELP_BANANA_PHONE_NO";
-    }
-  | {
       state: "BANANA.KEYS_STICKY";
     }
   | {
@@ -177,9 +173,6 @@ type State = {
     }
   | {
       state: "BANANA.ORDER_VITAMINS_PROCEED";
-    }
-  | {
-      state: "BANANA.ORDER_VITAMINS_ERROR";
     }
   | {
       state: "FUD_SUBMISSION";
@@ -251,9 +244,9 @@ const SELECT_OPTION_TRANSITION: TTransition<State, Action> = {
             ...ctx.messages,
             newMessage(options.HELP_BANANA_PHONE, "user"),
             newMessage(
-              "If you’re having trouble with your banana phone, I would recommend turning it off then turning it back on. Did this solve the problem?",
+              "I’m sorry to hear that. Could you please explain more about the specific problem you’re having?",
               "bot",
-              helpOptions1
+              helpOptions2
             )
           ]
         };
@@ -264,7 +257,7 @@ const SELECT_OPTION_TRANSITION: TTransition<State, Action> = {
             ...ctx.messages,
             newMessage(options.GO_SHOPPING, "user"),
             newMessage(
-              "Great! We have recently added the shop as its own dedicated app that comes pre-installed with your banana phone. Check the home screen for the “Fashion” app. Is there something else I can help you with?",
+              "Great! We have recently added the shop as its own dedicated app that comes pre-installed with your banana phone. Check the home screen for the “Fashion” app.\n\nIs there something else I can help you with?",
               "bot",
               options,
               "initial"
@@ -292,7 +285,7 @@ const SELECT_OPTION_TRANSITION: TTransition<State, Action> = {
             ...ctx.messages,
             newMessage(options.SOCIAL_CALENDAR, "user"),
             newMessage(
-              "Hmm. It looks like there are no upcoming IRL events scheduled. Smol Brains have held parties in New York, Singapore, and other places, but I’m not seeing any events in the near future. Check back later. If you’d like to have your event added to the Smol Brains social calendar, please contact Smol Preeminent on Twitter or join our Discord to speak to a member of our staff. Is there something else I can help you with?",
+              "Hmm. It looks like there are no upcoming IRL events scheduled. Smol Brains have held parties in New York, Singapore, and other places, but I’m not seeing any events in the near future.\n\nCheck back later. If you’d like to have your event added to the Smol Brains social calendar, please contact Smol Preeminent on Twitter or join our Discord to speak to a member of our staff.\n\n Is there something else I can help you with?",
               "bot",
               options,
               "initial"
@@ -307,7 +300,7 @@ const SELECT_OPTION_TRANSITION: TTransition<State, Action> = {
             ...ctx.messages,
             newMessage(options.SUBMIT_FUD, "user"),
             newMessage(
-              "OK, great. I understand that you would like to create FUD regarding the Smol Brains project. If you’d like, I could go ahead and pre-draft some FUD for you. Click on one of these options to have a pre-drafted complaint submitted to the team, or choose “Make My Own” to write your own.",
+              "I’m sorry to hear that. I will be happy to help you fill out a complaint for the Smolverse Care Team. If you’d like, I could go ahead and pre-draft some FUD for you. Click on one of these options to have a pre-drafted complaint, or choose “Make My Own FUD” to write your own.",
               "bot",
               fudOptions
             )
@@ -385,46 +378,6 @@ const transitions: TTransitions<State, Action> = {
   HELP_BANANA_PHONE: {
     OTHER_OPTION: (ctx, { option }) => {
       switch (option) {
-        case helpOptions1.YES:
-          return {
-            ...ctx,
-            messages: [
-              ...ctx.messages,
-              newMessage(option, "user"),
-              newMessage(
-                "Great! Is there something else I can help you with?",
-                "bot",
-                options,
-                "initial"
-              )
-            ]
-          };
-        case helpOptions1.NO:
-          return {
-            ...ctx,
-            state: "HELP_BANANA_PHONE_NO",
-            messages: [
-              ...ctx.messages,
-              newMessage(option, "user"),
-              newMessage(
-                "I’m sorry to hear that. Could you please explain more about the specific problem you’re having?",
-                "bot",
-                helpOptions2
-              )
-            ]
-          };
-
-        default: {
-          return ctx;
-        }
-      }
-    },
-    ...BASE_TRANSITIONS
-  },
-
-  HELP_BANANA_PHONE_NO: {
-    OTHER_OPTION: (ctx, { option }) => {
-      switch (option) {
         case helpOptions2.KEYS_STICKY:
           return {
             ...ctx,
@@ -489,7 +442,10 @@ const transitions: TTransitions<State, Action> = {
               ...ctx.messages,
               newMessage(option, "user"),
               newMessage(
-                "Smol World is not an officially sanctioned app. It was recently removed in the latest banana phone OS update due to ethical concerns. Smol World – not to be confused with the free-to-play Smolville life sim in development by Darkbright Studios – is a controversial research experiment launched in 2024. Each world consists of a pocket civilization of Miniature Smols, which are digital replicas of Smol Brain consciousness. The Miniature Smols are said to increase in number and create a civilization with light assistance provided by the banana phone user. Re-downloading Smol World will require “jailbreaking” your device. Jailbreaking results in a void of your service warranty, and I will be unable to assist you if you perform this change to your banana phone OS.",
+                `Smol World was recently removed in the latest banana phone OS update.\n\n
+                Smol World – not to be confused with the free-to-play Smolville game – is a controversial TV experiment launched in 2024. The show features 24-7 coverage of Miniature Smols, which are smart-contract based replicas of Smol Brain consciousness. The experiment’s stated aim was to see whether the Miniature Smols could create their own civilization. Viewers are able to lightly guide them in their effort. The Smol Anthropological Society released a report highlighting several concerns with the program, including unhealthy voyeurism on the part of users, and existential risks to Smolverse if the subjects were to become self-aware.\n\n
+                Re-downloading Smol World will require “jailbreaking” your device. Jailbreaking results in a void of your service warranty, and I will be unable to assist you if you perform this change to your banana phone.
+                `,
                 "bot",
                 options,
                 "initial"
@@ -609,55 +565,19 @@ const transitions: TTransitions<State, Action> = {
   "BANANA.ORDER_VITAMINS_PROCEED": {
     VITAMINS_ORDER_ERROR: (ctx) => ({
       ...ctx,
-      state: "BANANA.ORDER_VITAMINS_ERROR",
       messages: [
         ...ctx.messages,
         newMessage(
-          "Uh oh. It looks like your credit card company has rejected the transaction. I would recommend calling them directly. Your Smol Bank account might also be frozen. I cannot tell without having access to your account records. Would you like to provide me access so I can take a closer look?",
+          "Uh oh. It looks like your credit card company has rejected the transaction. I would recommend calling them directly. Your Smol Bank account might also be frozen. I cannot tell without having access to your account records. I’m afraid that there is not much else I can do for you. The only other suggestion I would have is if you are using Rainbow Treasures for medical not cosmetic reasons, you can make your own vitamins by following this recipe:\n\n1 Moon Rock\n1 Teaspoon of Alien Relic\n1 cup Coconut Juice\n\nFinely grind the Moon Rock into powder and place it in a pot. Do the same with the Alien Relic and measure out 1 teaspoon. Stir the teaspoon into the pot with the moon rock. (Preserve the remainder in a warm, dry place.) Add 1 cup of Coconut Juice and stir vigorously. Boil for 4-5 minutes.. Reduce heat to medium for an additional 5-6 minutes. Drain pot. Allow powder to dry for 24 hours then add to Size 0 Smol Bryan Gelatin Capsules.\n\nPlease be advised that homemade R.T. vitamins will vary in potency. Smol Brains are not advised to use homemade remedies for an extended period of time. Monitor yourself for possible overdose symptoms, which include loss of smell, hallucinations, unusual hair growth, impulsive or inappropriate behavior, and NFT bagholding.\n\nIs there something else I can help you with?",
           "bot",
-          helpOptions1
+          options,
+          "initial"
         )
       ]
     }),
-    ...RESET_TRANSITION
-  },
-  "BANANA.ORDER_VITAMINS_ERROR": {
-    OTHER_OPTION: (ctx, { option }) => {
-      switch (option) {
-        case helpOptions1.YES:
-          return {
-            ...ctx,
-            messages: [
-              ...ctx.messages,
-              newMessage(option, "user"),
-              newMessage(
-                "Great! Please enter your Smol Bank account number below.",
-                "bot"
-              )
-            ]
-          };
-        case helpOptions1.NO:
-          return {
-            ...ctx,
-            messages: [
-              ...ctx.messages,
-              newMessage(option, "user"),
-              newMessage(
-                "I see. I’m afraid that there is not much else I can do for you. The only other suggestion I would have is if you are using Rainbow Treasures for medical not cosmetic reasons, you can make your own vitamins by following this recipe:\n\n1 Moon Rock\n1 Teaspoon of Alien Relic\n1 cup Coconut Juice\n\nFinely grind the Moon Rock into powder and place it in a pot. Do the same with the Alien Relic and measure out 1 teaspoon. Stir the teaspoon into the pot with the moon rock. (Preserve the remainder in a warm, dry place.) Add 1 cup of Coconut Juice and stir vigorously. Boil for 4-5 minutes.. Reduce heat to medium for an additional 5-6 minutes. Drain pot. Allow powder to dry for 24 hours then add to Size 0 Smol Bryan Gelatin Capsules.\n\nPlease be advised that homemade R.T. vitamins will vary in potency. Smol Brains are not advised to use homemade remedies for an extended period of time. Monitor yourself for possible overdose symptoms, which include loss of smell, hallucinations, unusual hair growth, impulsive or inappropriate behavior, and NFT bagholding.\n\nIs there something else I can help you with?",
-                "bot",
-                options,
-                "initial"
-              )
-            ]
-          };
-
-        default: {
-          return ctx;
-        }
-      }
-    },
     ...BASE_TRANSITIONS
   },
+
   FUD_SUBMISSION: {
     OTHER_OPTION: (ctx, { option }) => {
       switch (option) {
@@ -704,7 +624,7 @@ const transitions: TTransitions<State, Action> = {
           ...ctx.messages,
           newMessage(message, "user"),
           newMessage(
-            "Great. I have now received your FUD and submitted it to the Smolverse Care Team. They will analyze your complaint and provide the team with written feedback on the exact changes to make to best serve your needs. Thank you for being here! Is there something else I can help you with today?",
+            "Great. I have now received your FUD and submitted it to the Smolverse Care Team. They will analyze your complaint and provide the team with written feedback on the exact changes to make to best serve your needs. Thank you for being here!\n\nIs there something else I can help you with today?",
             "bot",
             options,
             "initial"
@@ -796,7 +716,7 @@ export const useChat = (initialState?: State) => {
 
   const [state, dispatch] = chatReducer;
 
-  const { ws, pokedTargetLocation, users } = useSocket();
+  const { ws, pokedTargetLocation } = useSocket();
 
   useEffect(() => {
     let id: NodeJS.Timeout;
