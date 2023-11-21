@@ -27,7 +27,6 @@ interface AnchorProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
 
 interface LinkProps extends Omit<RemixLinkProps, "state"> {
   as: "link";
-  state: (node: HTMLAnchorElement | null) => any;
 }
 
 type Props = (DivProps | ButtonProps | AnchorProps | LinkProps) & {
@@ -194,13 +193,12 @@ export const Box = (props: Props) => {
     );
   }
   if (as === "link") {
-    const { className: _, as: __, isLoading: ___, state, ...rest } = props;
+    const { className: _, as: __, isLoading: ___, ...rest } = props;
     const disabled = props["aria-disabled"] === "true";
     return (
       <Link
         ref={setNodeRef}
         className={cn(className, disabled && "pointer-events-none")}
-        state={state(ref)}
         {...rest}
       >
         <div className="relative h-full w-full">{children}</div>

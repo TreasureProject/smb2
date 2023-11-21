@@ -1,6 +1,6 @@
 import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import React, { useEffect, useRef, useState } from "react";
-import { cn, getTransformOrigin } from "~/utils";
+import { cn } from "~/utils";
 import { Box } from "~/components/Box";
 import Weather from "../assets/apps/Weather.webp";
 import Gallery from "../assets/apps/Gallery.webp";
@@ -180,27 +180,6 @@ export function MessageRenderer({
     </div>
   );
 }
-
-export const links: LinksFunction = () => [
-  {
-    rel: "preload",
-    href: SmolMusicVideo,
-    as: "video",
-    type: "video/mp4"
-  },
-  {
-    rel: "preload",
-    href: LofiMp3,
-    as: "audio",
-    type: "aduio/mpeg"
-  },
-  {
-    rel: "preload",
-    href: ErrorMp3,
-    as: "audio",
-    type: "aduio/mpeg"
-  }
-];
 
 // million-ignore
 const Chat = () => {
@@ -619,13 +598,7 @@ export default function Index() {
               ref={scope}
               className="grid grid-cols-2 gap-6 [grid-auto-rows:1fr] sm:grid-cols-5 sm:grid-rows-2 sm:gap-8 sm:[grid-auto-rows:20%]"
             >
-              <Box
-                name="news"
-                as="link"
-                to="/news"
-                state={getTransformOrigin}
-                className="relative"
-              >
+              <Box name="news" as="link" to="/news" className="relative">
                 <img
                   src={News}
                   alt="News"
@@ -650,24 +623,14 @@ export default function Index() {
                   )}
                 </AnimatePresence>
               </Box>
-              <Box
-                name="gallery"
-                as="link"
-                to="/gallery"
-                state={getTransformOrigin}
-              >
+              <Box name="gallery" as="link" to="/gallery">
                 <img
                   src={Gallery}
                   alt="gallery"
                   className="aspect-square h-full w-full"
                 ></img>
               </Box>
-              <Box
-                name="weather"
-                as="link"
-                to="/weather"
-                state={getTransformOrigin}
-              >
+              <Box name="weather" as="link" to="/weather">
                 <img
                   src={Weather}
                   alt="art"
@@ -678,7 +641,6 @@ export default function Index() {
                 name="goals"
                 as="link"
                 to="/goals"
-                state={getTransformOrigin}
                 className="relative bg-black"
               >
                 <div className="relative h-full overflow-hidden">
@@ -801,7 +763,7 @@ export default function Index() {
                   )}
                 </AnimatePresence>
               </Box>
-              <Box name="tv" as="link" to="/tv" state={getTransformOrigin}>
+              <Box name="tv" as="link" to="/tv">
                 <img
                   src={Tv}
                   alt="tv"
@@ -832,7 +794,6 @@ export default function Index() {
                 aria-disabled="true"
                 as="link"
                 to="/smolspace"
-                state={getTransformOrigin}
               >
                 <div className="relative h-full overflow-hidden bg-rage">
                   <span className="relative z-10 ml-2 inline-block text-white text-5xl leading-none capsize sm:ml-4 sm:text-[6rem] lg:text-[7.5rem]">

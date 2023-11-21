@@ -27,7 +27,8 @@ export const options = {
   WHY_AM_I_SPECIAL: "Why am I special?",
   OTHER: "Something else.",
   POKE: "Poke",
-  CHECK_IN: "I’d like to check-in to the school and/or gym."
+  ENROLL: "Enroll in online classes",
+  WORKOUT: "Schedule a workout"
 };
 
 const fudOptions = {
@@ -342,14 +343,14 @@ const SELECT_OPTION_TRANSITION: TTransition<State, Action> = {
             newMessage("Sure. Let me poke someone...", "bot")
           ]
         };
-      case options.CHECK_IN:
+      case options.ENROLL:
         return {
           ...ctx,
           messages: [
             ...ctx.messages,
-            newMessage(options.CHECK_IN, "user"),
+            newMessage(options.ENROLL, "user"),
             newMessage(
-              "Please check-in at legacy.smolverse.lol in the meantime until the new school/gym is built.",
+              "Great! Enroll here:",
               "bot",
               options,
               "initial",
@@ -357,9 +358,31 @@ const SELECT_OPTION_TRANSITION: TTransition<State, Action> = {
                 className="text-rage underline decoration-rage"
                 target="_blank"
                 rel="noreferrer"
-                href="https://legacy.smolverse.lol"
+                href="https://legacy.smolverse.lol/school"
               >
-                legacy.smolverse.lol
+                School
+              </a>
+            )
+          ]
+        };
+      case options.WORKOUT:
+        return {
+          ...ctx,
+          messages: [
+            ...ctx.messages,
+            newMessage(options.ENROLL, "user"),
+            newMessage(
+              "Great! Head to the gym here:",
+              "bot",
+              options,
+              "initial",
+              <a
+                className="text-rage underline decoration-rage"
+                target="_blank"
+                rel="noreferrer"
+                href="https://legacy.smolverse.lol/gym"
+              >
+                Gym
               </a>
             )
           ]
