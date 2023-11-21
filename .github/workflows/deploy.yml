@@ -20,16 +20,10 @@ jobs:
       - name: ⎔ Setup node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20
 
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
-
-      - name: Generate code
-        run: npm run codegen
-        env:
-          CONTENTFUL_ENDPOINT: ${{ secrets.CONTENTFUL_ENDPOINT }}
-          CONTENTFUL_DELIVERY_TOKEN: ${{ secrets.CONTENTFUL_DELIVERY_TOKEN }}
 
       - name: 🔎 Type check
         run: npm run typecheck --if-present
