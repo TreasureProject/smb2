@@ -90,21 +90,20 @@ const Newspaper = (
 
   const texture = useVideoTexture(props.model.url);
 
-  texture.image.muted = true;
-
   const [hovered, setHovered] = useState(false);
 
   useCursor(hovered);
 
   useEffect(() => {
     if (selected && ref.current) {
+      texture.image.playsInline = true;
+
       controls?.fitToBox(ref.current, true, {
         paddingLeft: 0.05,
         paddingRight: 0.05,
         paddingBottom: 0.05,
         paddingTop: 0.05
       });
-      texture.image.playsInline = true;
       texture.image.muted = false;
       texture.image.volume = 0.1;
       texture.image.play();
