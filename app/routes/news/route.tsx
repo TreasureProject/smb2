@@ -105,7 +105,7 @@ const Newspaper = (
         paddingTop: 0.05
       });
       texture.image.muted = false;
-      texture.image.volume = 0.1;
+      texture.image.volume = 0.03;
       texture.image.play();
     } else {
       controls?.reset(true);
