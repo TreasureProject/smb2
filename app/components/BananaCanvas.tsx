@@ -52,6 +52,13 @@ function Banana({
       (position.rY += 0.001),
       (position.rZ += 0.001)
     );
+    // convert above to use delta
+    ref.current?.rotation.set(
+      (position.rX += konamiActivated ? delta * 3 : delta / 120),
+      (position.rY += konamiActivated ? delta * 3 : delta / 120),
+      (position.rZ += konamiActivated ? delta * 3 : delta / 120)
+    );
+
     ref.current?.position.set(
       position.x * width,
       (position.y += konamiActivated ? delta * 10 : delta / 2),
