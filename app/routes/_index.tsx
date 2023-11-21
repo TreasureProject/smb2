@@ -835,7 +835,7 @@ export default function Index() {
                 state={getTransformOrigin}
               >
                 <div className="relative h-full overflow-hidden bg-rage">
-                  <span className="relative z-10 ml-2 inline-block text-white text-5xl leading-none capsize sm:ml-4 sm:text-[7rem] lg:text-[9.5rem]">
+                  <span className="relative z-10 ml-2 inline-block text-white text-5xl leading-none capsize sm:ml-4 sm:text-[6rem] lg:text-[7.5rem]">
                     REACTOR
                   </span>
                   <img
