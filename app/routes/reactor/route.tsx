@@ -3,6 +3,10 @@ import smol_brian from "./smol_brian.mp4";
 import Tv from "./tv.png";
 import { motion, useAnimate } from "framer-motion";
 import "./reactor.css";
+import { commonMeta } from "~/seo";
+import { Header } from "~/components/Header";
+
+export const meta = commonMeta;
 
 // million-ignore
 const GreenScreenVideo = ({ src }: { src: string }) => {
@@ -128,8 +132,11 @@ const GreenScreenVideo = ({ src }: { src: string }) => {
 
 export default function Reactor() {
   return (
-    <div className="grid h-full min-h-full place-items-center">
-      <GreenScreenVideo src={smol_brian} />
+    <div className="flex h-full min-h-full flex-col">
+      <Header name="Reactor" />
+      <div className="grid flex-1 place-items-center">
+        <GreenScreenVideo src={smol_brian} />
+      </div>
     </div>
   );
 }

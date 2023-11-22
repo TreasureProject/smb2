@@ -30,11 +30,6 @@ import { cn, getPublicKeys } from "./utils";
 import iconHref from "./components/icons/sprite.svg";
 import { ResponsiveProvider } from "./contexts/responsive";
 import { EasterEggProvider, useEasterEgg } from "./contexts/easteregg";
-import SmolMusicVideo from "~/assets/smol-musicvideo.mp4";
-import ErrorMp3 from "~/assets/error.mp3";
-import LofiMp3 from "~/assets/lofi.mp3";
-import Games from "./assets/apps/Games.mp4";
-import Goals from "./assets/apps/Goals.mp4";
 
 import "./tailwind.css";
 
@@ -51,36 +46,6 @@ export const links: LinksFunction = () => [
     href: iconHref,
     as: "image",
     type: "image/svg+xml"
-  },
-  {
-    rel: "preload",
-    href: SmolMusicVideo,
-    as: "video",
-    type: "video/mp4"
-  },
-  {
-    rel: "preload",
-    href: Goals,
-    as: "video",
-    type: "video/mp4"
-  },
-  {
-    rel: "preload",
-    href: Games,
-    as: "video",
-    type: "video/mp4"
-  },
-  {
-    rel: "preload",
-    href: LofiMp3,
-    as: "audio",
-    type: "aduio/mpeg"
-  },
-  {
-    rel: "preload",
-    href: ErrorMp3,
-    as: "audio",
-    type: "aduio/mpeg"
   }
 ];
 

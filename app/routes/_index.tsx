@@ -54,6 +54,39 @@ export const meta = commonMeta;
 
 const staggerMenuItems = stagger(0.1, { startDelay: 0.15 });
 
+export const links: LinksFunction = () => [
+  {
+    rel: "preload",
+    href: SmolMusicVideo,
+    as: "video",
+    type: "video/mp4"
+  },
+  {
+    rel: "preload",
+    href: Goals,
+    as: "video",
+    type: "video/mp4"
+  },
+  {
+    rel: "preload",
+    href: Games,
+    as: "video",
+    type: "video/mp4"
+  },
+  {
+    rel: "preload",
+    href: LofiMp3,
+    as: "audio",
+    type: "aduio/mpeg"
+  },
+  {
+    rel: "preload",
+    href: ErrorMp3,
+    as: "audio",
+    type: "aduio/mpeg"
+  }
+];
+
 // million-ignore
 export function MessageRenderer({
   message,
