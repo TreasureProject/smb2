@@ -100,22 +100,3 @@
     3px 100%;
   pointer-events: none;
 }
-
-.rainbow-background {
-  background: linear-gradient(
-    to right,
-    violet,
-    indigo,
-    blue,
-    green,
-    yellow,
-    orange,
-    red
-  );
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
-}

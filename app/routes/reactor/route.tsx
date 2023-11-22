@@ -109,10 +109,10 @@ const GreenScreenVideo = ({ src }: { src: string }) => {
           y: -1500
         }}
         ref={scope}
-        className="relative inline-block w-80 sm:w-[40rem]"
+        className="relative inline-block w-80 overflow-hidden sm:w-[30rem]"
       >
         <button
-          className="absolute inset-0 z-30 aspect-square"
+          className="absolute inset-0 z-30 h-full w-full"
           onClick={() => {
             if (playing) {
               videoRef.current?.pause();
