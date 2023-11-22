@@ -79,28 +79,16 @@ export default {
       },
 
       keyframes: {
-        marquee: {
-          "0%": { transform: "translateX(0%)" },
-          "100%": { transform: "translateX(-100%)" }
-        },
-        marquee2: {
-          "0%": { transform: "translateX(100%)" },
-          "100%": { transform: "translateX(0%)" }
-        },
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" }
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" }
+        noiseAnim: {
+          "0%": {
+            clipPath: "inset(40% 0 61% 0)"
+          },
+          "100%": { clipPath: "inset(58% 0 43% 0)" }
         }
       },
       animation: {
-        marquee: "marquee 15s linear infinite",
-        marquee2: "marquee2 15s linear infinite",
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out"
+        noiseAnim1: "noiseAnim 2s infinite linear alternate-reverse",
+        noiseAnim2: "noiseAnim 3s infinite linear alternate-reverse"
       }
     }
   },

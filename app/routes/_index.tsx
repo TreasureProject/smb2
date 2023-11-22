@@ -788,7 +788,7 @@ export default function Index() {
                   className="aspect-square h-full w-full"
                 ></img>
               </Box>
-              <Box name="rainbow" isLoading>
+              <Box name="rainbow" as="link" to="/reactor">
                 <div className="relative h-full overflow-hidden bg-rage">
                   <span className="relative z-10 ml-2 inline-block text-white text-5xl leading-none capsize sm:ml-4 sm:text-[6rem] lg:text-[7.5rem]">
                     REACTOR
