@@ -395,16 +395,6 @@ function Comp({
     });
   }, [setDanger]);
 
-  useEffect(() => {
-    setInterval(() => {
-      Body.applyForce(
-        engine.current.world.bodies[0],
-        { x: 0, y: 0 },
-        { x: 0.001, y: 0 }
-      );
-    });
-  }, []);
-
   return (
     <div
       onClick={(e) => {
