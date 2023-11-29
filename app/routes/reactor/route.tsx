@@ -15,21 +15,14 @@ import { ConnectKitButton } from "connectkit";
 import reactor from "./reactor.mp4";
 import runningMp3 from "./running.mp3";
 import errorMp3 from "./error.mp3";
-import {
-  Engine,
-  Body,
-  Render,
-  Bodies,
-  World,
-  Runner,
-  Composite,
-  Events
-} from "matter-js";
+import { Engine, Body, Render, Bodies, World, Runner, Events } from "matter-js";
 import { cn } from "~/utils";
 import belt from "./belt.jpg";
 import beltAnimation from "./belt-animated.gif";
 
 export const meta = commonMeta;
+
+const NORMAL_TIME = 3;
 
 // million-ignore
 const GreenScreenVideo = ({ src }: { src: string }) => {
@@ -152,8 +145,6 @@ const GreenScreenVideo = ({ src }: { src: string }) => {
     </div>
   );
 };
-
-const NORMAL_TIME = 3;
 
 // million-ignore
 const ReactorVideo = ({ src }: { src: string }) => {
@@ -306,11 +297,6 @@ const ReactorVideo = ({ src }: { src: string }) => {
   );
 };
 
-interface WindowSize {
-  width: number;
-  height: number;
-}
-
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
@@ -342,13 +328,15 @@ function Comp({
   videoRef: React.MutableRefObject<HTMLVideoElement | null>;
   setDanger: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const scene = useRef();
+  const scene = useRef<HTMLDivElement | null>(null);
   const engine = useRef(Engine.create());
   const runner = useRef(Runner.create());
   const sensor = useRef<Body | null>(null);
 
   const { width, height } = useWindowSize();
   useEffect(() => {
+    if (!scene.current) return;
+
     const cw = width;
     const ch = height;
 
@@ -381,11 +369,9 @@ function Comp({
 
     return () => {
       Render.stop(render);
-      World.clear(engine.current.world);
+      World.clear(engine.current.world, false);
       Engine.clear(engine.current);
       render.canvas.remove();
-      render.canvas = null;
-      render.context = null;
       render.textures = {};
     };
   }, [width, height]);
