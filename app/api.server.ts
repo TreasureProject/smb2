@@ -3,7 +3,7 @@ import { client } from "./routes/weather/client.server";
 import { Weather } from "./types";
 
 const BASE_URL =
-  (process.env.CHAIN || "arbgoerli") === "arbgoerli"
+  (process.env.CHAIN || "arbsepolia") === "arbsepolia"
     ? "trove-api-dev"
     : "trove-api";
 

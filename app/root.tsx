@@ -37,6 +37,10 @@ import NProgress from "nprogress";
 import { BananaCanvas } from "./components/BananaCanvas";
 import { getDomainUrl } from "./seo";
 import { SocketContextProvider, useSocket } from "./contexts/socket";
+import { WagmiConfig, createConfig, configureChains, mainnet } from "wagmi";
+
+import { ConnectKitProvider, getDefaultConfig } from "connectkit";
+import { arbitrum, arbitrumSepolia } from "viem/chains";
 
 NProgress.settings.template = `<div class="bar" role="bar"><div class="smol"></div><div class="peg"></div></div><div class="spinner" role="spinner"><div class="spinner-icon"></div></div>`;
 
@@ -105,59 +109,153 @@ export default function App() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
+  const [config] = useState(() =>
+    createConfig(
+      getDefaultConfig({
+        appName: "SMOL",
+        alchemyId: data.ENV.PUBLIC_ALCHEMY_KEY,
+        walletConnectProjectId: data.ENV.PUBLIC_WALLETCONNECT_PROJECT_ID,
+        appDescription: "WE ARE SMOL.",
+        appUrl: "https://smolverse.lol",
+        appIcon: "https://smolverse.lol/favicon-32x32.png",
+        chains: [
+          ...(data.ENV.PUBLIC_ENABLE_TESTNETS === "true"
+            ? [arbitrumSepolia]
+            : []),
+          arbitrum
+        ]
+      })
+    )
+  );
+
   return (
-    <EasterEggProvider>
-      <html lang="en">
-        <head>
-          <meta charSet="utf-8" />
-          <meta name="viewport" content="width=device-width,initial-scale=1" />
-          <link
-            rel="apple-touch-icon"
-            sizes="180x180"
-            href="/apple-touch-icon.png"
-          />
-          <link
-            rel="icon"
-            type="image/png"
-            sizes="32x32"
-            href="/favicon-32x32.png"
-          />
-          <link
-            rel="icon"
-            type="image/png"
-            sizes="16x16"
-            href="/favicon-16x16.png"
-          />
-          <link rel="manifest" href="/site.webmanifest" />
-          <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
-          <meta name="msapplication-TileColor" content="#da532c" />
-          <meta name="theme-color" content="#ffffff" />
-          <Meta />
-          <Links />
-        </head>
-        <body
-          className={cn(
-            "relative h-[100dvh] bg-[url(/img/stars.webp)] bg-repeat antialiased [overscroll-behavior:none]",
-            isRoot || overflowHide ? "overflow-hidden" : null
-          )}
-          onMouseMove={({ currentTarget, clientX, clientY }) => {
-            const { left, top } = currentTarget.getBoundingClientRect();
-            mouseX.set(clientX - left - 40);
-            mouseY.set(clientY - top - 40);
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/apple-touch-icon.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
+        <Meta />
+        <Links />
+      </head>
+      <body
+        className={cn(
+          "relative h-[100dvh] bg-[url(/img/stars.webp)] bg-repeat antialiased [overscroll-behavior:none]",
+          isRoot || overflowHide ? "overflow-hidden" : null
+        )}
+        onMouseMove={({ currentTarget, clientX, clientY }) => {
+          const { left, top } = currentTarget.getBoundingClientRect();
+          mouseX.set(clientX - left - 40);
+          mouseY.set(clientY - top - 40);
+        }}
+      >
+        <EasterEggProvider>
+          <WagmiConfig config={config}>
+            <ConnectKitProvider
+              customTheme={{
+                "--ck-font-family": "PPFormula, sans-serif",
+                "--ck-body-color": "#ffffff",
+                "--ck-border-radius": "0px",
+                "--ck-overlay-background": "rgba(230, 223, 115, 0.1)",
+                "--ck-overlay-backdrop-filter": "blur(8px)",
+                "--ck-primary-button-color": "#ffffff",
+                "--ck-primary-button-background": "#1938F2",
+                "--ck-primary-button-box-shadow":
+                  "inset 0px 0px 0px 1px #d2bbce",
+                "--ck-primary-button-border-radius": "0px",
+                "--ck-primary-button-font-weight": "600",
+                "--ck-primary-button-hover-color": "#ffffff",
+                "--ck-primary-button-hover-background": "#1938F2",
+                "--ck-primary-button-hover-box-shadow":
+                  "0px 0px 0px 3px #1839f2b8",
+                "--ck-primary-button-active-background": "#1938F2",
+                "--ck-primary-button-active-box-shadow":
+                  "inset 0px 0px 0px 2px #d2bbce",
+                "--ck-secondary-button-color": "#000000",
+                "--ck-secondary-button-background": "#F8FF1D",
+                "--ck-secondary-button-box-shadow": "0px 0px 0px 2px #F8FF1D",
+                "--ck-secondary-button-border-radius": "0px",
+                "--ck-secondary-button-font-weight": "800",
+                "--ck-secondary-button-hover-color": "#000000",
+                "--ck-secondary-button-hover-background": "#F8FF1D",
+                "--ck-secondary-button-hover-box-shadow":
+                  "0px 0px 0px 4px #F8FF1D",
+                "--ck-secondary-button-active-background": "#F8FF1D",
+                "--ck-secondary-button-active-box-shadow":
+                  "inset 0px 0px 0px 2px #d2bbce",
+                "--ck-tertiary-button-color": "#d2bbce",
+                "--ck-tertiary-button-background": "#fff",
+                "--ck-tertiary-button-box-shadow":
+                  "inset 0px 0px 0px 1px #d2bbce",
+                "--ck-tertiary-button-border-radius": "10px",
+                "--ck-tertiary-button-font-weight": "100",
+                "--ck-tertiary-button-hover-color": "#ead3e6",
+                "--ck-tertiary-button-hover-background": "#fff",
+                "--ck-tertiary-button-hover-box-shadow":
+                  "inset 0px 0px 0px 1px #ead3e6",
+                "--ck-modal-box-shadow": "0px 2px 0px 1px #bf30ac",
+                "--ck-body-background": "#bf30ac",
+                "--ck-body-background-secondary": "#bf30ac",
+                "--ck-body-background-tertiary": "#bf30ac",
+                "--ck-body-color-muted": "#ffffff",
+                "--ck-body-color-muted-hover": "#ffffff",
+                "--ck-body-color-danger": "#ffffff",
+                "--ck-body-color-valid": "#ffffff",
+                "--ck-modal-heading-font-weight": "400",
+                "--ck-focus-color": "#ffffff",
+                "--ck-body-action-color": "#ffffff",
+                "--ck-body-divider": "#bf30ac",
+                "--ck-qr-dot-color": "#ffffff",
+                "--ck-qr-background": "#503bbf",
+                "--ck-qr-border-color": "#927fef",
+                "--ck-qr-border-radius": "0px",
+                "--ck-tooltip-color": "#ffffff",
+                "--ck-tooltip-background": "#503bbf",
+                "--ck-tooltip-background-secondary": "#503bbf",
+                "--ck-tooltip-shadow": "0px 3px 0px 1px #503bbf",
+                "--ck-spinner-color": "#ffffff",
+                "--ck-recent-badge-color": "#000000",
+                "--ck-recent-badge-background": "#F8FF1D",
+                "--ck-recent-badge-border-radius": "0px",
+                "--ck-body-disclaimer-color": "#ffffff",
+                "--ck-body-disclaimer-link-color": "#ffffff",
+                "--ck-body-disclaimer-link-hover-color": "#ffffff",
+                "--ck-body-disclaimer-background": "#bf30ac"
+              }}
+            >
+              <AppInner mouseX={mouseX} mouseY={mouseY} />
+            </ConnectKitProvider>
+          </WagmiConfig>
+        </EasterEggProvider>
+        <ScrollRestoration />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(data?.ENV)}`
           }}
-        >
-          <AppInner mouseX={mouseX} mouseY={mouseY} />
-          <ScrollRestoration />
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `window.ENV = ${JSON.stringify(data?.ENV)}`
-            }}
-          />
-          <LiveReload />
-          <Scripts />
-        </body>
-      </html>
-    </EasterEggProvider>
+        />
+        <LiveReload />
+        <Scripts />
+      </body>
+    </html>
   );
 }
 
