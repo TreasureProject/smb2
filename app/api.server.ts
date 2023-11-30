@@ -7,7 +7,7 @@ const BASE_URL =
     ? "trove-api-dev"
     : "trove-api";
 
-export type TroveSmolToken = {
+export type TroveToken = {
   contractType: "ERC721";
   collectionAddr: string;
   tokenId: string;
@@ -33,6 +33,11 @@ export type TroveSmolToken = {
       score: number;
     }[];
   };
+};
+
+export type TroveTokensForUserApiResponse = {
+  tokens: TroveToken[];
+  nextPageKey: string | null;
 };
 
 const LIMIT = "117";
@@ -119,7 +124,7 @@ export const fetchSmols = async (page: number) =>
 
       const data = await res.json();
 
-      return data.tokens as TroveSmolToken[];
+      return data.tokens as TroveToken[];
     }
   });
 
@@ -143,7 +148,7 @@ export const searchSmol = async (tokenId: string) =>
 
         const data = await res.json();
 
-        return data.tokens as TroveSmolToken[] | undefined;
+        return data.tokens as TroveToken[] | undefined;
       }
     }
   });
@@ -223,3 +228,72 @@ export const fetchSmolNews = async () =>
       return data.data.newsSmolCollection.items[0].videosCollection.items;
     }
   });
+
+let collectionsToFetch = [
+  "swol-jrs",
+  "smol-jrs",
+  "smol-cars",
+  "swolercycles",
+  "smol-treasures",
+  "smol-brains",
+  "smol-loot"
+] as const;
+
+export type TCollectionsToFetch = typeof collectionsToFetch;
+
+if (process.env.NODE_ENV === "development") {
+  collectionsToFetch = [
+    // @ts-ignore
+    "swol-jrs-as",
+    // @ts-ignore
+    "smol-jrs-as",
+    // @ts-ignore
+    "smol-cars-as",
+    // @ts-ignore
+    "swolercycles-as",
+    // @ts-ignore
+    "smol-treasures-as",
+    // @ts-ignore
+    "smol-brains-as",
+    // @ts-ignore
+    "smol-loot-as"
+  ];
+}
+
+export const fetchTroveTokensForUser = async (userAddress: string) => {
+  const res = await fetch(
+    `https://${BASE_URL}.treasure.lol/tokens-for-user-page`,
+    {
+      method: "POST",
+      headers: {
+        "X-API-Key": process.env.PUBLIC_TROVE_API_KEY
+      },
+      body: JSON.stringify({
+        slugs: collectionsToFetch,
+        chains: [process.env.CHAIN],
+        userAddress
+      })
+    }
+  );
+
+  const data = (await res.json()) as TroveTokensForUserApiResponse;
+
+  const collections = data.tokens.reduce<{
+    [key in TCollectionsToFetch[number]]?: TroveToken[];
+  }>((acc, token) => {
+    const collectionUrlSlug = (
+      process.env.NODE_ENV === "development"
+        ? token.collectionUrlSlug.replace("-as", "")
+        : token.collectionUrlSlug
+    ) as (typeof collectionsToFetch)[number];
+
+    if (!acc[collectionUrlSlug]) {
+      acc[collectionUrlSlug] = [];
+    }
+
+    acc[collectionUrlSlug]?.push(token);
+    return acc;
+  }, {});
+
+  return collections;
+};

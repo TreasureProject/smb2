@@ -5,146 +5,168 @@ import {
   useRef,
   useState
 } from "react";
-import smol_brian from "./smol_brian.mp4";
-import Tv from "./tv.png";
-import { motion, useAnimate } from "framer-motion";
+import smol_brian from "./assets/smol_brian.mp4";
+import Tv from "./assets/tv.png";
+import {
+  HTMLMotionProps,
+  animate,
+  motion,
+  useAnimate,
+  useMotionValue,
+  useTransform
+} from "framer-motion";
 import "./reactor.css";
 import { commonMeta } from "~/seo";
 import { Header } from "~/components/Header";
 import { ConnectKitButton } from "connectkit";
-import reactor from "./reactor.mp4";
-import runningMp3 from "./running.mp3";
-import errorMp3 from "./error.mp3";
+import reactor from "./assets/reactor.mp4";
+import runningMp3 from "./assets/running.mp3";
+import errorMp3 from "./assets/error.mp3";
 import { Engine, Body, Render, Bodies, World, Runner, Events } from "matter-js";
 import { cn } from "~/utils";
-import belt from "./belt.jpg";
-import beltAnimation from "./belt-animated.gif";
+import belt from "./assets/belt.jpg";
+import beltAnimation from "./assets/belt-animated.gif";
+import { LinksFunction } from "@remix-run/node";
+import { useFetcher } from "@remix-run/react";
+import { useResponsive } from "~/contexts/responsive";
+import scientist from "./assets/scientist.png";
+import { ReactorProvider, useReactor } from "./provider";
+import { useAccount } from "wagmi";
+
+export const links: LinksFunction = () => [
+  {
+    rel: "preload",
+    href: beltAnimation,
+    as: "image",
+    type: "image/gif"
+  }
+];
 
 export const meta = commonMeta;
 
 const NORMAL_TIME = 3;
 
 // million-ignore
-const GreenScreenVideo = ({ src }: { src: string }) => {
-  const [scope, animate] = useAnimate();
+// const GreenScreenVideo = ({ src }: { src: string }) => {
+//   const [scope, animate] = useAnimate();
 
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+//   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [playing, setPlaying] = useState(false);
+//   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+//   const [playing, setPlaying] = useState(false);
 
-  useEffect(() => {
-    const updateCanvas = () => {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
+//   useEffect(() => {
+//     const updateCanvas = () => {
+//       const video = videoRef.current;
+//       const canvas = canvasRef.current;
 
-      if (!canvas || !video) return;
+//       if (!canvas || !video) return;
 
-      const ctx = canvas.getContext("2d");
+//       const ctx = canvas.getContext("2d");
 
-      if (!ctx || video.paused || video.ended) return;
+//       if (!ctx || video.paused || video.ended) return;
 
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+//       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      let frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      let l = frame.data.length / 4;
+//       let frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+//       let l = frame.data.length / 4;
 
-      for (let i = 0; i < l; i++) {
-        let r = frame.data[i * 4 + 0];
-        let g = frame.data[i * 4 + 1];
-        let b = frame.data[i * 4 + 2];
-        const greenTolerance = 40;
-        if (
-          g > 85.7 - greenTolerance &&
-          g < 85.7 + greenTolerance &&
-          r < 45 &&
-          b < 45
-        ) {
-          frame.data[i * 4 + 3] = 0;
-        }
-      }
+//       for (let i = 0; i < l; i++) {
+//         let r = frame.data[i * 4 + 0];
+//         let g = frame.data[i * 4 + 1];
+//         let b = frame.data[i * 4 + 2];
+//         const greenTolerance = 40;
+//         if (
+//           g > 85.7 - greenTolerance &&
+//           g < 85.7 + greenTolerance &&
+//           r < 45 &&
+//           b < 45
+//         ) {
+//           frame.data[i * 4 + 3] = 0;
+//         }
+//       }
 
-      ctx.putImageData(frame, 0, 0);
-      requestAnimationFrame(updateCanvas);
-    };
+//       ctx.putImageData(frame, 0, 0);
+//       requestAnimationFrame(updateCanvas);
+//     };
 
-    if (playing) {
-      requestAnimationFrame(updateCanvas);
-    }
-  }, [playing]);
+//     if (playing) {
+//       requestAnimationFrame(updateCanvas);
+//     }
+//   }, [playing]);
 
-  useEffect(() => {
-    const animation = async () => {
-      await animate(
-        scope.current,
-        {
-          y: [-1500, 0]
-        },
-        {
-          duration: 0.3,
-          ease: "linear"
-        }
-      );
+//   useEffect(() => {
+//     const animation = async () => {
+//       await animate(
+//         scope.current,
+//         {
+//           y: [-1500, 0]
+//         },
+//         {
+//           duration: 0.3,
+//           ease: "linear"
+//         }
+//       );
 
-      await animate(
-        scope.current,
-        {
-          rotate: [12, 0, -4, 0],
-          transformOrigin: ["0% 100%", "100% 100%"]
-        },
-        {
-          duration: 0.1,
-          ease: "linear"
-        }
-      );
-    };
+//       await animate(
+//         scope.current,
+//         {
+//           rotate: [12, 0, -4, 0],
+//           transformOrigin: ["0% 100%", "100% 100%"]
+//         },
+//         {
+//           duration: 0.1,
+//           ease: "linear"
+//         }
+//       );
+//     };
 
-    animation();
-  }, [animate, scope]);
+//     animation();
+//   }, [animate, scope]);
 
-  return (
-    <div>
-      <video
-        onPlay={() => {
-          setPlaying(true);
-        }}
-        onPause={() => {
-          setPlaying(false);
-        }}
-        ref={videoRef}
-        src={src}
-        crossOrigin="anonymous"
-        className="hidden"
-        playsInline
-      />
+//   return (
+//     <div>
+//       <video
+//         onPlay={() => {
+//           setPlaying(true);
+//         }}
+//         onPause={() => {
+//           setPlaying(false);
+//         }}
+//         ref={videoRef}
+//         src={src}
+//         crossOrigin="anonymous"
+//         className="hidden"
+//         playsInline
+//       />
 
-      <motion.div
-        initial={{
-          rotate: 12,
-          transformOrigin: "0% 100%",
-          y: -1500
-        }}
-        ref={scope}
-        className="relative inline-block w-80 overflow-hidden sm:w-[30rem]"
-      >
-        <button
-          className="absolute inset-0 z-30 h-full w-full"
-          onClick={() => {
-            if (playing) {
-              videoRef.current?.pause();
-            } else {
-              videoRef.current?.play();
-            }
-          }}
-        ></button>
-        <img src={Tv} className="relative z-20 h-full w-full" />
-        <div className="crt absolute bottom-[22.2%] left-[-20%] z-10 h-[47%] w-[110%] ">
-          <canvas ref={canvasRef} className="h-full" />
-        </div>
-      </motion.div>
-    </div>
-  );
-};
+//       <motion.div
+//         initial={{
+//           rotate: 12,
+//           transformOrigin: "0% 100%",
+//           y: -1500
+//         }}
+//         ref={scope}
+//         className="relative inline-block w-80 overflow-hidden sm:w-[30rem]"
+//       >
+//         <button
+//           className="absolute inset-0 z-30 h-full w-full"
+//           onClick={() => {
+//             if (playing) {
+//               videoRef.current?.pause();
+//             } else {
+//               videoRef.current?.play();
+//             }
+//           }}
+//         ></button>
+//         <img src={Tv} className="relative z-20 h-full w-full" />
+//         <div className="crt absolute bottom-[22.2%] left-[-20%] z-10 h-[47%] w-[110%] ">
+//           <canvas ref={canvasRef} className="h-full" />
+//         </div>
+//       </motion.div>
+//     </div>
+//   );
+// };
 
 // million-ignore
 const ReactorVideo = ({ src }: { src: string }) => {
@@ -152,6 +174,7 @@ const ReactorVideo = ({ src }: { src: string }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [danger, setDanger] = useState(false);
+
   useEffect(() => {
     const updateCanvas = () => {
       const video = videoRef.current;
@@ -160,7 +183,6 @@ const ReactorVideo = ({ src }: { src: string }) => {
       if (!canvas || !video) return;
 
       const ctx = canvas.getContext("2d");
-
       if (!ctx || video.ended) return;
 
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -189,13 +211,6 @@ const ReactorVideo = ({ src }: { src: string }) => {
     const video = videoRef.current;
     if (!video) return;
 
-    video.currentTime = 0.01;
-  }, []);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
     video.currentTime = danger ? NORMAL_TIME + 1 : 0;
   }, [danger]);
 
@@ -210,7 +225,6 @@ const ReactorVideo = ({ src }: { src: string }) => {
     error.loop = true;
 
     if (!playing) {
-      console.log("here");
       running.pause();
       error.pause();
     } else {
@@ -251,38 +265,39 @@ const ReactorVideo = ({ src }: { src: string }) => {
 
   return (
     <>
-      <div className="absolute bottom-0 right-0 z-10">
-        <video
-          onTimeUpdate={() => {
-            const video = videoRef.current;
-            if (!video) return;
-            const duration = video.duration;
-            if (danger) {
-              if (video.currentTime > duration - 0.1) {
-                video.currentTime = NORMAL_TIME + 1;
-              }
-            } else if (!danger && video.currentTime > NORMAL_TIME) {
-              video.currentTime = 0;
+      <video
+        onTimeUpdate={() => {
+          const video = videoRef.current;
+          if (!video) return;
+          const duration = video.duration;
+          if (danger) {
+            if (video.currentTime > duration - 0.1) {
+              video.currentTime = NORMAL_TIME + 1;
             }
-          }}
-          onPlay={() => {
-            setPlaying(true);
-          }}
-          onPause={() => {
-            setPlaying(false);
-          }}
-          ref={videoRef}
-          src={src}
-          crossOrigin="anonymous"
-          className="hidden"
-          playsInline
-          loop
-        />
-        <div className="relative inline-block aspect-video h-80 overflow-hidden">
+          } else if (!danger && video.currentTime > NORMAL_TIME) {
+            video.currentTime = 0;
+          }
+        }}
+        onPlay={() => {
+          setPlaying(true);
+        }}
+        onPause={() => {
+          setPlaying(false);
+        }}
+        ref={videoRef}
+        src={src}
+        crossOrigin="anonymous"
+        className="hidden"
+        playsInline
+        autoPlay
+        loop
+      />
+      <div className="absolute bottom-6 right-24 z-10 sm:bottom-0">
+        <div className="relative inline-block aspect-video h-28 overflow-hidden sm:h-80">
           <canvas ref={canvasRef} className="h-full w-full" />
         </div>
       </div>
-      <Comp videoRef={videoRef} setDanger={setDanger} />
+      <Physics videoRef={videoRef} setDanger={setDanger} />
       <div
         style={
           {
@@ -321,7 +336,7 @@ const useWindowSize = () => {
   return windowSize;
 };
 
-function Comp({
+function Physics({
   videoRef,
   setDanger
 }: {
@@ -332,6 +347,7 @@ function Comp({
   const engine = useRef(Engine.create());
   const runner = useRef(Runner.create());
   const sensor = useRef<Body | null>(null);
+  const { isMobile } = useResponsive();
 
   const { width, height } = useWindowSize();
   useEffect(() => {
@@ -354,10 +370,16 @@ function Comp({
       }
     });
 
-    sensor.current = Bodies.rectangle(cw - 285, ch - 100, 150, 100, {
-      isSensor: true,
-      isStatic: true
-    });
+    sensor.current = Bodies.rectangle(
+      cw - (isMobile ? 97 : 385),
+      ch - 80,
+      isMobile ? 50 : 150,
+      isMobile ? 30 : 120,
+      {
+        isSensor: true,
+        isStatic: true
+      }
+    );
 
     World.add(engine.current.world, [
       Bodies.rectangle(cw / 2, ch - 35, cw, 20, { isStatic: true }),
@@ -374,7 +396,7 @@ function Comp({
       render.canvas.remove();
       render.textures = {};
     };
-  }, [width, height]);
+  }, [width, height, isMobile]);
 
   // Events
   useEffect(() => {
@@ -404,8 +426,8 @@ function Comp({
           10 + Math.random() * 30,
           {
             mass: 10,
-            restitution: 0.9,
-            friction: 0.005,
+            restitution: 0.1,
+            // friction: 0.005,
             render: {
               fillStyle: "#0000ff"
             }
@@ -420,17 +442,110 @@ function Comp({
   );
 }
 
+// million-ignore
+export function MessageRenderer({
+  message,
+  ...props
+}: {
+  message: string;
+} & HTMLMotionProps<"span">) {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => Math.round(latest));
+  const displayText = useTransform(rounded, (latest) =>
+    message.slice(0, latest)
+  );
+  useEffect(() => {
+    const animateText = async () => {
+      await animate(count, message.length, {
+        duration: message.length * 0.02,
+        ease: "linear"
+      });
+    };
+
+    animateText();
+  }, [message, count]);
+
+  return (
+    <motion.span className="whitespace-pre-line" {...props}>
+      {displayText}
+    </motion.span>
+  );
+}
+
+function Conversation() {
+  const { state } = useReactor();
+  const { address } = useAccount();
+  const message = state.message;
+
+  const fetcher = useFetcher();
+
+  const fetcherRef = useRef(fetcher);
+  useEffect(() => {
+    fetcherRef.current = fetcher;
+  }, [fetcher]);
+
+  useEffect(() => {
+    if (!address) return;
+    fetcherRef.current.load(`/get-inventory/${address}`);
+  }, [address]);
+
+  console.log(fetcher.data, fetcher.state);
+  return (
+    <motion.div
+      initial={{
+        opacity: 0,
+        transform: "translateY(100%)"
+      }}
+      animate={{
+        opacity: 1,
+        transform: "translateY(0%)"
+      }}
+      className="fixed bottom-12 z-30 w-full px-8"
+    >
+      <div className="relative">
+        <div className="absolute bottom-full z-20 bg-troll px-2 py-1 font-bold text-white font-formula text-2xl">
+          Scientist
+        </div>
+        <div className="absolute inset-0 rotate-2 bg-vroom"></div>
+        <div className="relative z-10 flex bg-tang">
+          <img src={scientist} className="h-auto w-52" />
+          <div className="flex w-full flex-col p-8">
+            <p className="min-h-0 overflow-y-auto text-white font-mono [flex:1_1_0]">
+              {message && (
+                <MessageRenderer
+                  className="w-full"
+                  message={message}
+                  key={state.state}
+                />
+              )}
+            </p>
+            <button className="ml-auto rounded-md bg-white px-4 py-2 text-black font-formula">
+              Reply
+            </button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function Reactor() {
+  return (
+    <ReactorProvider>
+      <ReactorInner />
+    </ReactorProvider>
+  );
+}
+
+const ReactorInner = () => {
+  const { state } = useReactor();
   return (
     <div className="flex h-full min-h-full flex-col">
       <Header name="Reactor" />
       <div className="relative z-10">
         <ConnectKitButton />
       </div>
-      {/* <div className="grid place-items-center">
-        <GreenScreenVideo src={smol_brian} />
-      </div> */}
-      <ReactorVideo src={reactor} />
+      <Conversation />
     </div>
   );
-}
+};
