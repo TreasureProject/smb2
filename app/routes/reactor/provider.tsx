@@ -71,6 +71,7 @@ type State = {
     }
   | {
       state: "REACTOR__SELECTED_SMOLVERSE_NFT";
+      selectedTokens: string[];
     }
   | {
       state: "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_SMOL_LOOT";
@@ -93,6 +94,9 @@ type State = {
     }
   | {
       state: "REROLL";
+    }
+  | {
+      state: "SELECTING_RAINBOW_TREASURE_TO_REROLL";
     }
   | {
       state: "REROLL__REROLLING";
@@ -153,6 +157,9 @@ type Action =
     }
   | {
       type: "PRODUCE_RAINBOW_TREASURE";
+    }
+  | {
+      type: "SELECTING_RAINBOW_TREASURE_TO_REROLL";
     }
   | {
       type: "CONFIRM_REROLL";
@@ -216,6 +223,14 @@ const transitions: TTransitions<State, Action> = {
           message: "Got it!"
         };
       }
+      if (moveTo === "REROLL") {
+        return {
+          ...ctx,
+          state: "REROLL",
+          message:
+            "Select the items in your backpack that you would like to convert. The reactor will randomly re-roll the color and type of a degradable Treasure for a flat rate of 1 MAGIC."
+        };
+      }
       return ctx;
     }
   },
@@ -226,6 +241,11 @@ const transitions: TTransitions<State, Action> = {
       return {
         ...ctx,
         state,
+        message:
+          state === "REROLL"
+            ? "Select the items in your backpack that you would like to convert. The reactor will randomly re-roll the color and type of a degradable Treasure for a flat rate of 1 MAGIC."
+            : // this is fine because when we transition to USE_REACTOR, we will check if inventory is null and instantly transition to other states
+              ctx.message,
         inventory: payload.inventory
       };
     },
@@ -283,7 +303,15 @@ const transitions: TTransitions<State, Action> = {
     }
   },
   REACTOR__SELECTING_SMOLVERSE_NFT: {
-    ...BASE_TRANSITIONS
+    ...BASE_TRANSITIONS,
+    SELECT_SMOLVERSE_NFT: (ctx, { token, category }) => {
+      return {
+        ...ctx,
+        state: "REACTOR__SELECTED_SMOLVERSE_NFT",
+        message: "Selected Smolverse NFT",
+        selectedTokens: Array.from({ length: 10 }).map((_, i) => i.toString())
+      };
+    }
   },
   REACTOR__SELECTED_SMOLVERSE_NFT: {
     ...BASE_TRANSITIONS
@@ -318,6 +346,9 @@ const transitions: TTransitions<State, Action> = {
     ...BASE_TRANSITIONS
   },
   REROLL: {
+    ...BASE_TRANSITIONS
+  },
+  SELECTING_RAINBOW_TREASURE_TO_REROLL: {
     ...BASE_TRANSITIONS
   },
   REROLL__REROLLING: {

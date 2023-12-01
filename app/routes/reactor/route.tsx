@@ -8,6 +8,7 @@ import {
 import smol_brian from "./assets/smol_brian.mp4";
 import Tv from "./assets/tv.png";
 import {
+  AnimatePresence,
   HTMLMotionProps,
   animate,
   motion,
@@ -215,6 +216,13 @@ const ReactorVideo = ({ src }: { src: string }) => {
     const video = videoRef.current;
     if (!video) return;
 
+    video.pause();
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
     video.currentTime = danger ? NORMAL_TIME + 1 : 0;
   }, [danger]);
 
@@ -268,7 +276,17 @@ const ReactorVideo = ({ src }: { src: string }) => {
   }, [danger, playing]);
 
   return (
-    <>
+    <motion.div
+      initial={{
+        opacity: 0
+      }}
+      animate={{
+        opacity: 1
+      }}
+      exit={{
+        opacity: 0
+      }}
+    >
       <video
         onTimeUpdate={() => {
           const video = videoRef.current;
@@ -312,7 +330,7 @@ const ReactorVideo = ({ src }: { src: string }) => {
           "absolute bottom-0 z-10 h-12 w-full bg-contain [background-image:var(--belt)]"
         )}
       ></div>
-    </>
+    </motion.div>
   );
 };
 
@@ -352,6 +370,9 @@ function Physics({
   const runner = useRef(Runner.create());
   const sensor = useRef<Body | null>(null);
   const { isMobile } = useResponsive();
+  const { state, dispatch } = useReactor();
+
+  const data = matchProp(state, "selectedTokens")?.selectedTokens;
 
   const { width, height } = useWindowSize();
   useEffect(() => {
@@ -361,7 +382,7 @@ function Physics({
     const ch = height;
 
     engine.current.gravity.y = 1;
-    engine.current.gravity.x = 0.09;
+    engine.current.gravity.x = 1;
 
     const render = Render.create({
       element: scene.current,
@@ -400,14 +421,36 @@ function Physics({
       render.canvas.remove();
       render.textures = {};
     };
-  }, [width, height, isMobile]);
+  }, [width, height, isMobile, data]);
+
+  useEffect(() => {
+    let id: NodeJS.Timeout;
+    let count = 0;
+    if (!data) return;
+
+    id = setInterval(() => {
+      const ball = Bodies.rectangle(-10, height - 150, 50, 50, {
+        mass: 10,
+        restitution: 0.1,
+        render: {
+          fillStyle: "#0000ff"
+        }
+      });
+      World.add(engine.current.world, ball);
+
+      if (count++ === data.length) {
+        clearInterval(id);
+      }
+    }, 100);
+
+    return () => clearInterval(id);
+  }, [data, width]);
 
   // Events
   useEffect(() => {
     Events.on(engine.current, "collisionStart", (e) => {
       for (var i = 0, j = e.pairs.length; i != j; ++i) {
         var pair = e.pairs[i];
-
         if (pair.bodyA === sensor.current || pair.bodyB === sensor.current) {
           if (videoRef.current?.paused) {
             videoRef.current?.play();
@@ -422,25 +465,7 @@ function Physics({
   }, [setDanger]);
 
   return (
-    <div
-      onClick={(e) => {
-        const ball = Bodies.circle(
-          e.clientX,
-          e.clientY,
-          10 + Math.random() * 30,
-          {
-            mass: 10,
-            restitution: 0.1,
-            // friction: 0.005,
-            render: {
-              fillStyle: "#0000ff"
-            }
-          }
-        );
-        World.add(engine.current.world, [ball]);
-      }}
-      className="absolute inset-0"
-    >
+    <div className="absolute inset-0">
       <div ref={scene} style={{ width: "100%", height: "100%" }} />
     </div>
   );
@@ -605,7 +630,30 @@ function Conversation() {
       REACTOR__SELECTING_SMOLVERSE_NFT: () => null,
       REACTOR__PRODUCED_RAINBOW_TREASURE: () => null,
       REACTOR__PRODUCING_RAINBOW_TREASURE: () => null,
-      REROLL: () => null,
+      REROLL: () => (
+        <>
+          <Button
+            onClick={() =>
+              dispatch({
+                type: "RESTART"
+              })
+            }
+          >
+            Back
+          </Button>
+          <Button
+            isDialog
+            onClick={() =>
+              dispatch({
+                type: "SELECTING_RAINBOW_TREASURE_TO_REROLL"
+              })
+            }
+          >
+            Select a Rainbow Treasure
+          </Button>
+        </>
+      ),
+      SELECTING_RAINBOW_TREASURE_TO_REROLL: () => null,
       REROLL__REROLLED: () => null,
       REROLL__REROLLING: () => null,
       ERROR: () => null
@@ -629,6 +677,10 @@ function Conversation() {
         animate={{
           opacity: 1,
           transform: "translateY(0%)"
+        }}
+        exit={{
+          opacity: 0,
+          transform: "translateY(100%)"
         }}
         className="fixed bottom-12 z-30 w-full px-8"
       >
@@ -673,8 +725,6 @@ function Conversation() {
 }
 
 const SelectSmolverseNFTDialog = () => {
-  console.log("HERE");
-
   const { state, dispatch } = useReactor();
   const [selected, setSelected] = useState<
     (
@@ -699,54 +749,8 @@ const SelectSmolverseNFTDialog = () => {
 
   return (
     <Drawer.Content className="fixed bottom-0 left-0 right-0 z-10 mt-24 flex h-[80%] items-stretch rounded-t-[10px] bg-[#261F2D]">
-      <div className="mx-auto flex h-full max-w-7xl flex-col justify-center">
-        {/* <div className="grid grid-cols-8 gap-4 p-3">
-          {Object.entries(inventory).map(([type, tokens]) => {
-            const isSmolTreasures = type === "smol-treasures";
-            return tokens.map((token) => (
-              <button
-                onClick={() => {
-                  setSelected((prev) => {
-                    if (
-                      prev.find(
-                        (t) => t.tokenId === token.tokenId && t.type === type
-                      )
-                    ) {
-                      return prev.filter(
-                        (t) => t.tokenId === token.tokenId && t.type === type
-                      );
-                    } else {
-                      return [
-                        ...prev,
-                        {
-                          tokenId: token.tokenId,
-                          type: type
-                        }
-                      ];
-                    }
-                  });
-                }}
-                key={token.tokenId}
-                className={cn(
-                  "relative overflow-hidden rounded-md bg-[#483B53]",
-                  selected.find((t) => t.tokenId === token.tokenId)
-                    ? "ring-2 ring-green-500 ring-offset-2"
-                    : "ring-2 ring-transparent ring-offset-2"
-                )}
-              >
-                <img
-                  src={token.image.uri}
-                  className="h-28 w-full object-cover"
-                  alt=""
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-center font-bold text-white text-xs">
-                  {token.tokenId}
-                </div>
-              </button>
-            ));
-          })}
-        </div> */}
-        <ul className="space-y-3">
+      <div className="mx-auto flex h-full max-w-7xl justify-center">
+        <ul className="flex-1 space-y-3">
           {Object.keys(inventory).map((type) => {
             return (
               <li key={type}>
@@ -755,6 +759,23 @@ const SelectSmolverseNFTDialog = () => {
             );
           })}
         </ul>
+        <div className="">
+          <Drawer.Close asChild>
+            <Button
+              onClick={() =>
+                dispatch({
+                  type: "SELECT_SMOLVERSE_NFT",
+                  // @ts-expect-error
+                  token: inventory["smol-cars"]?.[0],
+                  // @ts-expect-error
+                  category: "smol-cars"
+                })
+              }
+            >
+              Confirm
+            </Button>
+          </Drawer.Close>
+        </div>
       </div>
     </Drawer.Content>
   );
@@ -769,13 +790,21 @@ export default function Reactor() {
 }
 
 const ReactorInner = () => {
+  const { state, dispatch } = useReactor();
   return (
     <div className="flex h-full min-h-full flex-col">
       <Header name="Reactor" />
       <div className="relative z-10">
         <ConnectKitButton />
       </div>
-      <Conversation />
+      <AnimatePresence>
+        {state.state !== "REACTOR__SELECTED_SMOLVERSE_NFT" && <Conversation />}
+      </AnimatePresence>
+      <AnimatePresence>
+        {state.state === "REACTOR__SELECTED_SMOLVERSE_NFT" && (
+          <ReactorVideo src={reactor} />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
