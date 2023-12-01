@@ -4,9 +4,16 @@ import {
   createContext,
   useContext,
   useEffect,
-  useRef
+  useRef,
+  useState
 } from "react";
-import { TTransition, TTransitions, transition, useEnter } from "react-states";
+import {
+  PickState,
+  TTransition,
+  TTransitions,
+  transition,
+  useEnter
+} from "react-states";
 import { useAccount } from "wagmi";
 import {
   TCollectionsToFetch,
@@ -32,6 +39,7 @@ type Inventory = Awaited<ReturnType<typeof fetchTroveTokensForUser>>;
 
 type State = {
   message?: string;
+  inventory: Inventory | null;
 } & (
   | {
       // Scientist welcomes you
@@ -39,6 +47,11 @@ type State = {
     }
   | {
       state: "NOT_CONNECTED";
+      prevState: PickState<State, "USE_REACTOR" | "REROLL" | "IDLE">["state"];
+    }
+  | {
+      state: "LOADING_INVENTORY";
+      prevState: PickState<State, "USE_REACTOR" | "REROLL" | "IDLE">["state"];
     }
   | {
       // What is this?
@@ -48,44 +61,44 @@ type State = {
       state: "USE_REACTOR";
     }
   | {
-      state: "NO_SMOLVERSE_NFT";
+      state: "REACTOR__NO_SMOLVERSE_NFT";
     }
   | {
-      state: "NO_SMOL_LOOT";
+      state: "REACTOR__NO_SMOL_LOOT";
     }
   | {
-      state: "SELECTING_SMOLVERSE_NFT";
+      state: "REACTOR__SELECTING_SMOLVERSE_NFT";
     }
   | {
-      state: "SELECTED_SMOLVERSE_NFT";
+      state: "REACTOR__SELECTED_SMOLVERSE_NFT";
     }
   | {
-      state: "CONVERTING_SMOLVERSE_NFT_TO_SMOL_LOOT";
+      state: "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_SMOL_LOOT";
     }
   | {
-      state: "CONVERTED_SMOLVERSE_NFT_TO_SMOL_LOOT";
+      state: "REACTOR__CONVERTED_SMOLVERSE_NFT_TO_SMOL_LOOT";
     }
   | {
-      state: "MALFUNCTION";
+      state: "REACTOR__MALFUNCTION";
     }
   | {
-      state: "SELECTED_SMOL_LOOT";
+      state: "REACTOR__CONFIRM_PRODUCING_RAINBOW_TREASURES";
       producableRainbowTreasures: number;
     }
   | {
-      state: "PRODUCING_RAINBOW_TREASURE";
+      state: "REACTOR__PRODUCING_RAINBOW_TREASURE";
     }
   | {
-      state: "PRODUCED_RAINBOW_TREASURE";
+      state: "REACTOR__PRODUCED_RAINBOW_TREASURE";
     }
   | {
       state: "REROLL";
     }
   | {
-      state: "REROLLING";
+      state: "REROLL__REROLLING";
     }
   | {
-      state: "REROLLED";
+      state: "REROLL__REROLLED";
     }
   | {
       state: "ERROR";
@@ -95,22 +108,36 @@ type State = {
 type Action =
   | {
       type: "CONNECTED_TO_WALLET";
+      prevState: PickState<State, "USE_REACTOR" | "REROLL" | "IDLE">["state"];
     }
   | {
       type: "DISCONNECTED_FROM_WALLET";
+      prevState: PickState<State, "USE_REACTOR" | "REROLL" | "IDLE">["state"];
     }
   | {
-      type: "KEEP_TRYING";
+      type: "LOAD_INVENTORY";
     }
   | {
       type: "CONNECTION_ERROR";
     }
   | {
-      type: "SELECT_OPTION";
+      type: "NEXT";
+      moveTo: PickState<
+        State,
+        "WHAT_IS_THIS" | "USE_REACTOR" | "REROLL"
+      >["state"];
+    }
+  | {
+      type: "PUT_BACK";
+      state: PickState<State, "USE_REACTOR" | "REROLL" | "IDLE">["state"];
+      inventory: Inventory;
     }
   | {
       type: "MISSING";
-      category: "smol-loot" | "smolverse-nft";
+      category: "degradables" | "smolverse-nft";
+    }
+  | {
+      type: "SELECTING_SMOLVERSE_NFT";
     }
   | {
       type: "SELECT_SMOLVERSE_NFT";
@@ -122,102 +149,181 @@ type Action =
     }
   | {
       type: "MOVE_TO_RAINBOW_TREASURE_DIALOG";
+      degradables: Inventory["degradables"];
     }
   | {
       type: "PRODUCE_RAINBOW_TREASURE";
     }
   | {
       type: "CONFIRM_REROLL";
+    }
+  | {
+      type: "RESTART";
     };
 
 const BASE_TRANSITIONS: TTransition<State, Action> = {
-  CONNECTED_TO_WALLET: (ctx) => ({
-    ...ctx,
-    state: "IDLE",
-    message: "Welcome to the rainbow factory. How can I help you today?"
-  }),
-  DISCONNECTED_FROM_WALLET: (ctx) => ({
-    ...ctx,
-    state: "NOT_CONNECTED",
-    message: "Open up your backpack. Let’s see what we’re working with here."
-  }),
+  DISCONNECTED_FROM_WALLET: (ctx, payload) => {
+    return {
+      ...ctx,
+      state: "NOT_CONNECTED",
+      prevState: payload.prevState,
+      inventory: null,
+      message: "Open up your backpack. Let’s see what we’re working with here."
+    };
+  },
   MISSING: (ctx, { category }) => {
     if (category === "smolverse-nft") {
       return {
         ...ctx,
-        state: "NO_SMOLVERSE_NFT",
+        state: "REACTOR__NO_SMOLVERSE_NFT",
         message:
           "Hmm, it looks like your backpack is empty. Please come back later once you’ve gotten your act together."
       };
     }
-    if (category === "smol-loot") {
+    if (category === "degradables") {
       return {
         ...ctx,
-        state: "NO_SMOL_LOOT",
+        state: "REACTOR__NO_SMOL_LOOT",
         message:
           "Hmm, it looks like you don’t have the right ingredients in your backpack. You can try inputting random items, but there is no guarantee that a Rainbow Treasure will be produced. Do you wish to proceed?"
       };
     }
     return ctx;
-  }
+  },
+  RESTART: (ctx) => ({
+    ...ctx,
+    state: "IDLE",
+    message: "Welcome to the rainbow factory. How can I help you today?"
+  })
 };
 
 const transitions: TTransitions<State, Action> = {
   IDLE: {
-    ...BASE_TRANSITIONS
-  },
-  NOT_CONNECTED: {
-    ...BASE_TRANSITIONS
-  },
-  WHAT_IS_THIS: {
-    ...BASE_TRANSITIONS
-  },
-  USE_REACTOR: {
     ...BASE_TRANSITIONS,
-    KEEP_TRYING: (ctx) => ctx,
+    NEXT: (ctx, { moveTo }) => {
+      if (moveTo === "WHAT_IS_THIS") {
+        return {
+          ...ctx,
+          state: "WHAT_IS_THIS",
+          message:
+            "The reactor converts ordinary household items into Rainbow Treasures, a resource that can be used to instantly evolve a Smol Brain. Please select the items in your backpack that you would like to convert into Rainbow Treasures."
+        };
+      }
+      if (moveTo === "USE_REACTOR") {
+        return {
+          ...ctx,
+          state: "USE_REACTOR",
+          message: "Got it!"
+        };
+      }
+      return ctx;
+    }
+  },
+  LOADING_INVENTORY: {
+    ...BASE_TRANSITIONS,
+    PUT_BACK: (ctx, payload) => {
+      const state = ctx.prevState;
+      return {
+        ...ctx,
+        state,
+        inventory: payload.inventory
+      };
+    },
     CONNECTION_ERROR: (ctx) => ({
       ...ctx,
       state: "ERROR",
       message: "Connection error. Please try again."
     })
   },
-  MALFUNCTION: {
+  NOT_CONNECTED: {
+    ...BASE_TRANSITIONS,
+    CONNECTED_TO_WALLET: (ctx) => ({
+      ...ctx,
+      state: "LOADING_INVENTORY",
+      message: "Checking your backpack..."
+    })
+  },
+  WHAT_IS_THIS: {
     ...BASE_TRANSITIONS
   },
-  NO_SMOLVERSE_NFT: {
+  USE_REACTOR: {
+    ...BASE_TRANSITIONS,
+    MOVE_TO_RAINBOW_TREASURE_DIALOG: (ctx, { degradables }) => {
+      return {
+        ...ctx,
+        state: "REACTOR__CONFIRM_PRODUCING_RAINBOW_TREASURES",
+        message:
+          "The machine isn’t working very well today. You will need to provide me 15 degradable Treasures of the same kind or color to produce 1 Rainbow Treasure. Or you can try your luck with random items from your backpack.",
+        producableRainbowTreasures: 1
+      };
+    },
+    LOAD_INVENTORY: (ctx) => {
+      return {
+        ...ctx,
+        state: "LOADING_INVENTORY",
+        prevState: ctx.state,
+        message: "Checking your backpack..."
+      };
+    }
+  },
+  REACTOR__MALFUNCTION: {
     ...BASE_TRANSITIONS
   },
-  NO_SMOL_LOOT: {
+  REACTOR__NO_SMOLVERSE_NFT: {
     ...BASE_TRANSITIONS
   },
-  SELECTING_SMOLVERSE_NFT: {
+  REACTOR__NO_SMOL_LOOT: {
+    ...BASE_TRANSITIONS,
+    SELECTING_SMOLVERSE_NFT: (ctx) => {
+      return {
+        ...ctx,
+        state: "REACTOR__SELECTING_SMOLVERSE_NFT",
+        message: "Selecting Smolverse NFT..."
+      };
+    }
+  },
+  REACTOR__SELECTING_SMOLVERSE_NFT: {
     ...BASE_TRANSITIONS
   },
-  SELECTED_SMOLVERSE_NFT: {
+  REACTOR__SELECTED_SMOLVERSE_NFT: {
     ...BASE_TRANSITIONS
   },
-  CONVERTING_SMOLVERSE_NFT_TO_SMOL_LOOT: {
+  REACTOR__CONVERTING_SMOLVERSE_NFT_TO_SMOL_LOOT: {
     ...BASE_TRANSITIONS
   },
-  CONVERTED_SMOLVERSE_NFT_TO_SMOL_LOOT: {
+  REACTOR__CONVERTED_SMOLVERSE_NFT_TO_SMOL_LOOT: {
     ...BASE_TRANSITIONS
   },
-  SELECTED_SMOL_LOOT: {
+  REACTOR__CONFIRM_PRODUCING_RAINBOW_TREASURES: {
+    ...BASE_TRANSITIONS,
+    PRODUCE_RAINBOW_TREASURE: (ctx) => {
+      return {
+        ...ctx,
+        state: "REACTOR__PRODUCING_RAINBOW_TREASURE",
+        message: "Producing Rainbow Treasure..."
+      };
+    },
+    TRY_LUCK: (ctx) => {
+      return {
+        ...ctx,
+        state: "REACTOR__SELECTING_SMOLVERSE_NFT",
+        message: "Selecting Smolverse NFT..."
+      };
+    }
+  },
+  REACTOR__PRODUCING_RAINBOW_TREASURE: {
     ...BASE_TRANSITIONS
   },
-  PRODUCING_RAINBOW_TREASURE: {
-    ...BASE_TRANSITIONS
-  },
-  PRODUCED_RAINBOW_TREASURE: {
+  REACTOR__PRODUCED_RAINBOW_TREASURE: {
     ...BASE_TRANSITIONS
   },
   REROLL: {
     ...BASE_TRANSITIONS
   },
-  REROLLING: {
+  REROLL__REROLLING: {
     ...BASE_TRANSITIONS
   },
-  REROLLED: {
+  REROLL__REROLLED: {
     ...BASE_TRANSITIONS
   },
   ERROR: {
@@ -231,11 +337,11 @@ const reducer = (state: State, action: Action) =>
 const useReactorReducer = () => {
   const [state, dispatch] = useReducer(reducer, {
     state: "IDLE",
-    message: "Welcome to the rainbow factory. How can I help you today?"
+    message: "Welcome to the rainbow factory. How can I help you today?",
+    inventory: null
   });
 
   const { isConnected, address } = useAccount();
-
   const connected = isConnected && address !== undefined;
 
   const fetcher = useFetcher<typeof loader>();
@@ -247,55 +353,90 @@ const useReactorReducer = () => {
   }, [fetcher]);
 
   useEffect(() => {
-    if (!address) return;
-    fetcherRef.current.load(`/get-inventory/${address}`);
-  }, [address]);
+    if (connected || state.state === "IDLE" || state.state === "NOT_CONNECTED")
+      return;
 
-  useEffect(() => {
-    if (connected) {
-      dispatch({ type: "CONNECTED_TO_WALLET" });
-    } else {
-      dispatch({ type: "DISCONNECTED_FROM_WALLET" });
-    }
-  }, [connected, dispatch]);
+    dispatch({
+      type: "DISCONNECTED_FROM_WALLET",
+      prevState: state.state.includes("REACTOR")
+        ? "USE_REACTOR"
+        : state.state.includes("REROLL")
+        ? "REROLL"
+        : "IDLE"
+    });
+  }, [connected, dispatch, state.state]);
 
-  useEnter(state, "USE_REACTOR", () => {
-    const fetcher = fetcherRef.current;
-    if (fetcher.state === "loading") {
-      const id = setInterval(() => {
-        dispatch({ type: "KEEP_TRYING" });
-      }, 1000);
+  useEnter(
+    state,
+    "NOT_CONNECTED",
+    (ctx) => {
+      fetcher.submit({}, { action: "/reset-fetcher", method: "post" });
+      if (connected) {
+        dispatch({ type: "CONNECTED_TO_WALLET", prevState: ctx.prevState });
+      }
+    },
+    [connected]
+  );
 
-      return () => clearInterval(id);
-    }
+  useEnter(
+    state,
+    "LOADING_INVENTORY",
+    (ctx) => {
+      if (!connected) return;
 
-    // got data here
-    if (fetcher.data && fetcher.state === "idle") {
-      if (!fetcher.data.ok) {
-        dispatch({ type: "CONNECTION_ERROR" });
+      fetcherRef.current.load(`/get-inventory/${address}`);
+
+      if (fetcher.state === "idle" && fetcher.data) {
+        if (!fetcher.data.ok) {
+          dispatch({ type: "CONNECTION_ERROR" });
+          return;
+        }
+
+        dispatch({
+          type: "PUT_BACK",
+          state: ctx.prevState,
+          inventory: fetcher.data.data
+        });
+      }
+    },
+    [fetcher.state]
+  );
+
+  useEnter(
+    state,
+    ["USE_REACTOR", "REROLL"],
+    (ctx) => {
+      if (!connected) return;
+
+      if (!ctx.inventory && address) {
+        dispatch({ type: "LOAD_INVENTORY" });
         return;
       }
-      const { data } = fetcher.data;
 
-      // if smol-loot exists
-      if (data["smol-loot"]) {
-        dispatch({ type: "MOVE_TO_RAINBOW_TREASURE_DIALOG" });
-        return;
-      }
+      if (ctx.inventory) {
+        if (ctx.inventory["degradables"]) {
+          dispatch({
+            type: "MOVE_TO_RAINBOW_TREASURE_DIALOG",
+            degradables: ctx.inventory["degradables"]
+          });
+          return;
+        }
 
-      // if object is empty
-      if (Object.keys(data).length === 0) {
-        dispatch({ type: "MISSING", category: "smolverse-nft" });
-        return;
-      }
+        // if object is empty
+        if (Object.keys(ctx.inventory).length === 0) {
+          dispatch({ type: "MISSING", category: "smolverse-nft" });
+          return;
+        }
 
-      // if smol-loot is missing
-      if (!data["smol-loot"]) {
-        dispatch({ type: "MISSING", category: "smol-loot" });
-        return;
+        // if degradables is missing
+        if (!ctx.inventory["degradables"]) {
+          dispatch({ type: "MISSING", category: "degradables" });
+          return;
+        }
       }
-    }
-  });
+    },
+    [connected, address]
+  );
 
   return { state, dispatch };
 };

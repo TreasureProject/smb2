@@ -236,7 +236,7 @@ let collectionsToFetch = [
   "swolercycles",
   "smol-treasures",
   "smol-brains",
-  "smol-loot"
+  "degradables"
 ] as const;
 
 export type TCollectionsToFetch = typeof collectionsToFetch;
@@ -256,7 +256,7 @@ if (process.env.NODE_ENV === "development") {
     // @ts-ignore
     "smol-brains-as",
     // @ts-ignore
-    "smol-loot-as"
+    "degradables-as"
   ];
 }
 

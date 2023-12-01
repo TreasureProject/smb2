@@ -3,6 +3,8 @@ import { json } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { TroveToken, fetchMisc, fetchTroveTokensForUser } from "~/api.server";
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export let loader = async ({ params }: LoaderFunctionArgs) => {
   const address = params.address;
 
@@ -14,7 +16,7 @@ export let loader = async ({ params }: LoaderFunctionArgs) => {
       {
         ok: true,
         data
-      } as const,
+      },
       {
         headers: {
           "Cache-Control": "public, max-age=60, s-maxage=60"

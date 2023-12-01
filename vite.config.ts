@@ -13,7 +13,8 @@ export default ({ mode }: { mode: string }) => {
         "react-idle-timer",
         "@react-three/postprocessing",
         "maath",
-        "react-states"
+        "react-states",
+        ...(process.env.NODE_ENV === "development" ? [] : ["matter-js"])
       ]
     },
     plugins: [

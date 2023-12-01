@@ -18,7 +18,7 @@ import {
 import "./reactor.css";
 import { commonMeta } from "~/seo";
 import { Header } from "~/components/Header";
-import { ConnectKitButton } from "connectkit";
+import { ConnectKitButton, useModal } from "connectkit";
 import reactor from "./assets/reactor.mp4";
 import runningMp3 from "./assets/running.mp3";
 import errorMp3 from "./assets/error.mp3";
@@ -32,6 +32,10 @@ import { useResponsive } from "~/contexts/responsive";
 import scientist from "./assets/scientist.png";
 import { ReactorProvider, useReactor } from "./provider";
 import { useAccount } from "wagmi";
+import { match, matchProp } from "react-states";
+import { Drawer } from "vaul";
+import { TCollectionsToFetch } from "~/api.server";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 export const links: LinksFunction = () => [
   {
@@ -472,12 +476,35 @@ export function MessageRenderer({
   );
 }
 
+// million-ignore
+const Button = ({
+  children,
+  isDialog = false,
+  ...props
+}: {
+  children: React.ReactNode;
+  isDialog?: boolean;
+} & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
+  const button = (
+    <button
+      {...props}
+      className="rounded-md bg-white px-4 py-2 text-black font-formula"
+    >
+      {children}
+    </button>
+  );
+
+  return isDialog ? <Drawer.Trigger asChild>{button}</Drawer.Trigger> : button;
+};
+
 function Conversation() {
-  const { state } = useReactor();
+  const { state, dispatch } = useReactor();
   const { address } = useAccount();
   const message = state.message;
 
   const fetcher = useFetcher();
+
+  const { setOpen } = useModal();
 
   const fetcherRef = useRef(fetcher);
   useEffect(() => {
@@ -489,45 +516,249 @@ function Conversation() {
     fetcherRef.current.load(`/get-inventory/${address}`);
   }, [address]);
 
-  console.log(fetcher.data, fetcher.state);
+  const buttonGroups = () =>
+    match(state, {
+      IDLE: () => (
+        <>
+          <Button
+            onClick={() =>
+              dispatch({
+                type: "NEXT",
+                moveTo: "WHAT_IS_THIS"
+              })
+            }
+          >
+            What is this?
+          </Button>
+          <Button
+            onClick={() =>
+              dispatch({
+                type: "NEXT",
+                moveTo: "USE_REACTOR"
+              })
+            }
+          >
+            I need to use the reactor.
+          </Button>
+          <Button
+            onClick={() =>
+              dispatch({
+                type: "NEXT",
+                moveTo: "REROLL"
+              })
+            }
+          >
+            I need to convert a Treasure into another kind.
+          </Button>
+        </>
+      ),
+      NOT_CONNECTED: () => (
+        <Button onClick={() => setOpen(true)}>Open Backpack (wallet)</Button>
+      ),
+      LOADING_INVENTORY: () => null,
+      WHAT_IS_THIS: () => (
+        <Button onClick={() => dispatch({ type: "RESTART" })}>Back</Button>
+      ),
+      USE_REACTOR: () => null,
+      REACTOR__NO_SMOLVERSE_NFT: () => (
+        <Button onClick={() => dispatch({ type: "RESTART" })}>Back</Button>
+      ),
+      REACTOR__NO_SMOL_LOOT: () => (
+        <Button
+          isDialog
+          onClick={() =>
+            dispatch({
+              type: "SELECTING_SMOLVERSE_NFT"
+            })
+          }
+        >
+          Yes
+        </Button>
+      ),
+      REACTOR__SELECTED_SMOLVERSE_NFT: () => null,
+      REACTOR__CONFIRM_PRODUCING_RAINBOW_TREASURES: (ctx) => (
+        <>
+          <Button
+            onClick={() =>
+              dispatch({
+                type: "PRODUCE_RAINBOW_TREASURE"
+              })
+            }
+          >
+            Craft {ctx.producableRainbowTreasures} Rainbow Treasure
+          </Button>
+          <Button
+            isDialog
+            onClick={() =>
+              dispatch({
+                type: "TRY_LUCK"
+              })
+            }
+          >
+            Try my luck
+          </Button>
+        </>
+      ),
+      REACTOR__CONVERTED_SMOLVERSE_NFT_TO_SMOL_LOOT: () => null,
+      REACTOR__CONVERTING_SMOLVERSE_NFT_TO_SMOL_LOOT: () => null,
+      REACTOR__MALFUNCTION: () => null,
+      REACTOR__SELECTING_SMOLVERSE_NFT: () => null,
+      REACTOR__PRODUCED_RAINBOW_TREASURE: () => null,
+      REACTOR__PRODUCING_RAINBOW_TREASURE: () => null,
+      REROLL: () => null,
+      REROLL__REROLLED: () => null,
+      REROLL__REROLLING: () => null,
+      ERROR: () => null
+    });
+
+  const test = match(
+    state,
+    {
+      REACTOR__SELECTING_SMOLVERSE_NFT: () => "hellowr"
+    },
+    (otherStates) => []
+  );
+
   return (
-    <motion.div
-      initial={{
-        opacity: 0,
-        transform: "translateY(100%)"
-      }}
-      animate={{
-        opacity: 1,
-        transform: "translateY(0%)"
-      }}
-      className="fixed bottom-12 z-30 w-full px-8"
-    >
-      <div className="relative">
-        <div className="absolute bottom-full z-20 bg-troll px-2 py-1 font-bold text-white font-formula text-2xl">
-          Scientist
-        </div>
-        <div className="absolute inset-0 rotate-2 bg-vroom"></div>
-        <div className="relative z-10 flex bg-tang">
-          <img src={scientist} className="h-auto w-52" />
-          <div className="flex w-full flex-col p-8">
-            <p className="min-h-0 overflow-y-auto text-white font-mono [flex:1_1_0]">
-              {message && (
-                <MessageRenderer
-                  className="w-full"
-                  message={message}
-                  key={state.state}
-                />
-              )}
-            </p>
-            <button className="ml-auto rounded-md bg-white px-4 py-2 text-black font-formula">
-              Reply
-            </button>
+    <Drawer.Root dismissible={false}>
+      <motion.div
+        initial={{
+          opacity: 0,
+          transform: "translateY(100%)"
+        }}
+        animate={{
+          opacity: 1,
+          transform: "translateY(0%)"
+        }}
+        className="fixed bottom-12 z-30 w-full px-8"
+      >
+        <div className="relative">
+          <div className="absolute bottom-full z-20 bg-troll px-2 py-1 font-bold text-white font-formula text-2xl">
+            Scientist
+          </div>
+          <div className="absolute inset-0 rotate-2 bg-vroom"></div>
+          <div className="relative z-10 flex bg-tang">
+            <img src={scientist} className="h-auto w-52" />
+            <div className="flex w-full flex-col p-8">
+              <span className="text-white font-mono">state: {state.state}</span>
+              <p className="min-h-0 overflow-y-auto text-white font-mono [flex:1_1_0]">
+                {message && (
+                  <MessageRenderer
+                    className="w-full"
+                    message={message}
+                    key={state.state}
+                  />
+                )}
+              </p>
+              <div className="ml-auto">{buttonGroups()}</div>
+            </div>
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
+        {(() =>
+          match(
+            state,
+            {
+              REACTOR__SELECTING_SMOLVERSE_NFT: () => (
+                <SelectSmolverseNFTDialog />
+              )
+            },
+            (otherStates) => []
+          ))()}
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 }
+
+const SelectSmolverseNFTDialog = () => {
+  console.log("HERE");
+
+  const { state, dispatch } = useReactor();
+  const [selected, setSelected] = useState<
+    (
+      | {
+          tokenId: string;
+          type: Omit<TCollectionsToFetch, "smol-treasures">;
+        }
+      | {
+          tokenId: string;
+          count: number;
+          type: "smol-treasures";
+        }
+    )[]
+  >([]);
+
+  // inventory except degradables key
+  const inventory = { ...state.inventory };
+
+  if (!inventory) return null;
+
+  delete inventory["degradables"];
+
+  return (
+    <Drawer.Content className="fixed bottom-0 left-0 right-0 z-10 mt-24 flex h-[80%] items-stretch rounded-t-[10px] bg-[#261F2D]">
+      <div className="mx-auto flex h-full max-w-7xl flex-col justify-center">
+        {/* <div className="grid grid-cols-8 gap-4 p-3">
+          {Object.entries(inventory).map(([type, tokens]) => {
+            const isSmolTreasures = type === "smol-treasures";
+            return tokens.map((token) => (
+              <button
+                onClick={() => {
+                  setSelected((prev) => {
+                    if (
+                      prev.find(
+                        (t) => t.tokenId === token.tokenId && t.type === type
+                      )
+                    ) {
+                      return prev.filter(
+                        (t) => t.tokenId === token.tokenId && t.type === type
+                      );
+                    } else {
+                      return [
+                        ...prev,
+                        {
+                          tokenId: token.tokenId,
+                          type: type
+                        }
+                      ];
+                    }
+                  });
+                }}
+                key={token.tokenId}
+                className={cn(
+                  "relative overflow-hidden rounded-md bg-[#483B53]",
+                  selected.find((t) => t.tokenId === token.tokenId)
+                    ? "ring-2 ring-green-500 ring-offset-2"
+                    : "ring-2 ring-transparent ring-offset-2"
+                )}
+              >
+                <img
+                  src={token.image.uri}
+                  className="h-28 w-full object-cover"
+                  alt=""
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-center font-bold text-white text-xs">
+                  {token.tokenId}
+                </div>
+              </button>
+            ));
+          })}
+        </div> */}
+        <ul className="space-y-3">
+          {Object.keys(inventory).map((type) => {
+            return (
+              <li key={type}>
+                <p className="font-bold text-white">{type}</p>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </Drawer.Content>
+  );
+};
 
 export default function Reactor() {
   return (
@@ -538,7 +769,6 @@ export default function Reactor() {
 }
 
 const ReactorInner = () => {
-  const { state } = useReactor();
   return (
     <div className="flex h-full min-h-full flex-col">
       <Header name="Reactor" />
