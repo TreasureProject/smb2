@@ -30,7 +30,6 @@ jobs:
 
       - name: 🔎 Type check
         run: npm run typecheck --if-present
-
   deploy:
     name: 🚀 Deploy
     runs-on: ubuntu-latest
@@ -63,6 +62,6 @@ jobs:
 
       - name: 🚀 Deploy Production
         if: ${{ github.ref == 'refs/heads/main' }}
-        run: flyctl deploy --remote-only --build-secret dotenv="${{ secrets.DOTENV }}" --image registry.fly.io/${{ steps.app_name.outputs.value }}:${{ github.ref_name }}-${{ github.sha }}
+        run: flyctl deploy --remote-only --build-secret dotenv=${{ secrets.DOTENV }} --image registry.fly.io/${{ steps.app_name.outputs.value }}:${{ github.ref_name }}-${{ github.sha }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
