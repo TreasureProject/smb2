@@ -1,4 +1,5 @@
 import { arbitrum, arbitrumSepolia } from "viem/chains";
+import { TCollectionsToFetchWithoutAs } from "./api.server";
 
 export const SOCIALS = [
   {
@@ -14,6 +15,18 @@ export const SOCIALS = [
     url: "https://app.treasure.lol/games/smolverse"
   }
 ] as const;
+
+export const TYPE_TO_IPFS: Record<
+  TCollectionsToFetchWithoutAs<"degradables">,
+  string
+> = {
+  "swol-jrs": "QmXFvo9fN9oS8yodqbptNJQtZtWwAMiA56AnLh48cL9YhL",
+  "smol-jrs": "QmcqUaWavNytEjLRSJf3hc3hZfksa92vocvScV9ZTymNRq",
+  "smol-cars": "QmYGuiC6wfpHav96Nud19hc5oREfiuGsNnY26GfBFAzMvj",
+  swolercycles: "QmcEcc9dSQFLZWuxdnxPhSL4YSRWVM1y72DJUaN27q6QnD",
+  "smol-treasures": "QmNeq6SL6d7vkYH1FJbmDimmCrA4A3yPr7mJzZWPqHPAhc",
+  "smol-brains": "QmPgLw49FDqzjjUszxVRsvZ312o8njEvVTWv3Xrf4D8hRN"
+};
 
 export const ENABLED_CHAINS = import.meta.env.VITE_ENABLE_TESTNETS
   ? [arbitrumSepolia, arbitrum]

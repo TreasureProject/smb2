@@ -345,7 +345,7 @@ function Physics({
     const ch = height;
 
     engine.current.gravity.y = 1;
-    engine.current.gravity.x = 1;
+    engine.current.gravity.x = 0.5;
 
     const render = Render.create({
       element: scene.current,
@@ -609,7 +609,7 @@ function Conversation() {
           </>
         );
       },
-      REACTOR__CONVERTED_SMOLVERSE_NFT_TO_DEGRADABLE: () => null,
+      RESULT: () => null,
       REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE: () => null,
       REACTOR__MALFUNCTION: () => null,
       REACTOR__SELECTED_DEGRADABLES: () => null,
@@ -835,7 +835,9 @@ export const RenderTokens = ({
                 {
                   tokenId: token.tokenId,
                   type: type,
-                  uri: token.image.uri
+                  uri: token.image.uri,
+                  // TODO: this is only for dev to check
+                  supply: 1
                 }
               ]);
             }

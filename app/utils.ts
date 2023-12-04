@@ -6,12 +6,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const strictEntries = <T extends Record<string, any>>(
-  object: T
-): [keyof T, T[keyof T]][] => {
-  return Object.entries(object);
-};
+export const isBurnAddress = (address: `0x${string}` | undefined) =>
+  address?.startsWith("0x000") ?? false;
 
 export const formatNumber = (
   value: number | string,

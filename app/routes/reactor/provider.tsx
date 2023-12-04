@@ -33,11 +33,13 @@ import { TransactionReceipt, decodeEventLog } from "viem";
 import * as R from "remeda";
 
 import * as ABIS from "~/artifacts";
+import { isBurnAddress } from "~/utils";
 
 export type Ttoken = {
   tokenId: string;
   type: TCollectionsToFetchWithoutAs<"degradables">;
   uri: string;
+  supply: number;
 };
 
 function lootToRainbowTreasure(items?: TroveToken[]) {
@@ -104,7 +106,18 @@ function lootToRainbowTreasure(items?: TroveToken[]) {
   return results;
 }
 
-const template = {
+const template: {
+  smolCarIds: bigint[];
+  swolercycleIds: bigint[];
+  treasureIds: bigint[];
+  smolPetIds: bigint[];
+  swolPetIds: bigint[];
+  treasureAmounts: bigint[];
+  vehicleSkinIds: bigint[];
+  merkleProofsForSmolTraitShop: `0x${string}`[];
+  smolTraitShopSkinCount: bigint;
+  smolFemaleIds: bigint[];
+} = {
   smolCarIds: [],
   swolercycleIds: [],
   treasureIds: [],
@@ -115,7 +128,7 @@ const template = {
   merkleProofsForSmolTraitShop: [],
   smolTraitShopSkinCount: BigInt(0),
   smolFemaleIds: []
-} as const;
+};
 
 const TYPE_TO_IDS: Record<
   TCollectionsToFetchWithoutAs<"degradables">,
@@ -129,17 +142,23 @@ const TYPE_TO_IDS: Record<
   "smol-brains": "smolFemaleIds"
 } as const;
 
-function normalizeSmolverseNft(
-  tokens: {
-    tokenId: string;
-    type: TCollectionsToFetchWithoutAs<"degradables">;
-  }[]
-) {
+function normalizeSmolverseNft(tokens: Ttoken[]) {
   const newTemplate = R.clone(template);
 
   for (const token of tokens) {
     const key = TYPE_TO_IDS[token.type] as keyof typeof newTemplate;
+
+    // for now
+    if (key === "merkleProofsForSmolTraitShop") continue;
+
+    if (key === "treasureIds") {
+      const arrOrNumber = newTemplate["treasureAmounts"];
+      if (Array.isArray(arrOrNumber)) {
+        arrOrNumber.push(BigInt(token.supply));
+      }
+    }
     const arrOrNumber = newTemplate[key];
+
     if (Array.isArray(arrOrNumber)) {
       arrOrNumber.push(BigInt(token.tokenId));
     }
@@ -203,7 +222,7 @@ export type State = {
       state: "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE";
     }
   | {
-      state: "REACTOR__CONVERTED_SMOLVERSE_NFT_TO_DEGRADABLE";
+      state: "RESULT";
     }
   | {
       state: "REACTOR__MALFUNCTION";
@@ -293,6 +312,15 @@ type Action =
   | {
       type: "MOVE_TO_RAINBOW_TREASURE_DIALOG";
       degradables: Inventory["degradables"];
+    }
+  | {
+      type: "DISPLAY_NFTS";
+      rainbowTreasuresMinted: number;
+      degradableMinted: {
+        tokenId: string;
+        uri: string;
+        supply: number;
+      }[];
     }
   | {
       type: "PRODUCE_RAINBOW_TREASURE_AUTOMATICALLY";
@@ -476,7 +504,7 @@ const transitions: TTransitions<State, Action> = {
   REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE: {
     ...BASE_TRANSITIONS
   },
-  REACTOR__CONVERTED_SMOLVERSE_NFT_TO_DEGRADABLE: {
+  RESULT: {
     ...BASE_TRANSITIONS
   },
   REACTOR__SELECT_OPTION: {
@@ -581,8 +609,16 @@ const useReactorReducer = () => {
           })
         )
         .find(({ eventName }) => eventName === "TransferSingle")?.args;
+
+      // reset internal state
+      craftRainbowTreasures.reset();
+      dispatch({ type: "DISPLAY_NFTS" });
     }
-  }, [craftRainbowTreasuresResult.status, craftRainbowTreasuresResult.data]);
+  }, [
+    craftRainbowTreasuresResult.status,
+    craftRainbowTreasuresResult.data,
+    craftRainbowTreasures.reset
+  ]);
 
   useEnter(state, "REACTOR__PRODUCING_RAINBOW_TREASURE", () => {
     craftRainbowTreasures.write?.();
@@ -639,10 +675,35 @@ const useReactorReducer = () => {
               topics
             });
           }
-        });
+        })
+        .filter(
+          ({ eventName }) =>
+            eventName === "TransferSingle" || eventName === "LootTokenMinted"
+        );
+
+      const rainbowTreasuresMinted = result.find(
+        (data) =>
+          data.eventName === "TransferSingle" && isBurnAddress(data.args.from)
+      )?.args;
+
+      const degradablesMinted = result.filter(
+        (data) => data.eventName === "LootTokenMinted"
+      );
+
+      console.log({ rainbowTreasuresMinted, degradablesMinted });
+
+      // reset internal state
+      craftDegradable.reset();
+      dispatch({ type: "DISPLAY_NFTS" });
+
       // .find(({ eventName }) => eventName === "TransferSingle")?.args;
     }
-  }, [craftDegradableResult.status, craftDegradableResult.data]);
+  }, [
+    craftDegradableResult.status,
+    craftDegradableResult.data,
+    craftDegradable.reset,
+    dispatch
+  ]);
 
   useEnter(state, "REACTOR__MALFUNCTION", () => {
     setTimeout(() => {
