@@ -4,6 +4,6 @@ import { arbitrum } from "viem/chains";
 export const client = createPublicClient({
   chain: arbitrum,
   transport: http(
-    `https://arb-mainnet.g.alchemy.com/v2/${process.env.PUBLIC_ALCHEMY_KEY}`
+    `https://arb-mainnet.g.alchemy.com/v2/${import.meta.env.VITE_ALCHEMY_KEY}`
   )
 });

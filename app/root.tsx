@@ -26,7 +26,7 @@ import {
 } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import eeeImg from "~/assets/eee.png";
-import { cn, getPublicKeys } from "./utils";
+import { cn } from "./utils";
 import iconHref from "./components/icons/sprite.svg";
 import { ResponsiveProvider } from "./contexts/responsive";
 import { EasterEggProvider, useEasterEgg } from "./contexts/easteregg";
@@ -41,6 +41,7 @@ import { WagmiConfig, createConfig, configureChains, mainnet } from "wagmi";
 
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import { arbitrum, arbitrumSepolia } from "viem/chains";
+import { ENABLED_CHAINS } from "./const";
 
 NProgress.settings.template = `<div class="bar" role="bar"><div class="smol"></div><div class="peg"></div></div><div class="spinner" role="spinner"><div class="spinner-icon"></div></div>`;
 
@@ -58,8 +59,7 @@ export const loader = ({ request }: LoaderFunctionArgs) => {
     requestInfo: {
       origin: getDomainUrl(request),
       path: new URL(request.url).pathname
-    },
-    ENV: getPublicKeys(process.env)
+    }
   });
 };
 
@@ -113,17 +113,12 @@ export default function App() {
     createConfig(
       getDefaultConfig({
         appName: "SMOL",
-        alchemyId: data.ENV.PUBLIC_ALCHEMY_KEY,
-        walletConnectProjectId: data.ENV.PUBLIC_WALLETCONNECT_PROJECT_ID,
+        alchemyId: import.meta.env.VITE_ALCHEMY_KEY,
+        walletConnectProjectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID,
         appDescription: "WE ARE SMOL.",
         appUrl: "https://smolverse.lol",
         appIcon: "https://smolverse.lol/favicon-32x32.png",
-        chains: [
-          ...(data.ENV.PUBLIC_ENABLE_TESTNETS === "true"
-            ? [arbitrumSepolia]
-            : []),
-          arbitrum
-        ]
+        chains: ENABLED_CHAINS
       })
     )
   );
@@ -247,11 +242,6 @@ export default function App() {
           </WagmiConfig>
         </EasterEggProvider>
         <ScrollRestoration />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(data?.ENV)}`
-          }}
-        />
         <LiveReload />
         <Scripts />
       </body>

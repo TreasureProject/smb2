@@ -1,7 +1,6 @@
 import type { ClassValue } from "clsx";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { Env } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -13,16 +12,6 @@ const strictEntries = <T extends Record<string, any>>(
 ): [keyof T, T[keyof T]][] => {
   return Object.entries(object);
 };
-
-export function getPublicKeys(env: Env) {
-  const publicKeys = {} as Env;
-  for (const [key, value] of strictEntries(env)) {
-    if (key.startsWith("PUBLIC_")) {
-      publicKeys[key] = value;
-    }
-  }
-  return publicKeys as Pick<Env, keyof Env & `PUBLIC_${string}`>;
-}
 
 export const formatNumber = (
   value: number | string,

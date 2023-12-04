@@ -5,14 +5,13 @@ import {
   useRef,
   useState
 } from "react";
-import smol_brian from "./assets/smol_brian.mp4";
-import Tv from "./assets/tv.png";
+// import smol_brian from "./assets/smol_brian.mp4";
+// import Tv from "./assets/tv.png";
 import {
   AnimatePresence,
   HTMLMotionProps,
   animate,
   motion,
-  useAnimate,
   useMotionValue,
   useTransform
 } from "framer-motion";
@@ -21,8 +20,6 @@ import { commonMeta } from "~/seo";
 import { Header } from "~/components/Header";
 import { ConnectKitButton, useModal } from "connectkit";
 import reactor from "./assets/reactor.mp4";
-import runningMp3 from "./assets/running.mp3";
-import errorMp3 from "./assets/error.mp3";
 import { Engine, Body, Render, Bodies, World, Runner, Events } from "matter-js";
 import { cn } from "~/utils";
 import belt from "./assets/belt.jpg";
@@ -31,12 +28,13 @@ import { LinksFunction } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { useResponsive } from "~/contexts/responsive";
 import scientist from "./assets/scientist.png";
-import { ReactorProvider, useReactor } from "./provider";
+import { ReactorProvider, State, Ttoken, useReactor } from "./provider";
 import { useAccount } from "wagmi";
-import { match, matchProp } from "react-states";
+import { PickState, match, matchProp } from "react-states";
 import { Drawer } from "vaul";
-import { TCollectionsToFetch } from "~/api.server";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { TCollectionsToFetchWithoutAs, TroveToken } from "~/api.server";
+import { Icon } from "~/components/Icons";
+import { useApproval } from "~/hooks/useApprove";
 
 export const links: LinksFunction = () => [
   {
@@ -173,12 +171,25 @@ const NORMAL_TIME = 3;
 //   );
 // };
 
+type ReactorVideoState = PickState<
+  State,
+  | "REACTOR__SELECTED_SMOLVERSE_NFT"
+  | "REACTOR__SELECTED_DEGRADABLES"
+  | "REACTOR__MALFUNCTION"
+  | "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE"
+>;
+
 // million-ignore
-const ReactorVideo = ({ src }: { src: string }) => {
+const ReactorVideo = ({
+  src,
+  state
+}: {
+  src: string;
+  state: ReactorVideoState;
+}) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [playing, setPlaying] = useState(false);
-  const [danger, setDanger] = useState(false);
 
   useEffect(() => {
     const updateCanvas = () => {
@@ -223,57 +234,9 @@ const ReactorVideo = ({ src }: { src: string }) => {
     const video = videoRef.current;
     if (!video) return;
 
-    video.currentTime = danger ? NORMAL_TIME + 1 : 0;
-  }, [danger]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const running = new Audio(runningMp3);
-    const error = new Audio(errorMp3);
-
-    running.loop = true;
-    error.loop = true;
-
-    if (!playing) {
-      running.pause();
-      error.pause();
-    } else {
-      if (danger) {
-        error.play();
-        running.pause();
-      } else {
-        running.play();
-        error.pause();
-      }
-    }
-
-    const onRunningTimeUpdate = () => {
-      const buffer = 0.5;
-      if (running.currentTime > running.duration - buffer) {
-        running.currentTime = 0;
-      }
-    };
-
-    const onErrorTimeUpdate = () => {
-      const buffer = 0.1;
-      if (error.currentTime > error.duration - buffer) {
-        error.currentTime = 0;
-      }
-    };
-
-    running.addEventListener("timeupdate", onRunningTimeUpdate);
-
-    error.addEventListener("timeupdate", onErrorTimeUpdate);
-
-    return () => {
-      running.pause();
-      error.pause();
-      running.removeEventListener("timeupdate", onRunningTimeUpdate);
-      error.removeEventListener("timeupdate", onErrorTimeUpdate);
-    };
-  }, [danger, playing]);
+    video.currentTime =
+      state.state === "REACTOR__MALFUNCTION" ? NORMAL_TIME + 1 : 0;
+  }, [state.state]);
 
   return (
     <motion.div
@@ -292,11 +255,11 @@ const ReactorVideo = ({ src }: { src: string }) => {
           const video = videoRef.current;
           if (!video) return;
           const duration = video.duration;
-          if (danger) {
-            if (video.currentTime > duration - 0.1) {
+          if (state.state === "REACTOR__MALFUNCTION") {
+            if (video.currentTime > duration - 0.3) {
               video.currentTime = NORMAL_TIME + 1;
             }
-          } else if (!danger && video.currentTime > NORMAL_TIME) {
+          } else if (video.currentTime > NORMAL_TIME) {
             video.currentTime = 0;
           }
         }}
@@ -314,12 +277,12 @@ const ReactorVideo = ({ src }: { src: string }) => {
         autoPlay
         loop
       />
-      <div className="absolute bottom-6 right-24 z-10 sm:bottom-0">
-        <div className="relative inline-block aspect-video h-28 overflow-hidden sm:h-80">
+      <div className="absolute bottom-4 right-0 z-10 sm:bottom-0 sm:right-24">
+        <div className="relative inline-block aspect-video h-40 overflow-hidden sm:h-80">
           <canvas ref={canvasRef} className="h-full w-full" />
         </div>
       </div>
-      <Physics videoRef={videoRef} setDanger={setDanger} />
+      <Physics videoRef={videoRef} state={state} />
       <div
         style={
           {
@@ -360,17 +323,17 @@ const useWindowSize = () => {
 
 function Physics({
   videoRef,
-  setDanger
+  state
 }: {
   videoRef: React.MutableRefObject<HTMLVideoElement | null>;
-  setDanger: React.Dispatch<React.SetStateAction<boolean>>;
+  state: ReactorVideoState;
 }) {
   const scene = useRef<HTMLDivElement | null>(null);
   const engine = useRef(Engine.create());
   const runner = useRef(Runner.create());
   const sensor = useRef<Body | null>(null);
   const { isMobile } = useResponsive();
-  const { state, dispatch } = useReactor();
+  const { dispatch } = useReactor();
 
   const data = matchProp(state, "selectedTokens")?.selectedTokens;
 
@@ -396,10 +359,10 @@ function Physics({
     });
 
     sensor.current = Bodies.rectangle(
-      cw - (isMobile ? 97 : 385),
-      ch - 80,
-      isMobile ? 50 : 150,
-      isMobile ? 30 : 120,
+      cw - (isMobile ? 160 : 385),
+      ch - (isMobile ? 70 : 80),
+      isMobile ? 40 : 150,
+      isMobile ? 40 : 120,
       {
         isSensor: true,
         isStatic: true
@@ -429,11 +392,17 @@ function Physics({
     if (!data) return;
 
     id = setInterval(() => {
-      const ball = Bodies.rectangle(-10, height - 150, 50, 50, {
+      const currentNft = data[count];
+      if (!currentNft) return;
+      const ball = Bodies.rectangle(-10, height - 150, 100, 100, {
         mass: 10,
         restitution: 0.1,
         render: {
-          fillStyle: "#0000ff"
+          sprite: {
+            texture: currentNft.uri,
+            xScale: currentNft.type === "smol-treasures" ? 0.16 : 0.285,
+            yScale: currentNft.type === "smol-treasures" ? 0.15 : 0.285
+          }
         }
       });
       World.add(engine.current.world, ball);
@@ -441,7 +410,7 @@ function Physics({
       if (count++ === data.length) {
         clearInterval(id);
       }
-    }, 100);
+    }, 600);
 
     return () => clearInterval(id);
   }, [data, width]);
@@ -456,13 +425,17 @@ function Physics({
             videoRef.current?.play();
           }
 
-          setTimeout(() => {
-            setDanger(true);
-          }, 5000);
+          if (state.state === "REACTOR__SELECTED_SMOLVERSE_NFT") {
+            setTimeout(() => {
+              dispatch({
+                type: "MALFUNCTION"
+              });
+            }, 5000);
+          }
         }
       }
     });
-  }, [setDanger]);
+  }, [dispatch, state.state, videoRef]);
 
   return (
     <div className="absolute inset-0">
@@ -494,11 +467,7 @@ export function MessageRenderer({
     animateText();
   }, [message, count]);
 
-  return (
-    <motion.span className="whitespace-pre-line" {...props}>
-      {displayText}
-    </motion.span>
-  );
+  return <motion.span {...props}>{displayText}</motion.span>;
 }
 
 // million-ignore
@@ -513,7 +482,7 @@ const Button = ({
   const button = (
     <button
       {...props}
-      className="rounded-md bg-white px-4 py-2 text-black font-formula"
+      className="w-full rounded-md bg-white px-4 py-2 text-black font-formula text-[0.6rem] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:text-base"
     >
       {children}
     </button>
@@ -588,7 +557,7 @@ function Conversation() {
       REACTOR__NO_SMOLVERSE_NFT: () => (
         <Button onClick={() => dispatch({ type: "RESTART" })}>Back</Button>
       ),
-      REACTOR__NO_SMOL_LOOT: () => (
+      REACTOR__NO_DEGRADABLE: () => (
         <Button
           isDialog
           onClick={() =>
@@ -601,35 +570,53 @@ function Conversation() {
         </Button>
       ),
       REACTOR__SELECTED_SMOLVERSE_NFT: () => null,
-      REACTOR__CONFIRM_PRODUCING_RAINBOW_TREASURES: (ctx) => (
-        <>
-          <Button
-            onClick={() =>
-              dispatch({
-                type: "PRODUCE_RAINBOW_TREASURE"
-              })
-            }
-          >
-            Craft {ctx.producableRainbowTreasures} Rainbow Treasure
-          </Button>
-          <Button
-            isDialog
-            onClick={() =>
-              dispatch({
-                type: "TRY_LUCK"
-              })
-            }
-          >
-            Try my luck
-          </Button>
-        </>
-      ),
-      REACTOR__CONVERTED_SMOLVERSE_NFT_TO_SMOL_LOOT: () => null,
-      REACTOR__CONVERTING_SMOLVERSE_NFT_TO_SMOL_LOOT: () => null,
+      REACTOR__SELECT_OPTION: (ctx) => {
+        const producableRainbowTreasures = ctx.producableRainbowTreasures;
+        return (
+          <>
+            <Button
+              disabled={ctx.producableRainbowTreasures.length === 0}
+              onClick={() =>
+                dispatch({
+                  type: "PRODUCE_RAINBOW_TREASURE_AUTOMATICALLY"
+                })
+              }
+            >
+              {producableRainbowTreasures.length === 0
+                ? "Not enough Degradables"
+                : `Produce ${producableRainbowTreasures.length} Rainbow Treasure(s)`}
+            </Button>
+            {/* <Button
+              disabled={ctx.producableRainbowTreasures.length === 0}
+              onClick={() =>
+                dispatch({
+                  type: "SELECT_DEGRADABLES_TO_CONVERT_TO_RAINBOW_TREASURE"
+                })
+              }
+            >
+              Select Degradables to convert
+            </Button> */}
+            <Button
+              isDialog
+              onClick={() =>
+                dispatch({
+                  type: "TRY_LUCK"
+                })
+              }
+            >
+              Try my luck
+            </Button>
+          </>
+        );
+      },
+      REACTOR__CONVERTED_SMOLVERSE_NFT_TO_DEGRADABLE: () => null,
+      REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE: () => null,
       REACTOR__MALFUNCTION: () => null,
+      REACTOR__SELECTED_DEGRADABLES: () => null,
       REACTOR__SELECTING_SMOLVERSE_NFT: () => null,
       REACTOR__PRODUCED_RAINBOW_TREASURE: () => null,
       REACTOR__PRODUCING_RAINBOW_TREASURE: () => null,
+      REACTOR__SELECTING_DEGRADABLE: () => null,
       REROLL: () => (
         <>
           <Button
@@ -659,14 +646,6 @@ function Conversation() {
       ERROR: () => null
     });
 
-  const test = match(
-    state,
-    {
-      REACTOR__SELECTING_SMOLVERSE_NFT: () => "hellowr"
-    },
-    (otherStates) => []
-  );
-
   return (
     <Drawer.Root dismissible={false}>
       <motion.div
@@ -685,24 +664,29 @@ function Conversation() {
         className="fixed bottom-12 z-30 w-full px-8"
       >
         <div className="relative">
-          <div className="absolute bottom-full z-20 bg-troll px-2 py-1 font-bold text-white font-formula text-2xl">
+          <div className="absolute bottom-full right-0 z-20 bg-troll px-2 py-1 font-bold text-white font-formula text-2xl sm:left-0 sm:right-auto">
             Scientist
           </div>
-          <div className="absolute inset-0 rotate-2 bg-vroom"></div>
-          <div className="relative z-10 flex bg-tang">
-            <img src={scientist} className="h-auto w-52" />
-            <div className="flex w-full flex-col p-8">
-              <span className="text-white font-mono">state: {state.state}</span>
+          <div className="absolute inset-0 h-[250px] rotate-2 bg-vroom sm:h-auto"></div>
+          <div className="relative z-10 flex h-[250px] bg-tang sm:h-auto">
+            <img
+              src={scientist}
+              className="absolute bottom-full left-0 h-24 w-20 sm:relative sm:h-auto sm:w-52 sm:scale-100"
+            />
+            <div className="flex w-full flex-col p-4 sm:p-8">
+              {/* <span className="text-white font-mono">state: {state.state}</span> */}
               <p className="min-h-0 overflow-y-auto text-white font-mono [flex:1_1_0]">
                 {message && (
                   <MessageRenderer
-                    className="w-full"
+                    className="w-full whitespace-pre-line text-xs sm:text-base"
                     message={message}
                     key={state.state}
                   />
                 )}
               </p>
-              <div className="ml-auto">{buttonGroups()}</div>
+              <div className="space-y-1.5 sm:ml-auto sm:space-x-2 sm:space-y-0">
+                {buttonGroups()}
+              </div>
             </div>
           </div>
         </div>
@@ -724,21 +708,23 @@ function Conversation() {
   );
 }
 
+// const templateConversionInput = {
+//   smolCarIds: [],
+//   swolercycleIds: [],
+//   treasureIds: [],
+//   smolPetIds: [],
+//   swolPetIds: [],
+//   treasureAmounts: [],
+//   vehicleSkinIds: [],
+//   merkleProofsForSmolTraitShop: [],
+//   smolTraitShopSkinCount: 0,
+//   smolFemaleIds: []
+// };
+
+// million-ignore
 const SelectSmolverseNFTDialog = () => {
-  const { state, dispatch } = useReactor();
-  const [selected, setSelected] = useState<
-    (
-      | {
-          tokenId: string;
-          type: Omit<TCollectionsToFetch, "smol-treasures">;
-        }
-      | {
-          tokenId: string;
-          count: number;
-          type: "smol-treasures";
-        }
-    )[]
-  >([]);
+  const { dispatch, state } = useReactor();
+  const [items, setItems] = useState<Ttoken[]>([]);
 
   // inventory except degradables key
   const inventory = { ...state.inventory };
@@ -748,27 +734,28 @@ const SelectSmolverseNFTDialog = () => {
   delete inventory["degradables"];
 
   return (
-    <Drawer.Content className="fixed bottom-0 left-0 right-0 z-10 mt-24 flex h-[80%] items-stretch rounded-t-[10px] bg-[#261F2D]">
-      <div className="mx-auto flex h-full max-w-7xl justify-center">
-        <ul className="flex-1 space-y-3">
-          {Object.keys(inventory).map((type) => {
+    <Drawer.Content className="fixed bottom-0 left-0 right-0 z-10 mt-24 flex h-[90%] items-stretch rounded-t-[10px] bg-[#261F2D]">
+      <div className="mx-auto flex h-full max-w-7xl flex-col">
+        <div className="grid grid-cols-2 gap-6 overflow-auto px-6 py-12 [grid-auto-rows:max-content] sm:grid-cols-5">
+          {Object.entries(inventory).map(([type, tokens]) => {
             return (
-              <li key={type}>
-                <p className="font-bold text-white">{type}</p>
-              </li>
+              <RenderTokens
+                key={type}
+                type={type as TCollectionsToFetchWithoutAs<"degradables">}
+                tokens={tokens}
+                items={items}
+                setItems={setItems}
+              />
             );
           })}
-        </ul>
-        <div className="">
+        </div>
+        <div className="flex">
           <Drawer.Close asChild>
             <Button
               onClick={() =>
                 dispatch({
                   type: "SELECT_SMOLVERSE_NFT",
-                  // @ts-expect-error
-                  token: inventory["smol-cars"]?.[0],
-                  // @ts-expect-error
-                  category: "smol-cars"
+                  tokens: items
                 })
               }
             >
@@ -779,6 +766,84 @@ const SelectSmolverseNFTDialog = () => {
       </div>
     </Drawer.Content>
   );
+};
+
+export const RenderTokens = ({
+  type,
+  tokens,
+  items,
+  setItems
+}: {
+  type: TCollectionsToFetchWithoutAs<"degradables">;
+  tokens: TroveToken[];
+  items: Ttoken[];
+  setItems: React.Dispatch<React.SetStateAction<Ttoken[]>>;
+}) => {
+  // only allow Female to be selected
+  if (type === "smol-brains") {
+    tokens = tokens.filter((t) => {
+      const gender = t.metadata.attributes.find(
+        (a) => a.trait_type === "Gender"
+      );
+      return gender?.value === "Male";
+    });
+  }
+
+  const { isApproved, approve, refetch, isSuccess } = useApproval({ type });
+
+  useEffect(() => {
+    if (isSuccess) {
+      refetch();
+    }
+  }, [isSuccess]);
+
+  return tokens.map((token) => {
+    const selected = items.find(
+      (s) => s.tokenId === token.tokenId && s.type === type
+    );
+    return (
+      <div
+        key={token.tokenId}
+        className={cn(
+          "relative inline-block bg-[#483B53] p-2",
+          selected && "bg-[#DCD0E7]"
+        )}
+      >
+        {!isApproved && (
+          <div className="absolute inset-0 z-40 grid h-full w-full place-items-center bg-grayOne/90">
+            <Button onClick={() => approve()}>Approve</Button>
+          </div>
+        )}
+        {selected && (
+          <div className="absolute right-2 top-2 z-10 bg-fud p-2">
+            <Icon name="check" className="h-8 w-8 text-white" />
+          </div>
+        )}
+        <img src={token.image.uri} className="relative h-full w-full" />
+        <button
+          className="absolute inset-0 z-20 h-full w-full"
+          onClick={() => {
+            if (selected) {
+              setItems(
+                items.filter(
+                  (s) => s.tokenId !== token.tokenId || s.type !== type
+                )
+              );
+            } else {
+              setItems([
+                ...items,
+                {
+                  tokenId: token.tokenId,
+                  type: type,
+                  uri: token.image.uri
+                }
+              ]);
+            }
+          }}
+        ></button>
+      </div>
+    );
+  });
 };
 
 export default function Reactor() {
@@ -798,12 +863,20 @@ const ReactorInner = () => {
         <ConnectKitButton />
       </div>
       <AnimatePresence>
-        {state.state !== "REACTOR__SELECTED_SMOLVERSE_NFT" && <Conversation />}
+        {state.state !== "REACTOR__SELECTED_SMOLVERSE_NFT" &&
+        state.state !== "REACTOR__SELECTED_DEGRADABLES" &&
+        state.state !== "REACTOR__MALFUNCTION" &&
+        state.state !== "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE" ? (
+          <Conversation />
+        ) : null}
       </AnimatePresence>
       <AnimatePresence>
-        {state.state === "REACTOR__SELECTED_SMOLVERSE_NFT" && (
-          <ReactorVideo src={reactor} />
-        )}
+        {state.state === "REACTOR__SELECTED_SMOLVERSE_NFT" ||
+        state.state === "REACTOR__SELECTED_DEGRADABLES" ||
+        state.state === "REACTOR__MALFUNCTION" ||
+        state.state === "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE" ? (
+          <ReactorVideo src={reactor} state={state} />
+        ) : null}
       </AnimatePresence>
     </div>
   );

@@ -23,6 +23,8 @@ export type TroveToken = {
       display_type?: string;
     }[];
   };
+  isStaked: boolean;
+  tokenSupply: number;
   rarity?: {
     score: number;
     rank: number;
@@ -117,7 +119,7 @@ export const fetchSmols = async (page: number) =>
         )}`,
         {
           headers: {
-            "X-API-Key": process.env.PUBLIC_TROVE_API_KEY
+            "X-API-Key": process.env.TROVE_API_KEY ?? ""
           }
         }
       );
@@ -141,7 +143,7 @@ export const searchSmol = async (tokenId: string) =>
           )}`,
           {
             headers: {
-              "X-API-Key": process.env.PUBLIC_TROVE_API_KEY
+              "X-API-Key": process.env.TROVE_API_KEY ?? ""
             }
           }
         );
@@ -241,6 +243,11 @@ let collectionsToFetch = [
 
 export type TCollectionsToFetch = typeof collectionsToFetch;
 
+export type TCollectionsToFetchWithoutAs<A> = Exclude<
+  TCollectionsToFetch[number],
+  A
+>;
+
 if (process.env.NODE_ENV === "development") {
   collectionsToFetch = [
     // @ts-ignore
@@ -266,18 +273,18 @@ export const fetchTroveTokensForUser = async (userAddress: string) => {
     {
       method: "POST",
       headers: {
-        "X-API-Key": process.env.PUBLIC_TROVE_API_KEY
+        "X-API-Key": process.env.TROVE_API_KEY ?? ""
       },
       body: JSON.stringify({
         slugs: collectionsToFetch,
         chains: [process.env.CHAIN],
+        showHiddenTraits: true,
         userAddress
       })
     }
   );
 
   const data = (await res.json()) as TroveTokensForUserApiResponse;
-
   const collections = data.tokens.reduce<{
     [key in TCollectionsToFetch[number]]?: TroveToken[];
   }>((acc, token) => {

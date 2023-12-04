@@ -26,6 +26,9 @@
       <path d="m9 11 3 3L22 4"/>
       <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
     </symbol>
+    <symbol id="check" fill="none" viewBox="0 0 17 17">
+      <path fill="currentColor" d="M13.833 3.167V4.5H12.5v1.333h-1.334v1.334H9.833V8.5H8.5v1.333H7.166v1.334H6.5v.666H5.166v-.666H4.5V9.833H3.166v-.666H1.833v2h1.333V12.5H4.5v1.333h.666v.667H6.5v-.667h.666V12.5H8.5v-1.333h1.333V9.833h1.333V8.5H12.5V7.167h1.333V5.833h1.333V3.167h-1.333Z"/>
+    </symbol>
     <symbol id="chevron-up" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-chevron-up" viewBox="0 0 24 24">
       <path d="m18 15-6-6-6 6"/>
     </symbol>

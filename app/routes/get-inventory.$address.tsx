@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { TroveToken, fetchMisc, fetchTroveTokensForUser } from "~/api.server";
+import { fetchTroveTokensForUser } from "~/api.server";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 

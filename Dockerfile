@@ -18,7 +18,7 @@ FROM base as build
 # Install packages needed to build node modules
 RUN apt-get update -qq && \
     apt-get install -y build-essential pkg-config python-is-python3
-    
+
 # Install node modules
 COPY --link package.json ./
 COPY patches ./patches
@@ -27,6 +27,8 @@ RUN npm install --include=dev
 
 # Copy application code
 COPY --link . .
+
+RUN npm run codegen
 
 # Build application
 RUN npm run build
