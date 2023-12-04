@@ -289,7 +289,7 @@ export const fetchTroveTokensForUser = async (userAddress: string) => {
     [key in TCollectionsToFetch[number]]?: TroveToken[];
   }>((acc, token) => {
     const collectionUrlSlug = (
-      process.env.NODE_ENV === "development"
+      process.env.CHAIN === "arbsepolia"
         ? token.collectionUrlSlug.replace("-as", "")
         : token.collectionUrlSlug
     ) as (typeof collectionsToFetch)[number];
