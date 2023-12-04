@@ -28,6 +28,7 @@ export const TYPE_TO_IPFS: Record<
   "smol-brains": "QmPgLw49FDqzjjUszxVRsvZ312o8njEvVTWv3Xrf4D8hRN"
 };
 
+console.log(import.meta.env);
 export const ENABLED_CHAINS = import.meta.env.VITE_ENABLE_TESTNETS
   ? [arbitrumSepolia, arbitrum]
   : [arbitrum];
