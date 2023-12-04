@@ -31,7 +31,9 @@ COPY --link . .
 RUN npm run codegen
 
 # Build application
-RUN npm run build
+RUN --mount=type=secret,id=dotenv,dst=env \
+    tr ' ' '\n' < env > .env && \
+    npm run build
 
 # Remove development dependencies
 RUN npm prune --omit=dev
