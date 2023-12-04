@@ -612,7 +612,7 @@ const useReactorReducer = () => {
 
       // reset internal state
       craftRainbowTreasures.reset();
-      dispatch({ type: "DISPLAY_NFTS" });
+      // dispatch({ type: "DISPLAY_NFTS" });
     }
   }, [
     craftRainbowTreasuresResult.status,
@@ -694,7 +694,7 @@ const useReactorReducer = () => {
 
       // reset internal state
       craftDegradable.reset();
-      dispatch({ type: "DISPLAY_NFTS" });
+      // dispatch({ type: "DISPLAY_NFTS" });
 
       // .find(({ eventName }) => eventName === "TransferSingle")?.args;
     }
