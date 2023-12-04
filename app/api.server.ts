@@ -268,6 +268,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 export const fetchTroveTokensForUser = async (userAddress: string) => {
+  console.log(process.env.TROVE_API_KEY, process.env.CHAIN);
   const res = await fetch(
     `https://${BASE_URL}.treasure.lol/tokens-for-user-page`,
     {
