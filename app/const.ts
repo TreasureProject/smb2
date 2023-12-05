@@ -28,7 +28,6 @@ export const TYPE_TO_IPFS: Record<
   "smol-brains": "QmPgLw49FDqzjjUszxVRsvZ312o8njEvVTWv3Xrf4D8hRN"
 };
 
-console.log(import.meta.env);
 export const ENABLED_CHAINS = import.meta.env.VITE_ENABLE_TESTNETS
   ? [arbitrumSepolia, arbitrum]
   : [arbitrum];
@@ -52,7 +51,7 @@ export const CONTRACT_ADDRESSES: Record<
   Record<TContractName, `0x${string}`>
 > = {
   [arbitrumSepolia.id]: {
-    [ContractName.DEGRADABLES]: "0x771860c280A06095E279d3eBc7267a9b29281c8c",
+    [ContractName.DEGRADABLES]: "0xd7fd29273c4bfc2498dca8f4f776dd2deac2ff32",
     [ContractName.SWOL_JRS]: "0x35373d1aD8dc3F4a988AD7801c82d12FB68370D2",
     [ContractName.SMOL_JRS]: "0xc8A4E44D49404342d23b51eB34cD77e8a96a9Fac",
     [ContractName.SMOL_CARS]: "0x9babC0D3f4669A09DD77B78bD08cA74502A68Fb4",

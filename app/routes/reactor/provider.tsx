@@ -45,8 +45,8 @@ export type Ttoken = {
 function lootToRainbowTreasure(items?: TroveToken[]) {
   const colorCounts: Record<string, number> = {};
   const shapeCounts: Record<string, number> = {};
-  const colorTokenIds: Record<string, bigint[]> = {};
-  const shapeTokenIds: Record<string, bigint[]> = {};
+  const colorTokenIds: Record<string, TroveToken[]> = {};
+  const shapeTokenIds: Record<string, TroveToken[]> = {};
 
   if (!items) return [];
 
@@ -56,27 +56,27 @@ function lootToRainbowTreasure(items?: TroveToken[]) {
         const color = attribute.value as string;
         colorCounts[color] = (colorCounts[color] || 0) + 1;
         colorTokenIds[color] = colorTokenIds[color] || [];
-        colorTokenIds[color].push(BigInt(item.tokenId));
+        colorTokenIds[color].push(item);
       } else if (attribute.trait_type === "Shape") {
         const shape = attribute.value as string;
         shapeCounts[shape] = (shapeCounts[shape] || 0) + 1;
         shapeTokenIds[shape] = shapeTokenIds[shape] || [];
-        shapeTokenIds[shape].push(BigInt(item.tokenId));
+        shapeTokenIds[shape].push(item);
       }
     });
   });
   // 0 = BY_SHAPE
   // 1 = BY_COLOR
-  const results: { tokenIds: bigint[]; craftType: 0 | 1 }[] = [];
+  const results: { tokens: TroveToken[]; craftType: 0 | 1 }[] = [];
 
   const createResultsForAttribute = (
-    tokenIds: bigint[],
+    tokens: TroveToken[],
     craftType: "COLOR" | "SHAPE"
   ) => {
-    for (let i = 0; i < tokenIds.length; i += 15) {
-      if (i + 15 <= tokenIds.length) {
+    for (let i = 0; i < tokens.length; i += 15) {
+      if (i + 15 <= tokens.length) {
         results.push({
-          tokenIds: tokenIds.slice(i, i + 15),
+          tokens: tokens.slice(i, i + 15),
           craftType: craftType === "COLOR" ? 1 : 0
         });
       }
@@ -93,9 +93,7 @@ function lootToRainbowTreasure(items?: TroveToken[]) {
     if (shapeCounts[shape] >= 15) {
       if (
         !results.some((result) =>
-          result.tokenIds.some((tokenId) =>
-            shapeTokenIds[shape].includes(tokenId)
-          )
+          result.tokens.some((token) => shapeTokenIds[shape].includes(token))
         )
       ) {
         createResultsForAttribute(shapeTokenIds[shape], "SHAPE");
@@ -223,6 +221,11 @@ export type State = {
     }
   | {
       state: "RESULT";
+      rainbowTreasuresMinted: number;
+      degradableMinted: {
+        tokenId: string;
+        expiredAt: number;
+      }[];
     }
   | {
       state: "REACTOR__MALFUNCTION";
@@ -236,11 +239,8 @@ export type State = {
       state: "REACTOR__SELECTING_DEGRADABLE";
     }
   | {
-      state: "REACTOR__SELECTED_DEGRADABLES";
-      producableRainbowTreasures: ReturnType<typeof lootToRainbowTreasure>;
-    }
-  | {
       state: "REACTOR__PRODUCING_RAINBOW_TREASURE";
+      producableRainbowTreasures: ReturnType<typeof lootToRainbowTreasure>;
     }
   | {
       state: "REACTOR__PRODUCED_RAINBOW_TREASURE";
@@ -314,22 +314,21 @@ type Action =
       degradables: Inventory["degradables"];
     }
   | {
-      type: "DISPLAY_NFTS";
-      rainbowTreasuresMinted: number;
-      degradableMinted: {
-        tokenId: string;
-        uri: string;
-        supply: number;
-      }[];
-    }
-  | {
       type: "PRODUCE_RAINBOW_TREASURE_AUTOMATICALLY";
     }
   | {
       type: "SELECT_DEGRADABLES_TO_CONVERT_TO_RAINBOW_TREASURE";
     }
   | {
-      type: "SELECTING_RAINBOW_TREASURE_TO_REROLL";
+      type: "MOVE_TO_RESULT";
+      rainbowTreasuresMinted: number;
+      degradableMinted: {
+        tokenId: string;
+        expiredAt: number;
+      }[];
+    }
+  | {
+      type: "SELECT_RAINBOW_TREASURE_TO_REROLL";
     }
   | {
       type: "CONFIRM_REROLL";
@@ -371,6 +370,11 @@ const BASE_TRANSITIONS: TTransition<State, Action> = {
     ...ctx,
     state: "IDLE",
     message: "Welcome to the rainbow factory. How can I help you today?"
+  }),
+  CONNECTION_ERROR: (ctx) => ({
+    ...ctx,
+    state: "ERROR",
+    message: "Connection error. Please try again."
   })
 };
 
@@ -418,12 +422,7 @@ const transitions: TTransitions<State, Action> = {
               ctx.message,
         inventory: payload.inventory
       };
-    },
-    CONNECTION_ERROR: (ctx) => ({
-      ...ctx,
-      state: "ERROR",
-      message: "Connection error. Please try again."
-    })
+    }
   },
   NOT_CONNECTED: {
     ...BASE_TRANSITIONS,
@@ -440,6 +439,7 @@ const transitions: TTransitions<State, Action> = {
     ...BASE_TRANSITIONS,
     MOVE_TO_RAINBOW_TREASURE_DIALOG: (ctx, { degradables }) => {
       const producableRainbowTreasures = lootToRainbowTreasure(degradables);
+
       return {
         ...ctx,
         state: "REACTOR__SELECT_OPTION",
@@ -459,11 +459,13 @@ const transitions: TTransitions<State, Action> = {
   },
   REACTOR__MALFUNCTION: {
     ...BASE_TRANSITIONS,
-    PRODUCING_DEGRADABLE: (ctx) => {
+    MOVE_TO_RESULT: (ctx, { rainbowTreasuresMinted, degradableMinted }) => {
       return {
         ...ctx,
-        state: "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE",
-        message: "Producing degradable..."
+        state: "RESULT",
+        message: "Rainbow Treasure produced",
+        rainbowTreasuresMinted,
+        degradableMinted
       };
     }
   },
@@ -512,7 +514,7 @@ const transitions: TTransitions<State, Action> = {
     PRODUCE_RAINBOW_TREASURE_AUTOMATICALLY: (ctx) => {
       return {
         ...ctx,
-        state: "REACTOR__SELECTED_DEGRADABLES",
+        state: "REACTOR__PRODUCING_RAINBOW_TREASURE",
         message: "Producing Rainbow Treasure..."
       };
     },
@@ -531,16 +533,42 @@ const transitions: TTransitions<State, Action> = {
       };
     }
   },
-  REACTOR__SELECTING_DEGRADABLE: {},
-  REACTOR__SELECTED_DEGRADABLES: {
+  REACTOR__SELECTING_DEGRADABLE: {
     ...BASE_TRANSITIONS
   },
-  REACTOR__PRODUCING_RAINBOW_TREASURE: {},
+
+  REACTOR__PRODUCING_RAINBOW_TREASURE: {
+    ...BASE_TRANSITIONS,
+    MOVE_TO_RESULT: (ctx, { rainbowTreasuresMinted, degradableMinted }) => {
+      return {
+        ...ctx,
+        state: "RESULT",
+        message: "Rainbow Treasure produced",
+        rainbowTreasuresMinted,
+        degradableMinted
+      };
+    }
+  },
   REACTOR__PRODUCED_RAINBOW_TREASURE: {
     ...BASE_TRANSITIONS
   },
   REROLL: {
-    ...BASE_TRANSITIONS
+    ...BASE_TRANSITIONS,
+    LOAD_INVENTORY: (ctx) => {
+      return {
+        ...ctx,
+        state: "LOADING_INVENTORY",
+        prevState: ctx.state,
+        message: "Checking your backpack..."
+      };
+    },
+    SELECT_RAINBOW_TREASURE_TO_REROLL: (ctx) => {
+      return {
+        ...ctx,
+        state: "SELECTING_RAINBOW_TREASURE_TO_REROLL",
+        message: "Selecting Rainbow Treasure..."
+      };
+    }
   },
   SELECTING_RAINBOW_TREASURE_TO_REROLL: {
     ...BASE_TRANSITIONS
@@ -574,11 +602,21 @@ const useReactorReducer = () => {
     "producableRainbowTreasures"
   )?.producableRainbowTreasures;
 
-  const { config: craftRainbowTreasuresConfig } = usePrepareContractWrite({
+  const {
+    config: craftRainbowTreasuresConfig,
+    status: prepareCraftRainbowTreasuresStatus
+  } = usePrepareContractWrite({
     address: contractAddresses["DEGRADABLES"],
     abi: ABIS.DEGRADABLES,
     functionName: "craftRainbowTreasures",
-    args: [producableRainbowTreasures ?? []]
+    args: [
+      producableRainbowTreasures
+        ? producableRainbowTreasures.map((treasure) => ({
+            tokenIds: treasure.tokens.map((token) => BigInt(token.tokenId)),
+            craftType: treasure.craftType
+          }))
+        : []
+    ]
   });
 
   const craftRainbowTreasures = useContractWrite(craftRainbowTreasuresConfig);
@@ -586,6 +624,19 @@ const useReactorReducer = () => {
   const craftRainbowTreasuresResult = useWaitForTransaction({
     hash: craftRainbowTreasures.data?.hash
   });
+
+  useEffect(() => {
+    if (
+      prepareCraftRainbowTreasuresStatus === "error" ||
+      craftRainbowTreasures.status === "error"
+    ) {
+      dispatch({ type: "CONNECTION_ERROR" });
+    }
+  }, [
+    prepareCraftRainbowTreasuresStatus,
+    craftRainbowTreasures.status,
+    dispatch
+  ]);
 
   useEffect(() => {
     if (
@@ -608,11 +659,18 @@ const useReactorReducer = () => {
             topics
           })
         )
-        .find(({ eventName }) => eventName === "TransferSingle")?.args;
+        .find(
+          ({ eventName, args }) =>
+            eventName === "TransferSingle" && isBurnAddress(args.from)
+        );
 
       // reset internal state
+      dispatch({
+        type: "MOVE_TO_RESULT",
+        rainbowTreasuresMinted: Number(result?.args.value ?? BigInt(0)),
+        degradableMinted: []
+      });
       craftRainbowTreasures.reset();
-      // dispatch({ type: "DISPLAY_NFTS" });
     }
   }, [
     craftRainbowTreasuresResult.status,
@@ -628,7 +686,10 @@ const useReactorReducer = () => {
 
   const produceDegradable = matchProp(state, "selectedTokens")?.selectedTokens;
 
-  const { config: produceDegradableConfig } = usePrepareContractWrite({
+  const {
+    config: produceDegradableConfig,
+    status: prepareProduceDegradableStatus
+  } = usePrepareContractWrite({
     address: contractAddresses["DEGRADABLES"],
     abi: ABIS.DEGRADABLES,
     functionName: "convertToLoot",
@@ -642,6 +703,15 @@ const useReactorReducer = () => {
   const craftDegradableResult = useWaitForTransaction({
     hash: craftDegradable.data?.hash
   });
+
+  useEffect(() => {
+    if (
+      prepareProduceDegradableStatus === "error" ||
+      craftDegradable.status === "error"
+    ) {
+      dispatch({ type: "CONNECTION_ERROR" });
+    }
+  }, [prepareProduceDegradableStatus, craftDegradable.status, dispatch]);
 
   useEffect(() => {
     if (
@@ -684,17 +754,40 @@ const useReactorReducer = () => {
       const rainbowTreasuresMinted = result.find(
         (data) =>
           data.eventName === "TransferSingle" && isBurnAddress(data.args.from)
-      )?.args;
-
-      const degradablesMinted = result.filter(
-        (data) => data.eventName === "LootTokenMinted"
       );
 
-      console.log({ rainbowTreasuresMinted, degradablesMinted });
+      const degradablesMinted = result.filter(
+        (
+          data
+        ): data is {
+          eventName: "LootTokenMinted";
+          args: {
+            tokenId: bigint;
+            lootToken: {
+              lootId: number;
+              expireAt: number;
+            };
+          };
+        } => data.eventName === "LootTokenMinted"
+      );
 
       // reset internal state
+      dispatch({
+        type: "MOVE_TO_RESULT",
+        rainbowTreasuresMinted: rainbowTreasuresMinted
+          ? rainbowTreasuresMinted?.eventName === "TransferSingle"
+            ? Number(rainbowTreasuresMinted?.args?.value ?? BigInt(0))
+            : 0
+          : 0,
+        degradableMinted: degradablesMinted.map((mint) => {
+          return {
+            tokenId: String(mint.args.tokenId),
+            expiredAt: mint.args.lootToken?.expireAt ?? 0
+          };
+        })
+      });
+
       craftDegradable.reset();
-      // dispatch({ type: "DISPLAY_NFTS" });
 
       // .find(({ eventName }) => eventName === "TransferSingle")?.args;
     }
@@ -706,9 +799,10 @@ const useReactorReducer = () => {
   ]);
 
   useEnter(state, "REACTOR__MALFUNCTION", () => {
-    setTimeout(() => {
+    const id = setTimeout(() => {
       craftDegradable.write?.();
     }, 1000);
+    return () => clearTimeout(id);
   });
 
   const { isConnected, address } = useAccount();
@@ -806,6 +900,12 @@ const useReactorReducer = () => {
     },
     [connected, address]
   );
+
+  // reset internal states of both contracts
+  useEnter(state, "ERROR", () => {
+    craftRainbowTreasures.reset();
+    craftDegradable.reset();
+  });
 
   return { state, dispatch };
 };

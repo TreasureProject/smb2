@@ -2,10 +2,8 @@ import { cachified } from "./cache.server";
 import { client } from "./routes/weather/client.server";
 import { Weather } from "./types";
 
-const BASE_URL =
-  (process.env.CHAIN || "arbsepolia") === "arbsepolia"
-    ? "trove-api-dev"
-    : "trove-api";
+const chainName = process.env.CHAIN || "arbsepolia";
+const BASE_URL = chainName === "arbsepolia" ? "trove-api-dev" : "trove-api";
 
 export type TroveToken = {
   contractType: "ERC721";
@@ -304,3 +302,22 @@ export const fetchTroveTokensForUser = async (userAddress: string) => {
 
   return collections;
 };
+
+// export const refreshTroveTokens = async () => {
+//   const slug = chainName === "arbsepolia" ? "smol-brains-ag" : "smol-brains";
+//   const url = (tokenId: string) =>
+//     `${BASE_URL}.treasure.lol/collection/${
+//       process.env.CHAIN || "arbsepolia"
+//     }/${slug}/${tokenId}/refresh`;
+
+//   await Promise.all(
+//     tokens.map((token) => {
+//       return fetch(url(token.tokenId), {
+//         method: "POST",
+//         headers: {
+//           "X-API-Key": process.env.TROVE_API_KEY ?? ""
+//         },
+//       });
+//     })
+//   );
+// };

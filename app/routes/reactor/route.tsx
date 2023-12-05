@@ -35,6 +35,9 @@ import { Drawer } from "vaul";
 import { TCollectionsToFetchWithoutAs, TroveToken } from "~/api.server";
 import { Icon } from "~/components/Icons";
 import { useApproval } from "~/hooks/useApprove";
+import rainbowTreasure from "./assets/rainbow.gif";
+import * as R from "remeda";
+import { Dialog, DialogContent } from "~/components/ui/dialog";
 
 export const links: LinksFunction = () => [
   {
@@ -174,7 +177,7 @@ const NORMAL_TIME = 3;
 type ReactorVideoState = PickState<
   State,
   | "REACTOR__SELECTED_SMOLVERSE_NFT"
-  | "REACTOR__SELECTED_DEGRADABLES"
+  | "REACTOR__PRODUCING_RAINBOW_TREASURE"
   | "REACTOR__MALFUNCTION"
   | "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE"
 >;
@@ -277,8 +280,8 @@ const ReactorVideo = ({
         autoPlay
         loop
       />
-      <div className="absolute bottom-4 right-0 z-10 sm:bottom-0 sm:right-24">
-        <div className="relative inline-block aspect-video h-40 overflow-hidden sm:h-80">
+      <div className="absolute bottom-4 right-0 z-10 sm:-bottom-2 sm:right-24">
+        <div className="relative inline-block aspect-video h-40 overflow-hidden sm:h-96">
           <canvas ref={canvasRef} className="h-full w-full" />
         </div>
       </div>
@@ -335,8 +338,6 @@ function Physics({
   const { isMobile } = useResponsive();
   const { dispatch } = useReactor();
 
-  const data = matchProp(state, "selectedTokens")?.selectedTokens;
-
   const { width, height } = useWindowSize();
   useEffect(() => {
     if (!scene.current) return;
@@ -345,7 +346,7 @@ function Physics({
     const ch = height;
 
     engine.current.gravity.y = 1;
-    engine.current.gravity.x = 0.5;
+    engine.current.gravity.x = isMobile ? 0.2 : 0.5;
 
     const render = Render.create({
       element: scene.current,
@@ -358,11 +359,13 @@ function Physics({
       }
     });
 
+    const reactorPosition = isMobile ? 160 : 440;
+
     sensor.current = Bodies.rectangle(
-      cw - (isMobile ? 160 : 385),
-      ch - (isMobile ? 70 : 80),
-      isMobile ? 40 : 150,
-      isMobile ? 40 : 120,
+      cw - reactorPosition,
+      ch - (isMobile ? 65 : 100),
+      isMobile ? 40 : 180,
+      isMobile ? 50 : 140,
       {
         isSensor: true,
         isStatic: true
@@ -370,7 +373,27 @@ function Physics({
     );
 
     World.add(engine.current.world, [
-      Bodies.rectangle(cw / 2, ch - 35, cw, 20, { isStatic: true }),
+      Bodies.rectangle(
+        0,
+        ch - 35,
+        cw + sensor.current.position.x - (isMobile ? 200 : 600),
+        20,
+        {
+          isStatic: true
+        }
+      ),
+      Bodies.rectangle(
+        cw - reactorPosition + (isMobile ? 40 : 180) / 1.5,
+        ch - (isMobile ? 65 : 100),
+        isMobile ? 40 : 90,
+        isMobile ? 50 : 140,
+        {
+          render: {
+            visible: false
+          },
+          isStatic: true
+        }
+      ),
       sensor.current
     ]);
 
@@ -384,36 +407,99 @@ function Physics({
       render.canvas.remove();
       render.textures = {};
     };
-  }, [width, height, isMobile, data]);
+  }, [width, height, isMobile]);
 
   useEffect(() => {
     let id: NodeJS.Timeout;
     let count = 0;
-    if (!data) return;
 
-    id = setInterval(() => {
-      const currentNft = data[count];
-      if (!currentNft) return;
-      const ball = Bodies.rectangle(-10, height - 150, 100, 100, {
-        mass: 10,
-        restitution: 0.1,
-        render: {
-          sprite: {
-            texture: currentNft.uri,
-            xScale: currentNft.type === "smol-treasures" ? 0.16 : 0.285,
-            yScale: currentNft.type === "smol-treasures" ? 0.15 : 0.285
+    if (
+      state.state !== "REACTOR__SELECTED_SMOLVERSE_NFT" &&
+      state.state !== "REACTOR__PRODUCING_RAINBOW_TREASURE"
+    )
+      return;
+
+    if (state.state === "REACTOR__SELECTED_SMOLVERSE_NFT") {
+      id = setInterval(() => {
+        const data = matchProp(state, "selectedTokens")?.selectedTokens;
+
+        const currentNft = data[count];
+
+        if (!currentNft) return;
+
+        const ball = Bodies.rectangle(
+          -10,
+          height - 400,
+          isMobile ? 25 : 100,
+          isMobile ? 25 : 100,
+          {
+            mass: 10,
+            restitution: 0.1,
+            render: {
+              sprite: {
+                texture: currentNft.uri,
+                xScale:
+                  currentNft.type === "smol-treasures"
+                    ? isMobile
+                      ? 0.08
+                      : 0.16
+                    : isMobile
+                    ? 0.142
+                    : 0.285,
+                yScale:
+                  currentNft.type === "smol-treasures"
+                    ? isMobile
+                      ? 0.075
+                      : 0.15
+                    : isMobile
+                    ? 0.142
+                    : 0.285
+              }
+            }
           }
+        );
+        World.add(engine.current.world, ball);
+        if (count++ === data.length) {
+          clearInterval(id);
         }
-      });
-      World.add(engine.current.world, ball);
+      }, 600);
 
-      if (count++ === data.length) {
-        clearInterval(id);
-      }
-    }, 600);
+      return () => clearInterval(id);
+    } else {
+      id = setInterval(() => {
+        const data = matchProp(state, "producableRainbowTreasures")
+          ?.producableRainbowTreasures;
 
-    return () => clearInterval(id);
-  }, [data, width]);
+        const combined = data
+          .reduce<string[]>((acc, d) => {
+            return [...acc, ...d.tokens.map((t) => t.image.uri)];
+          }, [])
+          .slice(0, 100);
+
+        const currentNftImage = combined[count];
+
+        if (!currentNftImage) return;
+
+        const ball = Bodies.circle(-10, height - 400, 50, {
+          mass: 20,
+          restitution: 0.1,
+          render: {
+            sprite: {
+              texture: currentNftImage,
+              xScale: 0.27,
+              yScale: 0.27
+            }
+          }
+        });
+        World.add(engine.current.world, ball);
+        if (count++ === combined.length) {
+          clearInterval(id);
+        }
+      }, 200);
+
+      return () => clearInterval(id);
+    }
+  }, [state, height, isMobile]);
 
   // Events
   useEffect(() => {
@@ -542,7 +628,7 @@ function Conversation() {
               })
             }
           >
-            I need to convert a Treasure into another kind.
+            I need to convert a Degradable into another kind.
           </Button>
         </>
       ),
@@ -583,7 +669,7 @@ function Conversation() {
               }
             >
               {producableRainbowTreasures.length === 0
-                ? "Not enough Degradables"
+                ? "No matching degradables"
                 : `Produce ${producableRainbowTreasures.length} Rainbow Treasure(s)`}
             </Button>
             {/* <Button
@@ -617,33 +703,49 @@ function Conversation() {
       REACTOR__PRODUCED_RAINBOW_TREASURE: () => null,
       REACTOR__PRODUCING_RAINBOW_TREASURE: () => null,
       REACTOR__SELECTING_DEGRADABLE: () => null,
-      REROLL: () => (
-        <>
-          <Button
-            onClick={() =>
-              dispatch({
-                type: "RESTART"
-              })
-            }
-          >
-            Back
-          </Button>
-          <Button
-            isDialog
-            onClick={() =>
-              dispatch({
-                type: "SELECTING_RAINBOW_TREASURE_TO_REROLL"
-              })
-            }
-          >
-            Select a Rainbow Treasure
-          </Button>
-        </>
-      ),
+      REROLL: (ctx) => {
+        const degradables = ctx.inventory?.degradables ?? [];
+        return (
+          <>
+            <Button
+              onClick={() =>
+                dispatch({
+                  type: "RESTART"
+                })
+              }
+            >
+              Back
+            </Button>
+            <Button
+              isDialog
+              disabled={degradables.length === 0}
+              onClick={() =>
+                dispatch({
+                  type: "SELECT_RAINBOW_TREASURE_TO_REROLL"
+                })
+              }
+            >
+              {degradables.length === 0
+                ? "You do not own any Degradables"
+                : "Select a Rainbow Treasure"}
+            </Button>
+          </>
+        );
+      },
       SELECTING_RAINBOW_TREASURE_TO_REROLL: () => null,
       REROLL__REROLLED: () => null,
       REROLL__REROLLING: () => null,
-      ERROR: () => null
+      ERROR: () => (
+        <Button
+          onClick={() =>
+            dispatch({
+              type: "RESTART"
+            })
+          }
+        >
+          Back
+        </Button>
+      )
     });
 
   return (
@@ -697,8 +799,11 @@ function Conversation() {
           match(
             state,
             {
-              REACTOR__SELECTING_SMOLVERSE_NFT: () => (
-                <SelectSmolverseNFTDialog />
+              REACTOR__SELECTING_SMOLVERSE_NFT: (state) => (
+                <SelectSmolverseNFTDialog state={state} />
+              ),
+              SELECTING_RAINBOW_TREASURE_TO_REROLL: (state) => (
+                <RerollDialog state={state} />
               )
             },
             (otherStates) => []
@@ -708,26 +813,135 @@ function Conversation() {
   );
 }
 
-// const templateConversionInput = {
-//   smolCarIds: [],
-//   swolercycleIds: [],
-//   treasureIds: [],
-//   smolPetIds: [],
-//   swolPetIds: [],
-//   treasureAmounts: [],
-//   vehicleSkinIds: [],
-//   merkleProofsForSmolTraitShop: [],
-//   smolTraitShopSkinCount: 0,
-//   smolFemaleIds: []
-// };
+// million-ignore
+const RerollDialog = ({
+  state
+}: {
+  state: PickState<State, "SELECTING_RAINBOW_TREASURE_TO_REROLL">;
+}) => {
+  const { dispatch } = useReactor();
+  const [selected, setSelected] = useState<TroveToken[]>([]);
+  const degradables = state.inventory?.degradables;
+
+  if (!degradables) return null;
+
+  console.log(degradables);
+
+  return (
+    <Drawer.Content className="fixed bottom-0 left-0 right-0 z-10 mt-24 flex h-[90%] items-stretch rounded-t-[10px] bg-[#261F2D]">
+      <div className="mx-auto flex h-full max-w-7xl flex-col">
+        <div className="grid grid-cols-2 gap-6 overflow-auto px-6 py-12 [grid-auto-rows:max-content] sm:grid-cols-5">
+          {degradables.map((degradable) => {
+            const isSelected = selected.includes(degradable);
+            // const expireAt = degradable.metadata.attributes.find(
+            //   (a) => a.trait_type === "Expire At"
+            // );
+            return (
+              <div
+                key={degradable.tokenId}
+                className={cn(
+                  "relative inline-block bg-[#483B53] p-2",
+                  isSelected && "bg-[#DCD0E7]"
+                )}
+              >
+                {isSelected && (
+                  <div className="absolute right-2 top-2 z-10 bg-fud p-2">
+                    <Icon name="check" className="h-8 w-8 text-white" />
+                  </div>
+                )}
+                <img
+                  src={degradable.image.uri}
+                  className="relative h-full w-full"
+                />
+                <button
+                  className="absolute inset-0 z-20 h-full w-full"
+                  onClick={() => {
+                    if (isSelected) {
+                      setSelected(
+                        selected.filter((s) => s.tokenId !== degradable.tokenId)
+                      );
+                    } else {
+                      setSelected([...selected, degradable]);
+                    }
+                  }}
+                ></button>
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex">
+          <Drawer.Close asChild>
+            <Button
+            // onClick={() =>
+            //   dispatch({
+            //     type: "SELECT_SMOLVERSE_NFT",
+            //     tokens: items
+            //   })
+            // }
+            >
+              Confirm
+            </Button>
+          </Drawer.Close>
+        </div>
+      </div>
+    </Drawer.Content>
+  );
+};
 
 // million-ignore
-const SelectSmolverseNFTDialog = () => {
-  const { dispatch, state } = useReactor();
+const ResultDialog = ({ state }: { state: PickState<State, "RESULT"> }) => {
+  const { dispatch } = useReactor();
+  const { degradableMinted, rainbowTreasuresMinted } = state;
+  console.log(degradableMinted, rainbowTreasuresMinted);
+  return (
+    <DialogContent className="border-none bg-transparent p-0 shadow-none font-mono sm:rounded-none">
+      <div className="mx-auto flex h-full max-w-7xl flex-col">
+        {/* <div className="grid grid-cols-2 gap-6 overflow-auto px-6 py-12 [grid-auto-rows:max-content] sm:grid-cols-5"> */}
+        {/* {degradableMinted.map((d) => (
+            <div
+              key={d.tokenId}
+              className="relative inline-block bg-[#483B53] p-2"
+            >
+              {d.tokenId}
+            </div>
+          ))} */}
+        <img
+          src={rainbowTreasure}
+          className="relative h-full
+        w-full [mask-image:radial-gradient(circle,black,transparent_80%)]
+        
+        "
+        />
+        {/* </div> */}
+        <div className="flex">
+          <Drawer.Close asChild>
+            <Button
+              onClick={() =>
+                dispatch({
+                  type: "RESTART"
+                })
+              }
+            >
+              Back
+            </Button>
+          </Drawer.Close>
+        </div>
+      </div>
+    </DialogContent>
+  );
+};
+
+// million-ignore
+const SelectSmolverseNFTDialog = ({
+  state
+}: {
+  state: PickState<State, "REACTOR__SELECTING_SMOLVERSE_NFT">;
+}) => {
+  const { dispatch } = useReactor();
   const [items, setItems] = useState<Ttoken[]>([]);
 
   // inventory except degradables key
-  const inventory = { ...state.inventory };
+  const inventory = R.clone(state.inventory);
 
   if (!inventory) return null;
 
@@ -789,6 +1003,10 @@ export const RenderTokens = ({
     });
   }
 
+  if (type === "smol-treasures") {
+    tokens = tokens.filter((t) => t.tokenId !== "10"); // rainbow treasure
+  }
+
   const { isApproved, approve, refetch, isSuccess } = useApproval({ type });
 
   useEffect(() => {
@@ -837,7 +1055,7 @@ export const RenderTokens = ({
                   type: type,
                   uri: token.image.uri,
                   // TODO: this is only for dev to check
-                  supply: 1
+                  supply: 10
                 }
               ]);
             }
@@ -866,7 +1084,7 @@ const ReactorInner = () => {
       </div>
       <AnimatePresence>
         {state.state !== "REACTOR__SELECTED_SMOLVERSE_NFT" &&
-        state.state !== "REACTOR__SELECTED_DEGRADABLES" &&
+        state.state !== "REACTOR__PRODUCING_RAINBOW_TREASURE" &&
         state.state !== "REACTOR__MALFUNCTION" &&
         state.state !== "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE" ? (
           <Conversation />
@@ -874,12 +1092,15 @@ const ReactorInner = () => {
       </AnimatePresence>
       <AnimatePresence>
         {state.state === "REACTOR__SELECTED_SMOLVERSE_NFT" ||
-        state.state === "REACTOR__SELECTED_DEGRADABLES" ||
+        state.state === "REACTOR__PRODUCING_RAINBOW_TREASURE" ||
         state.state === "REACTOR__MALFUNCTION" ||
         state.state === "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE" ? (
           <ReactorVideo src={reactor} state={state} />
         ) : null}
       </AnimatePresence>
+      <Dialog open={state.state === "RESULT"}>
+        {state.state === "RESULT" && <ResultDialog state={state} />}
+      </Dialog>
     </div>
   );
 };
