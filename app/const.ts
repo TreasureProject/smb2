@@ -39,7 +39,8 @@ const ContractName = {
   SMOL_CARS: "SMOL_CARS",
   SWOLERCYCLES: "SWOLERCYCLES",
   SMOL_TREASURES: "SMOL_TREASURES",
-  SMOL_BRAINS: "SMOL_BRAINS"
+  SMOL_BRAINS: "SMOL_BRAINS",
+  MAGIC: "MAGIC"
 } as const;
 
 type ObjectValues<T> = T[keyof T];
@@ -51,6 +52,7 @@ export const CONTRACT_ADDRESSES: Record<
   Record<TContractName, `0x${string}`>
 > = {
   [arbitrumSepolia.id]: {
+    [ContractName.MAGIC]: "0x55d0cf68a1afe0932aff6f36c87efa703508191c",
     [ContractName.DEGRADABLES]: "0xd7fd29273c4bfc2498dca8f4f776dd2deac2ff32",
     [ContractName.SWOL_JRS]: "0x35373d1aD8dc3F4a988AD7801c82d12FB68370D2",
     [ContractName.SMOL_JRS]: "0xc8A4E44D49404342d23b51eB34cD77e8a96a9Fac",
@@ -60,6 +62,7 @@ export const CONTRACT_ADDRESSES: Record<
     [ContractName.SMOL_BRAINS]: "0x269b635c10dEE290310072c160eeb7279a4c32a9"
   },
   [arbitrum.id]: {
+    [ContractName.MAGIC]: "0x539bde0d7dbd336b79148aa742883198bbf60342",
     [ContractName.DEGRADABLES]: "0x1f4F7cE3Bd6aF5e6E8cEeA5fF7FfBb2dAaE3Bd6a",
     [ContractName.SWOL_JRS]: "0x1f4F7cE3Bd6aF5e6E8cEeA5fF7FfBb2dAaE3Bd6a",
     [ContractName.SMOL_JRS]: "0x1f4F7cE3Bd6aF5e6E8cEeA5fF7FfBb2dAaE3Bd6a",

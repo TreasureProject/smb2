@@ -28,8 +28,14 @@ import { LinksFunction } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { useResponsive } from "~/contexts/responsive";
 import scientist from "./assets/scientist.png";
-import { ReactorProvider, State, Ttoken, useReactor } from "./provider";
-import { useAccount } from "wagmi";
+import {
+  ReactorProvider,
+  State,
+  Ttoken,
+  lootToRainbowTreasure,
+  useReactor
+} from "./provider";
+import { useAccount, useBalance, useWaitForTransaction } from "wagmi";
 import { PickState, match, matchProp } from "react-states";
 import { Drawer } from "vaul";
 import { TCollectionsToFetchWithoutAs, TroveToken } from "~/api.server";
@@ -38,6 +44,13 @@ import { useApproval } from "~/hooks/useApprove";
 import rainbowTreasure from "./assets/rainbow.gif";
 import * as R from "remeda";
 import { Dialog, DialogContent } from "~/components/ui/dialog";
+import { useContractAddresses } from "~/useChainAddresses";
+import {
+  useErc20Allowance,
+  useErc20Approve,
+  usePrepareErc20Approve
+} from "~/generated";
+import { parseEther } from "viem";
 
 export const links: LinksFunction = () => [
   {
@@ -180,6 +193,7 @@ type ReactorVideoState = PickState<
   | "REACTOR__PRODUCING_RAINBOW_TREASURE"
   | "REACTOR__MALFUNCTION"
   | "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE"
+  | "REROLL__REROLLING"
 >;
 
 // million-ignore
@@ -415,7 +429,8 @@ function Physics({
 
     if (
       state.state !== "REACTOR__SELECTED_SMOLVERSE_NFT" &&
-      state.state !== "REACTOR__PRODUCING_RAINBOW_TREASURE"
+      state.state !== "REACTOR__PRODUCING_RAINBOW_TREASURE" &&
+      state.state !== "REROLL__REROLLING"
     )
       return;
 
@@ -465,7 +480,7 @@ function Physics({
       }, 600);
 
       return () => clearInterval(id);
-    } else {
+    } else if (state.state === "REACTOR__PRODUCING_RAINBOW_TREASURE") {
       id = setInterval(() => {
         const data = matchProp(state, "producableRainbowTreasures")
           ?.producableRainbowTreasures;
@@ -493,6 +508,33 @@ function Physics({
         });
         World.add(engine.current.world, ball);
         if (count++ === combined.length) {
+          clearInterval(id);
+        }
+      }, 200);
+
+      return () => clearInterval(id);
+    } else {
+      id = setInterval(() => {
+        const data = matchProp(state, "degradablesToReroll")
+          ?.degradablesToReroll;
+
+        const currentNFt = data[count];
+
+        if (!currentNFt) return;
+
+        const ball = Bodies.circle(-10, height - 400, 50, {
+          mass: 20,
+          restitution: 0.1,
+          render: {
+            sprite: {
+              texture: currentNFt.image.uri,
+              xScale: 0.27,
+              yScale: 0.27
+            }
+          }
+        });
+        World.add(engine.current.world, ball);
+        if (count++ === data.length) {
           clearInterval(id);
         }
       }, 200);
@@ -560,15 +602,20 @@ export function MessageRenderer({
 const Button = ({
   children,
   isDialog = false,
+  primary = false,
   ...props
 }: {
   children: React.ReactNode;
   isDialog?: boolean;
+  primary?: boolean;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
   const button = (
     <button
       {...props}
-      className="w-full rounded-md bg-white px-4 py-2 text-black font-formula text-[0.6rem] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:text-base"
+      className={cn(
+        "w-full rounded-md bg-white px-4 py-2 text-black font-formula text-[0.6rem] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:text-base",
+        primary && "bg-troll font-semibold uppercase tracking-wider text-white"
+      )}
     >
       {children}
     </button>
@@ -727,7 +774,7 @@ function Conversation() {
             >
               {degradables.length === 0
                 ? "You do not own any Degradables"
-                : "Select a Rainbow Treasure"}
+                : "Select Degradables"}
             </Button>
           </>
         );
@@ -813,6 +860,30 @@ function Conversation() {
   );
 }
 
+function getNormalizedValue(expireAt: number): number {
+  const SECONDS_IN_A_DAY = 86400;
+  const DAYS = 30;
+
+  const createdAt = expireAt - DAYS * SECONDS_IN_A_DAY; // createdAt is expireAt - 30 days
+  const currentDate = new Date().getTime() / 1000; // Current date in epoch seconds
+  const totalDuration = expireAt - createdAt; // Total duration from creation to expiration
+
+  // If the current date is before creation, return 100
+  if (currentDate <= createdAt) {
+    return 100;
+  }
+
+  // If the current date is after expiration, return 0
+  if (currentDate >= expireAt) {
+    return 0;
+  }
+
+  const elapsedTime = expireAt - currentDate; // Time remaining until expiration
+  const normalizedValue = (elapsedTime / totalDuration) * 100; // Normalize to a percentage
+
+  return normalizedValue;
+}
+
 // million-ignore
 const RerollDialog = ({
   state
@@ -822,10 +893,47 @@ const RerollDialog = ({
   const { dispatch } = useReactor();
   const [selected, setSelected] = useState<TroveToken[]>([]);
   const degradables = state.inventory?.degradables;
+  const { address } = useAccount();
+  const contracts = useContractAddresses();
+  const balance = useBalance({
+    address: address,
+    token: contracts["MAGIC"]
+  });
+  const { config: erc20ApproveConfig } = usePrepareErc20Approve({
+    address: contracts["MAGIC"],
+    args: [contracts["DEGRADABLES"], parseEther(String(selected.length))]
+  });
+
+  const erc20Approve = useErc20Approve(erc20ApproveConfig);
+
+  const { isSuccess: isERC20ApproveSuccess } = useWaitForTransaction(
+    erc20Approve.data
+  );
+
+  const { data: allowance, refetch: refetchAllowance } = useErc20Allowance({
+    address: contracts["MAGIC"],
+    args: [address ?? "0x0", contracts["DEGRADABLES"]]
+  });
+
+  const isApproved =
+    !!allowance && allowance >= parseEther(String(selected.length));
+
+  useEffect(() => {
+    if (isERC20ApproveSuccess) {
+      refetchAllowance();
+    }
+  }, [isERC20ApproveSuccess]);
+
+  const magicInWallet = parseFloat(balance?.data?.formatted ?? "0");
 
   if (!degradables) return null;
 
-  console.log(degradables);
+  const producableList = lootToRainbowTreasure(degradables).reduce<string[]>(
+    (acc, d) => {
+      return [...acc, ...d.tokens.map((t) => t.tokenId)];
+    },
+    []
+  );
 
   return (
     <Drawer.Content className="fixed bottom-0 left-0 right-0 z-10 mt-24 flex h-[90%] items-stretch rounded-t-[10px] bg-[#261F2D]">
@@ -833,9 +941,19 @@ const RerollDialog = ({
         <div className="grid grid-cols-2 gap-6 overflow-auto px-6 py-12 [grid-auto-rows:max-content] sm:grid-cols-5">
           {degradables.map((degradable) => {
             const isSelected = selected.includes(degradable);
-            // const expireAt = degradable.metadata.attributes.find(
-            //   (a) => a.trait_type === "Expire At"
-            // );
+            const shape = degradable.metadata.attributes.find(
+              (a) => a.trait_type === "Shape"
+            )?.value as string | undefined;
+            const expireAt = degradable.metadata.attributes.find(
+              (a) => a.trait_type === "Use-By Date"
+            )?.value as number | undefined;
+
+            const canBeUsedToProduceRainbowTreasure = producableList.includes(
+              degradable.tokenId
+            );
+
+            const expirePercentage = getNormalizedValue(expireAt ?? 0);
+
             return (
               <div
                 key={degradable.tokenId}
@@ -844,9 +962,36 @@ const RerollDialog = ({
                   isSelected && "bg-[#DCD0E7]"
                 )}
               >
+                {canBeUsedToProduceRainbowTreasure && (
+                  <Icon
+                    name="exclamation-mark"
+                    className="absolute -top-2 right-2 z-20 h-8 w-8"
+                  />
+                )}
                 {isSelected && (
                   <div className="absolute right-2 top-2 z-10 bg-fud p-2">
                     <Icon name="check" className="h-8 w-8 text-white" />
+                  </div>
+                )}
+                {expireAt && (
+                  <div className="absolute bottom-2 left-1/2 z-10 grid w-full -translate-x-1/2 place-items-center p-2">
+                    <div className="h-1 w-2/3 bg-gray-300 sm:h-2">
+                      <div
+                        style={{
+                          width: `${expirePercentage}%`
+                        }}
+                        className={cn(
+                          "h-full",
+                          expirePercentage < 20
+                            ? "bg-rage"
+                            : expirePercentage < 50
+                            ? "bg-pepe"
+                            : expirePercentage < 100
+                            ? "bg-acid"
+                            : "bg-rage"
+                        )}
+                      ></div>
+                    </div>
                   </div>
                 )}
                 <img
@@ -869,19 +1014,53 @@ const RerollDialog = ({
             );
           })}
         </div>
-        <div className="flex">
-          <Drawer.Close asChild>
+        <div className="flex flex-col space-y-3 px-6 py-4">
+          <div className="flex justify-between">
+            <div className="flex items-center">
+              <Icon name="exclamation-mark" className="h-5 w-5 text-white" />
+              <p className="text-white font-mono text-xs">
+                - This degradable can be used to craft Rainbow Treasures.
+              </p>
+            </div>
+            <p className="text-white font-mono text-xs">
+              <span className="font-bold">{magicInWallet}</span> MAGIC
+            </p>
+          </div>
+          {isApproved ? (
+            <Drawer.Close asChild>
+              <Button
+                primary
+                onClick={() =>
+                  dispatch({
+                    type: "CONFIRM_REROLL",
+                    degradablesToReroll: selected
+                  })
+                }
+                disabled={
+                  selected.length === 0 ||
+                  magicInWallet === 0 ||
+                  magicInWallet < selected.length
+                }
+              >
+                {magicInWallet < selected.length || magicInWallet === 0 ? (
+                  <span>Insufficient MAGIC</span>
+                ) : (
+                  <span>
+                    Reroll{" "}
+                    {selected.length !== 0 && `for ${selected.length} MAGIC`}
+                  </span>
+                )}
+              </Button>
+            </Drawer.Close>
+          ) : (
             <Button
-            // onClick={() =>
-            //   dispatch({
-            //     type: "SELECT_SMOLVERSE_NFT",
-            //     tokens: items
-            //   })
-            // }
+              disabled={selected.length === 0}
+              onClick={() => erc20Approve?.write?.()}
             >
-              Confirm
+              Approve{" "}
+              {selected.length !== 0 && `${selected.length} MAGIC to be spent`}
             </Button>
-          </Drawer.Close>
+          )}
         </div>
       </div>
     </Drawer.Content>
@@ -908,7 +1087,7 @@ const ResultDialog = ({ state }: { state: PickState<State, "RESULT"> }) => {
         <img
           src={rainbowTreasure}
           className="relative h-full
-        w-full [mask-image:radial-gradient(circle,black,transparent_80%)]
+        w-full 
         
         "
         />
@@ -963,9 +1142,16 @@ const SelectSmolverseNFTDialog = ({
             );
           })}
         </div>
-        <div className="flex">
+        <div className="flex flex-col space-y-2 px-6 py-4">
+          <div className="bg-[#0F082E] p-6">
+            <p className="text-white font-formula text-lg">
+              The degradables you make will expire after 30 days.
+            </p>
+          </div>
           <Drawer.Close asChild>
             <Button
+              primary
+              disabled={items.length === 0}
               onClick={() =>
                 dispatch({
                   type: "SELECT_SMOLVERSE_NFT",
@@ -1086,7 +1272,9 @@ const ReactorInner = () => {
         {state.state !== "REACTOR__SELECTED_SMOLVERSE_NFT" &&
         state.state !== "REACTOR__PRODUCING_RAINBOW_TREASURE" &&
         state.state !== "REACTOR__MALFUNCTION" &&
-        state.state !== "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE" ? (
+        state.state !== "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE" &&
+        state.state !== "RESULT" &&
+        state.state !== "REROLL__REROLLING" ? (
           <Conversation />
         ) : null}
       </AnimatePresence>
@@ -1094,7 +1282,8 @@ const ReactorInner = () => {
         {state.state === "REACTOR__SELECTED_SMOLVERSE_NFT" ||
         state.state === "REACTOR__PRODUCING_RAINBOW_TREASURE" ||
         state.state === "REACTOR__MALFUNCTION" ||
-        state.state === "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE" ? (
+        state.state === "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE" ||
+        state.state === "REROLL__REROLLING" ? (
           <ReactorVideo src={reactor} state={state} />
         ) : null}
       </AnimatePresence>

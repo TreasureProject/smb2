@@ -42,7 +42,7 @@ export type Ttoken = {
   supply: number;
 };
 
-function lootToRainbowTreasure(items?: TroveToken[]) {
+export function lootToRainbowTreasure(items?: TroveToken[]) {
   const colorCounts: Record<string, number> = {};
   const shapeCounts: Record<string, number> = {};
   const colorTokenIds: Record<string, TroveToken[]> = {};
@@ -253,6 +253,7 @@ export type State = {
     }
   | {
       state: "REROLL__REROLLING";
+      degradablesToReroll: TroveToken[];
     }
   | {
       state: "REROLL__REROLLED";
@@ -326,12 +327,18 @@ type Action =
         tokenId: string;
         expiredAt: number;
       }[];
+      degradablesRerolled: {
+        tokenId: string;
+        expireAt: number;
+        previousDegradable: TroveToken;
+      }[];
     }
   | {
       type: "SELECT_RAINBOW_TREASURE_TO_REROLL";
     }
   | {
       type: "CONFIRM_REROLL";
+      degradablesToReroll: TroveToken[];
     }
   | {
       type: "RESTART";
@@ -367,7 +374,7 @@ const BASE_TRANSITIONS: TTransition<State, Action> = {
     return ctx;
   },
   RESTART: (ctx) => ({
-    ...ctx,
+    inventory: ctx.inventory,
     state: "IDLE",
     message: "Welcome to the rainbow factory. How can I help you today?"
   }),
@@ -571,10 +578,31 @@ const transitions: TTransitions<State, Action> = {
     }
   },
   SELECTING_RAINBOW_TREASURE_TO_REROLL: {
-    ...BASE_TRANSITIONS
+    ...BASE_TRANSITIONS,
+    CONFIRM_REROLL: (ctx, { degradablesToReroll }) => {
+      return {
+        ...ctx,
+        state: "REROLL__REROLLING",
+        message: "Rerolling...",
+        degradablesToReroll
+      };
+    }
   },
   REROLL__REROLLING: {
-    ...BASE_TRANSITIONS
+    ...BASE_TRANSITIONS,
+    MOVE_TO_RESULT: (
+      ctx,
+      { rainbowTreasuresMinted, degradableMinted, degradablesRerolled }
+    ) => {
+      return {
+        ...ctx,
+        state: "RESULT",
+        message: "Rainbow Treasure produced",
+        rainbowTreasuresMinted,
+        degradableMinted,
+        degradablesRerolled
+      };
+    }
   },
   REROLL__REROLLED: {
     ...BASE_TRANSITIONS
@@ -668,7 +696,8 @@ const useReactorReducer = () => {
       dispatch({
         type: "MOVE_TO_RESULT",
         rainbowTreasuresMinted: Number(result?.args.value ?? BigInt(0)),
-        degradableMinted: []
+        degradableMinted: [],
+        degradablesRerolled: []
       });
       craftRainbowTreasures.reset();
     }
@@ -678,9 +707,17 @@ const useReactorReducer = () => {
     craftRainbowTreasures.reset
   ]);
 
-  useEnter(state, "REACTOR__PRODUCING_RAINBOW_TREASURE", () => {
-    craftRainbowTreasures.write?.();
-  });
+  useEnter(
+    state,
+    "REACTOR__PRODUCING_RAINBOW_TREASURE",
+    () => {
+      const id = setTimeout(() => {
+        craftRainbowTreasures.write?.();
+      }, 1000);
+      return () => clearTimeout(id);
+    },
+    [craftRainbowTreasures.write]
+  );
 
   // smolverse nft to degradable
 
@@ -784,12 +821,11 @@ const useReactorReducer = () => {
             tokenId: String(mint.args.tokenId),
             expiredAt: mint.args.lootToken?.expireAt ?? 0
           };
-        })
+        }),
+        degradablesRerolled: []
       });
 
       craftDegradable.reset();
-
-      // .find(({ eventName }) => eventName === "TransferSingle")?.args;
     }
   }, [
     craftDegradableResult.status,
@@ -798,12 +834,104 @@ const useReactorReducer = () => {
     dispatch
   ]);
 
-  useEnter(state, "REACTOR__MALFUNCTION", () => {
-    const id = setTimeout(() => {
-      craftDegradable.write?.();
-    }, 1000);
-    return () => clearTimeout(id);
+  useEnter(
+    state,
+    "REACTOR__MALFUNCTION",
+    () => {
+      const id = setTimeout(() => {
+        craftDegradable.write?.();
+      }, 1000);
+      return () => clearTimeout(id);
+    },
+    [craftDegradable.write]
+  );
+
+  // reroll
+  const degrablesToReroll = matchProp(state, "degradablesToReroll")
+    ?.degradablesToReroll;
+
+  const { config: rerollLootsConfig, status: rerollLootsStatus } =
+    usePrepareContractWrite({
+      address: contractAddresses["DEGRADABLES"],
+      abi: ABIS.DEGRADABLES,
+      functionName: "rerollLoots",
+      args: [
+        degrablesToReroll
+          ? degrablesToReroll.map((treasure) => BigInt(treasure.tokenId))
+          : []
+      ]
+    });
+
+  const rerollLoots = useContractWrite(rerollLootsConfig);
+
+  const rerollLootsResult = useWaitForTransaction({
+    hash: rerollLoots.data?.hash
   });
+
+  useEffect(() => {
+    if (rerollLootsStatus === "error" || rerollLoots.status === "error") {
+      dispatch({ type: "CONNECTION_ERROR" });
+    }
+  }, [rerollLootsStatus, rerollLoots.status, dispatch]);
+
+  useEnter(
+    state,
+    "REROLL__REROLLING",
+    () => {
+      const id = setTimeout(() => {
+        rerollLoots.write?.();
+      }, 1000);
+      return () => clearTimeout(id);
+    },
+    [rerollLoots.write]
+  );
+
+  useEffect(() => {
+    if (rerollLootsResult.status === "success" && rerollLootsResult.data) {
+      console.log(rerollLootsStatus, rerollLootsResult.data, state.state);
+      const data = rerollLootsResult.data as TransactionReceipt;
+
+      const result = data.logs
+        .filter(
+          ({ address }) =>
+            address === contractAddresses["DEGRADABLES"].toLowerCase()
+        )
+        .map(({ data, topics }) =>
+          decodeEventLog({
+            strict: false,
+            abi: ABIS.DEGRADABLES,
+            eventName: "LootTokenRerolled",
+            data,
+            topics
+          })
+        )
+        .filter(({ eventName, args }) => eventName === "LootTokenRerolled");
+
+      // reset internal state
+      if (state.state === "REROLL__REROLLING") {
+        dispatch({
+          type: "MOVE_TO_RESULT",
+          rainbowTreasuresMinted: 0,
+          degradableMinted: [],
+          degradablesRerolled: result.map((degradable, i) => {
+            return {
+              tokenId: String(degradable.args.tokenId),
+              expireAt: degradable.args.lootToken?.expireAt ?? 0,
+              previousDegradable: state.degradablesToReroll[i]
+            };
+          })
+        });
+        rerollLoots.reset();
+      }
+    }
+  }, [
+    rerollLootsResult.status,
+    rerollLootsResult.data,
+    rerollLoots.reset,
+    state
+  ]);
+
+  // others
 
   const { isConnected, address } = useAccount();
   const connected = isConnected && address !== undefined;
