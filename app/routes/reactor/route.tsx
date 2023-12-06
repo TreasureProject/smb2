@@ -24,7 +24,6 @@ import { ConnectKitButton, useModal } from "connectkit";
 import reactor from "./assets/reactor.mp4";
 import { Engine, Body, Render, Bodies, World, Runner, Events } from "matter-js";
 import { cn } from "~/utils";
-import belt from "./assets/belt.jpg";
 import beltAnimation from "./assets/belt-animated.gif";
 import { LinksFunction } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
@@ -305,7 +304,7 @@ const ReactorVideo = ({
       <div
         style={
           {
-            "--belt": `url(${playing ? beltAnimation : belt})`
+            "--belt": `url(${beltAnimation})`
           } as CSSProperties
         }
         className={cn(
