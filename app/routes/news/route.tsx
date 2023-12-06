@@ -299,7 +299,6 @@ const Kbd = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// million-ignore
 const Interface = () => {
   const store = useModelStore();
   const next = useStore(store, (state) => state.next);

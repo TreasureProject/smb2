@@ -87,7 +87,6 @@ export const links: LinksFunction = () => [
   }
 ];
 
-// million-ignore
 export function MessageRenderer({
   message,
   reducer,
@@ -214,7 +213,6 @@ export function MessageRenderer({
   );
 }
 
-// million-ignore
 const Chat = () => {
   const reducer = useChat();
 

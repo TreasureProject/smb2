@@ -23,6 +23,7 @@ export type TroveToken = {
   };
   isStaked: boolean;
   tokenSupply: number;
+  queryUserQuantityOwned?: number;
   rarity?: {
     score: number;
     rank: number;
@@ -303,21 +304,27 @@ export const fetchTroveTokensForUser = async (userAddress: string) => {
   return collections;
 };
 
-// export const refreshTroveTokens = async () => {
-//   const slug = chainName === "arbsepolia" ? "smol-brains-ag" : "smol-brains";
-//   const url = (tokenId: string) =>
-//     `${BASE_URL}.treasure.lol/collection/${
-//       process.env.CHAIN || "arbsepolia"
-//     }/${slug}/${tokenId}/refresh`;
+export const refreshTroveTokens = async ({
+  tokens,
+  slug
+}: {
+  tokens: string[];
+  slug: TCollectionsToFetch[number];
+}) => {
+  const normalizedSlug = chainName === "arbsepolia" ? `${slug}-as` : slug;
+  const url = (tokenId: string) =>
+    `https://${BASE_URL}.treasure.lol/collection/${
+      process.env.CHAIN || "arbsepolia"
+    }/${normalizedSlug}/${tokenId}/refresh`;
 
-//   await Promise.all(
-//     tokens.map((token) => {
-//       return fetch(url(token.tokenId), {
-//         method: "POST",
-//         headers: {
-//           "X-API-Key": process.env.TROVE_API_KEY ?? ""
-//         },
-//       });
-//     })
-//   );
-// };
+  await Promise.all(
+    tokens.map((token) => {
+      return fetch(url(token), {
+        method: "POST",
+        headers: {
+          "X-API-Key": process.env.TROVE_API_KEY ?? ""
+        }
+      });
+    })
+  );
+};

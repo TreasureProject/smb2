@@ -2,6 +2,7 @@ import {
   CSSProperties,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState
 } from "react";
@@ -12,6 +13,7 @@ import {
   HTMLMotionProps,
   animate,
   motion,
+  useAnimate,
   useMotionValue,
   useTransform
 } from "framer-motion";
@@ -51,6 +53,7 @@ import {
   usePrepareErc20Approve
 } from "~/generated";
 import { parseEther } from "viem";
+import { mapper } from "./lootIdMapper";
 
 export const links: LinksFunction = () => [
   {
@@ -65,7 +68,6 @@ export const meta = commonMeta;
 
 const NORMAL_TIME = 3;
 
-// million-ignore
 // const GreenScreenVideo = ({ src }: { src: string }) => {
 //   const [scope, animate] = useAnimate();
 
@@ -196,7 +198,6 @@ type ReactorVideoState = PickState<
   | "REROLL__REROLLING"
 >;
 
-// million-ignore
 const ReactorVideo = ({
   src,
   state
@@ -572,7 +573,6 @@ function Physics({
   );
 }
 
-// million-ignore
 export function MessageRenderer({
   message,
   ...props
@@ -598,7 +598,6 @@ export function MessageRenderer({
   return <motion.span {...props}>{displayText}</motion.span>;
 }
 
-// million-ignore
 const Button = ({
   children,
   isDialog = false,
@@ -633,167 +632,140 @@ function Conversation() {
 
   const { setOpen } = useModal();
 
-  const fetcherRef = useRef(fetcher);
-  useEffect(() => {
-    fetcherRef.current = fetcher;
-  }, [fetcher]);
-
-  useEffect(() => {
-    if (!address) return;
-    fetcherRef.current.load(`/get-inventory/${address}`);
-  }, [address]);
-
   const buttonGroups = () =>
-    match(state, {
-      IDLE: () => (
-        <>
-          <Button
-            onClick={() =>
-              dispatch({
-                type: "NEXT",
-                moveTo: "WHAT_IS_THIS"
-              })
-            }
-          >
-            What is this?
-          </Button>
-          <Button
-            onClick={() =>
-              dispatch({
-                type: "NEXT",
-                moveTo: "USE_REACTOR"
-              })
-            }
-          >
-            I need to use the reactor.
-          </Button>
-          <Button
-            onClick={() =>
-              dispatch({
-                type: "NEXT",
-                moveTo: "REROLL"
-              })
-            }
-          >
-            I need to convert a Degradable into another kind.
-          </Button>
-        </>
-      ),
-      NOT_CONNECTED: () => (
-        <Button onClick={() => setOpen(true)}>Open Backpack (wallet)</Button>
-      ),
-      LOADING_INVENTORY: () => null,
-      WHAT_IS_THIS: () => (
-        <Button onClick={() => dispatch({ type: "RESTART" })}>Back</Button>
-      ),
-      USE_REACTOR: () => null,
-      REACTOR__NO_SMOLVERSE_NFT: () => (
-        <Button onClick={() => dispatch({ type: "RESTART" })}>Back</Button>
-      ),
-      REACTOR__NO_DEGRADABLE: () => (
-        <Button
-          isDialog
-          onClick={() =>
-            dispatch({
-              type: "SELECTING_SMOLVERSE_NFT"
-            })
-          }
-        >
-          Yes
-        </Button>
-      ),
-      REACTOR__SELECTED_SMOLVERSE_NFT: () => null,
-      REACTOR__SELECT_OPTION: (ctx) => {
-        const producableRainbowTreasures = ctx.producableRainbowTreasures;
-        return (
-          <>
-            <Button
-              disabled={ctx.producableRainbowTreasures.length === 0}
-              onClick={() =>
-                dispatch({
-                  type: "PRODUCE_RAINBOW_TREASURE_AUTOMATICALLY"
-                })
-              }
-            >
-              {producableRainbowTreasures.length === 0
-                ? "No matching degradables"
-                : `Produce ${producableRainbowTreasures.length} Rainbow Treasure(s)`}
-            </Button>
-            {/* <Button
-              disabled={ctx.producableRainbowTreasures.length === 0}
-              onClick={() =>
-                dispatch({
-                  type: "SELECT_DEGRADABLES_TO_CONVERT_TO_RAINBOW_TREASURE"
-                })
-              }
-            >
-              Select Degradables to convert
-            </Button> */}
-            <Button
-              isDialog
-              onClick={() =>
-                dispatch({
-                  type: "TRY_LUCK"
-                })
-              }
-            >
-              Try my luck
-            </Button>
-          </>
-        );
-      },
-      RESULT: () => null,
-      REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE: () => null,
-      REACTOR__MALFUNCTION: () => null,
-      REACTOR__SELECTED_DEGRADABLES: () => null,
-      REACTOR__SELECTING_SMOLVERSE_NFT: () => null,
-      REACTOR__PRODUCED_RAINBOW_TREASURE: () => null,
-      REACTOR__PRODUCING_RAINBOW_TREASURE: () => null,
-      REACTOR__SELECTING_DEGRADABLE: () => null,
-      REROLL: (ctx) => {
-        const degradables = ctx.inventory?.degradables ?? [];
-        return (
+    match(
+      state,
+      {
+        IDLE: () => (
           <>
             <Button
               onClick={() =>
                 dispatch({
-                  type: "RESTART"
+                  type: "NEXT",
+                  moveTo: "WHAT_IS_THIS"
                 })
               }
             >
-              Back
+              What is this?
             </Button>
             <Button
-              isDialog
-              disabled={degradables.length === 0}
               onClick={() =>
                 dispatch({
-                  type: "SELECT_RAINBOW_TREASURE_TO_REROLL"
+                  type: "NEXT",
+                  moveTo: "USE_REACTOR"
                 })
               }
             >
-              {degradables.length === 0
-                ? "You do not own any Degradables"
-                : "Select Degradables"}
+              I need to use the reactor.
+            </Button>
+            <Button
+              onClick={() =>
+                dispatch({
+                  type: "NEXT",
+                  moveTo: "REROLL"
+                })
+              }
+            >
+              I need to convert a Degradable into another kind.
             </Button>
           </>
-        );
+        ),
+        NOT_CONNECTED: () => (
+          <Button onClick={() => setOpen(true)}>Open Backpack (wallet)</Button>
+        ),
+        WHAT_IS_THIS: () => (
+          <Button onClick={() => dispatch({ type: "RESTART" })}>Back</Button>
+        ),
+        REACTOR__NO_SMOLVERSE_NFT: () => (
+          <Button onClick={() => dispatch({ type: "RESTART" })}>Back</Button>
+        ),
+        REACTOR__NO_DEGRADABLE: () => (
+          <Button
+            isDialog
+            onClick={() =>
+              dispatch({
+                type: "SELECTING_SMOLVERSE_NFT"
+              })
+            }
+          >
+            Yes
+          </Button>
+        ),
+        REACTOR__SELECTED_SMOLVERSE_NFT: () => null,
+        REACTOR__SELECT_OPTION: (ctx) => {
+          const producableRainbowTreasures = ctx.producableRainbowTreasures;
+          return (
+            <>
+              <Button
+                disabled={ctx.producableRainbowTreasures.length === 0}
+                onClick={() =>
+                  dispatch({
+                    type: "PRODUCE_RAINBOW_TREASURE_AUTOMATICALLY"
+                  })
+                }
+              >
+                {producableRainbowTreasures.length === 0
+                  ? "No matching degradables"
+                  : `Produce ${producableRainbowTreasures.length} Rainbow Treasure(s)`}
+              </Button>
+              <Button
+                isDialog
+                onClick={() =>
+                  dispatch({
+                    type: "TRY_LUCK"
+                  })
+                }
+              >
+                Try my luck
+              </Button>
+            </>
+          );
+        },
+
+        REROLL: (ctx) => {
+          const degradables = ctx.inventory?.degradables ?? [];
+          return (
+            <>
+              <Button
+                onClick={() =>
+                  dispatch({
+                    type: "RESTART"
+                  })
+                }
+              >
+                Back
+              </Button>
+              <Button
+                isDialog
+                disabled={degradables.length === 0}
+                onClick={() =>
+                  dispatch({
+                    type: "SELECT_RAINBOW_TREASURE_TO_REROLL"
+                  })
+                }
+              >
+                {degradables.length === 0
+                  ? "You do not own any Degradables"
+                  : "Select Degradables"}
+              </Button>
+            </>
+          );
+        },
+
+        ERROR: () => (
+          <Button
+            onClick={() =>
+              dispatch({
+                type: "RESTART"
+              })
+            }
+          >
+            Back
+          </Button>
+        )
       },
-      SELECTING_RAINBOW_TREASURE_TO_REROLL: () => null,
-      REROLL__REROLLED: () => null,
-      REROLL__REROLLING: () => null,
-      ERROR: () => (
-        <Button
-          onClick={() =>
-            dispatch({
-              type: "RESTART"
-            })
-          }
-        >
-          Back
-        </Button>
-      )
-    });
+      (otherStates) => []
+    );
 
   return (
     <Drawer.Root dismissible={false}>
@@ -860,7 +832,7 @@ function Conversation() {
   );
 }
 
-function getNormalizedValue(expireAt: number): number {
+function getNormalizedValue(expireAt: number) {
   const SECONDS_IN_A_DAY = 86400;
   const DAYS = 30;
 
@@ -884,7 +856,6 @@ function getNormalizedValue(expireAt: number): number {
   return normalizedValue;
 }
 
-// million-ignore
 const RerollDialog = ({
   state
 }: {
@@ -928,11 +899,12 @@ const RerollDialog = ({
 
   if (!degradables) return null;
 
-  const producableList = lootToRainbowTreasure(degradables).reduce<string[]>(
-    (acc, d) => {
-      return [...acc, ...d.tokens.map((t) => t.tokenId)];
-    },
-    []
+  const producableList = useMemo(
+    () =>
+      lootToRainbowTreasure(degradables).reduce<string[]>((acc, d) => {
+        return [...acc, ...d.tokens.map((t) => t.tokenId)];
+      }, []),
+    [degradables]
   );
 
   return (
@@ -941,9 +913,7 @@ const RerollDialog = ({
         <div className="grid grid-cols-2 gap-6 overflow-auto px-6 py-12 [grid-auto-rows:max-content] sm:grid-cols-5">
           {degradables.map((degradable) => {
             const isSelected = selected.includes(degradable);
-            const shape = degradable.metadata.attributes.find(
-              (a) => a.trait_type === "Shape"
-            )?.value as string | undefined;
+
             const expireAt = degradable.metadata.attributes.find(
               (a) => a.trait_type === "Use-By Date"
             )?.value as number | undefined;
@@ -962,6 +932,9 @@ const RerollDialog = ({
                   isSelected && "bg-[#DCD0E7]"
                 )}
               >
+                <p className="absolute left-0 top-0 text-white text-3xl">
+                  {degradable.tokenId}
+                </p>
                 {canBeUsedToProduceRainbowTreasure && (
                   <Icon
                     name="exclamation-mark"
@@ -1067,32 +1040,188 @@ const RerollDialog = ({
   );
 };
 
-// million-ignore
 const ResultDialog = ({ state }: { state: PickState<State, "RESULT"> }) => {
   const { dispatch } = useReactor();
-  const { degradableMinted, rainbowTreasuresMinted } = state;
-  console.log(degradableMinted, rainbowTreasuresMinted);
+  const { degradableMinted, rainbowTreasuresMinted, degradablesRerolled } =
+    state;
+  const [index, setIndex] = useState(1);
+  const degradableMintedRef = useRef<HTMLDivElement | null>(null);
+  const rainbowTreasureMintedRef = useRef<HTMLDivElement | null>(null);
+  const [scope, _animate] = useAnimate();
+
+  const maxIndex =
+    degradableMinted.length > 0 && rainbowTreasuresMinted > 0 ? 2 : 1;
+
+  useEffect(() => {
+    const run = async () => {
+      const commonAnimation = async (
+        element: HTMLDivElement,
+        delay: number = 0
+      ) => {
+        await animate(
+          element,
+          {
+            transform: [
+              "translateY(-999%) translateX(-50%)",
+              "translateY(0%) translateX(-50%)"
+            ]
+          },
+          {
+            duration: 0.8,
+            delay,
+            ease: "linear"
+          }
+        );
+
+        await animate(
+          element,
+          {
+            rotate: [12, 0, -4, 0],
+            transformOrigin: ["0% 100%", "100% 100%"]
+          },
+          {
+            duration: 0.1,
+            ease: "linear"
+          }
+        );
+      };
+
+      if (maxIndex === 1) {
+        if (degradableMinted.length > 0 && degradableMintedRef.current) {
+          await commonAnimation(degradableMintedRef.current, 0.5);
+        } else if (
+          rainbowTreasuresMinted > 0 &&
+          rainbowTreasureMintedRef.current
+        ) {
+          await commonAnimation(rainbowTreasureMintedRef.current);
+        }
+      } else {
+        if (index === 1 && degradableMinted.length > 0) {
+          if (degradableMintedRef.current) {
+            await commonAnimation(degradableMintedRef.current, 0.5);
+          }
+        } else if (index === 2 && rainbowTreasuresMinted > 0) {
+          if (degradableMintedRef.current) {
+            await animate(
+              degradableMintedRef.current,
+              {
+                // slide out to the right
+                transform: ["translateX(-50%)", "translateX(999%)"]
+              },
+              {
+                duration: 0.5,
+                ease: "easeIn"
+              }
+            );
+          }
+          if (rainbowTreasureMintedRef.current) {
+            await commonAnimation(rainbowTreasureMintedRef.current);
+          }
+        }
+      }
+    };
+    run();
+  }, [maxIndex, index, degradableMinted, rainbowTreasuresMinted]);
+
+  const degradableMintedSlice = degradableMinted.slice(0, 10);
+
+  const leftOver = degradableMinted.length - degradableMintedSlice.length;
+
   return (
     <DialogContent className="border-none bg-transparent p-0 shadow-none font-mono sm:rounded-none">
       <div className="mx-auto flex h-full max-w-7xl flex-col">
-        {/* <div className="grid grid-cols-2 gap-6 overflow-auto px-6 py-12 [grid-auto-rows:max-content] sm:grid-cols-5"> */}
-        {/* {degradableMinted.map((d) => (
-            <div
-              key={d.tokenId}
-              className="relative inline-block bg-[#483B53] p-2"
-            >
-              {d.tokenId}
+        {degradableMintedSlice.length > 0 ? (
+          <motion.div
+            initial={{
+              rotate: 12,
+              transform: "translateY(-999%), translateX(-50%)"
+            }}
+            ref={degradableMintedRef}
+            className="absolute left-1/2 flex items-end"
+          >
+            <div className="flex w-max -space-x-16">
+              {degradableMintedSlice.map((degradable, i) => {
+                const { colorName, shapeName } = mapper[degradable.lootId];
+                return (
+                  <img
+                    style={{
+                      zIndex: degradableMintedSlice.length - i
+                    }}
+                    className="relative inline-block h-24 w-24"
+                    src={`https://ipfs.io/ipfs/QmaVzSLBXppoHAPZb8ZL6Z8vk9z2usuANgcgE8Wg1jf1qN/${colorName.toLowerCase()}/${shapeName.toLowerCase()}.png`}
+                    alt={`${colorName} ${shapeName}`}
+                  />
+                );
+              })}
             </div>
-          ))} */}
-        <img
-          src={rainbowTreasure}
-          className="relative h-full
-        w-full 
-        
-        "
-        />
-        {/* </div> */}
-        <div className="flex">
+            {leftOver > 0 && (
+              <span className="whitespace-nowrap font-bold text-white font-formula text-xl">
+                + {leftOver}
+              </span>
+            )}
+          </motion.div>
+        ) : null}
+
+        {rainbowTreasuresMinted > 0 ? (
+          <motion.div
+            initial={{
+              rotate: 12,
+              transform: "translateY(-999%), translateX(-50%)"
+            }}
+            ref={rainbowTreasureMintedRef}
+            className="absolute left-1/2 flex h-48 w-48 -translate-x-1/2 translate-y-[-999%] flex-col items-center space-y-1"
+          >
+            <img src={rainbowTreasure} className="h-full w-full" />
+            <span className="font-bold text-neonPink font-formula text-2xl">
+              {rainbowTreasuresMinted}x
+            </span>
+          </motion.div>
+        ) : null}
+
+        {degradablesRerolled.length > 0 ? (
+          <div className="grid max-h-[27rem] grid-cols-3 overflow-auto sm:grid-cols-4">
+            {degradablesRerolled.map((degradable) => {
+              const { colorName, shapeName } = mapper[degradable.lootId];
+
+              return (
+                <div
+                  key={degradable.previousDegradable.tokenId + 1}
+                  className="relative h-24 w-24"
+                >
+                  <motion.img
+                    animate={{
+                      opacity: 0
+                    }}
+                    transition={{
+                      delay: 0.5,
+                      duration: 1.5
+                    }}
+                    src={degradable.previousDegradable.image.uri}
+                    className="h-full w-full opacity-100"
+                  />
+                  <motion.img
+                    animate={{
+                      opacity: 1
+                    }}
+                    transition={{
+                      delay: 0.5,
+                      duration: 1
+                    }}
+                    className="absolute inset-0 z-10 opacity-0"
+                    src={`https://ipfs.io/ipfs/QmaVzSLBXppoHAPZb8ZL6Z8vk9z2usuANgcgE8Wg1jf1qN/${colorName.toLowerCase()}/${shapeName.toLowerCase()}.png`}
+                    alt={`${colorName} ${shapeName}`}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+        <div
+          className={cn(
+            "mt-64 flex space-x-2",
+            degradablesRerolled.length > 0 && "mx-auto mt-8"
+          )}
+        >
           <Drawer.Close asChild>
             <Button
               onClick={() =>
@@ -1104,13 +1233,24 @@ const ResultDialog = ({ state }: { state: PickState<State, "RESULT"> }) => {
               Back
             </Button>
           </Drawer.Close>
+          {index < maxIndex && (
+            <Button
+              primary
+              onClick={() =>
+                setIndex((prev) => {
+                  return prev + 1;
+                })
+              }
+            >
+              Next
+            </Button>
+          )}
         </div>
       </div>
     </DialogContent>
   );
 };
 
-// million-ignore
 const SelectSmolverseNFTDialog = ({
   state
 }: {
@@ -1120,7 +1260,7 @@ const SelectSmolverseNFTDialog = ({
   const [items, setItems] = useState<Ttoken[]>([]);
 
   // inventory except degradables key
-  const inventory = R.clone(state.inventory);
+  const inventory = useMemo(() => R.clone(state.inventory), [state.inventory]);
 
   if (!inventory) return null;
 
@@ -1144,7 +1284,7 @@ const SelectSmolverseNFTDialog = ({
         </div>
         <div className="flex flex-col space-y-2 px-6 py-4">
           <div className="bg-[#0F082E] p-6">
-            <p className="text-white font-formula text-lg">
+            <p className="text-white font-formula text-xs sm:text-lg">
               The degradables you make will expire after 30 days.
             </p>
           </div>
@@ -1214,7 +1354,7 @@ export const RenderTokens = ({
         )}
       >
         {!isApproved && (
-          <div className="absolute inset-0 z-40 grid h-full w-full place-items-center bg-grayOne/90">
+          <div className="absolute inset-0 z-40 grid h-full w-full place-items-center bg-grayOne/80 px-4 backdrop-blur-sm">
             <Button onClick={() => approve()}>Approve</Button>
           </div>
         )}
@@ -1222,6 +1362,11 @@ export const RenderTokens = ({
           <div className="absolute right-2 top-2 z-10 bg-fud p-2">
             <Icon name="check" className="h-8 w-8 text-white" />
           </div>
+        )}
+        {type === "smol-treasures" && (
+          <span className="absolute left-6 top-5 z-10 font-bold font-mono text-sm sm:left-7 sm:text-base">
+            {token.queryUserQuantityOwned}x
+          </span>
         )}
         <img src={token.image.uri} className="relative h-full w-full" />
         <button
@@ -1241,7 +1386,7 @@ export const RenderTokens = ({
                   type: type,
                   uri: token.image.uri,
                   // TODO: this is only for dev to check
-                  supply: 10
+                  supply: 1
                 }
               ]);
             }

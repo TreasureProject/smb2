@@ -224,7 +224,14 @@ export type State = {
       rainbowTreasuresMinted: number;
       degradableMinted: {
         tokenId: string;
+        lootId: string;
         expiredAt: number;
+      }[];
+      degradablesRerolled: {
+        tokenId: string;
+        lootId: string;
+        expireAt: number;
+        previousDegradable: TroveToken;
       }[];
     }
   | {
@@ -325,10 +332,12 @@ type Action =
       rainbowTreasuresMinted: number;
       degradableMinted: {
         tokenId: string;
+        lootId: string;
         expiredAt: number;
       }[];
       degradablesRerolled: {
         tokenId: string;
+        lootId: string;
         expireAt: number;
         previousDegradable: TroveToken;
       }[];
@@ -374,7 +383,7 @@ const BASE_TRANSITIONS: TTransition<State, Action> = {
     return ctx;
   },
   RESTART: (ctx) => ({
-    inventory: ctx.inventory,
+    inventory: null,
     state: "IDLE",
     message: "Welcome to the rainbow factory. How can I help you today?"
   }),
@@ -472,7 +481,8 @@ const transitions: TTransitions<State, Action> = {
         state: "RESULT",
         message: "Rainbow Treasure produced",
         rainbowTreasuresMinted,
-        degradableMinted
+        degradableMinted,
+        degradablesRerolled: []
       };
     }
   },
@@ -552,7 +562,8 @@ const transitions: TTransitions<State, Action> = {
         state: "RESULT",
         message: "Rainbow Treasure produced",
         rainbowTreasuresMinted,
-        degradableMinted
+        degradableMinted,
+        degradablesRerolled: []
       };
     }
   },
@@ -644,7 +655,8 @@ const useReactorReducer = () => {
             craftType: treasure.craftType
           }))
         : []
-    ]
+    ],
+    enabled: !!producableRainbowTreasures
   });
 
   const craftRainbowTreasures = useContractWrite(craftRainbowTreasuresConfig);
@@ -732,7 +744,8 @@ const useReactorReducer = () => {
     functionName: "convertToLoot",
     args: [
       produceDegradable ? normalizeSmolverseNft(produceDegradable) : template
-    ]
+    ],
+    enabled: !!produceDegradable
   });
 
   const craftDegradable = useContractWrite(produceDegradableConfig);
@@ -819,6 +832,7 @@ const useReactorReducer = () => {
         degradableMinted: degradablesMinted.map((mint) => {
           return {
             tokenId: String(mint.args.tokenId),
+            lootId: String(mint.args.lootToken.lootId),
             expiredAt: mint.args.lootToken?.expireAt ?? 0
           };
         }),
@@ -859,7 +873,8 @@ const useReactorReducer = () => {
         degrablesToReroll
           ? degrablesToReroll.map((treasure) => BigInt(treasure.tokenId))
           : []
-      ]
+      ],
+      enabled: !!degrablesToReroll
     });
 
   const rerollLoots = useContractWrite(rerollLootsConfig);
@@ -888,7 +903,6 @@ const useReactorReducer = () => {
 
   useEffect(() => {
     if (rerollLootsResult.status === "success" && rerollLootsResult.data) {
-      console.log(rerollLootsStatus, rerollLootsResult.data, state.state);
       const data = rerollLootsResult.data as TransactionReceipt;
 
       const result = data.logs
@@ -916,6 +930,7 @@ const useReactorReducer = () => {
           degradablesRerolled: result.map((degradable, i) => {
             return {
               tokenId: String(degradable.args.tokenId),
+              lootId: String(degradable.args.lootToken?.lootId),
               expireAt: degradable.args.lootToken?.expireAt ?? 0,
               previousDegradable: state.degradablesToReroll[i]
             };
@@ -942,6 +957,14 @@ const useReactorReducer = () => {
 
   useEffect(() => {
     fetcherRef.current = fetcher;
+  }, [fetcher]);
+
+  const refreshFetcher = useFetcher<typeof loader>();
+
+  const refreshFetcherRef = useRef(refreshFetcher);
+
+  useEffect(() => {
+    refreshFetcherRef.current = refreshFetcher;
   }, [fetcher]);
 
   useEffect(() => {
@@ -1033,6 +1056,48 @@ const useReactorReducer = () => {
   useEnter(state, "ERROR", () => {
     craftRainbowTreasures.reset();
     craftDegradable.reset();
+  });
+
+  useEnter(state, "RESULT", (ctx) => {
+    // refresh trove tokens
+    refreshFetcherRef.current.submit(
+      {
+        refreshTokens: JSON.stringify([
+          ...(ctx.degradableMinted
+            ? [
+                {
+                  ids: ctx.degradableMinted.map(
+                    (degradable) => degradable.tokenId
+                  ),
+                  slug: "degradables"
+                }
+              ]
+            : []),
+          ...(ctx.degradablesRerolled
+            ? [
+                {
+                  ids: ctx.degradablesRerolled.map(
+                    (degradable) => degradable.tokenId
+                  ),
+                  slug: "degradables"
+                }
+              ]
+            : []),
+          ...(ctx.rainbowTreasuresMinted > 0
+            ? [
+                {
+                  ids: ["10"],
+                  slug: "smol-treasures"
+                }
+              ]
+            : [])
+        ])
+      },
+      {
+        action: "/refresh",
+        method: "post"
+      }
+    );
   });
 
   return { state, dispatch };
