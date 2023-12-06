@@ -1385,8 +1385,7 @@ export const RenderTokens = ({
                   tokenId: token.tokenId,
                   type: type,
                   uri: token.image.uri,
-                  // TODO: this is only for dev to check
-                  supply: 1
+                  supply: token.queryUserQuantityOwned ?? 0
                 }
               ]);
             }
