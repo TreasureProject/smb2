@@ -1370,11 +1370,12 @@ export const RenderTokens = ({
 }) => {
   // only allow Female to be selected
   if (type === "smol-brains") {
+    console.log(tokens);
     tokens = tokens.filter((t) => {
       const gender = t.metadata.attributes.find(
         (a) => a.trait_type === "Gender"
       );
-      return gender?.value === "Male";
+      return gender?.value === "female";
     });
   }
 
