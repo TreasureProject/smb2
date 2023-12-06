@@ -116,7 +116,6 @@ const Loading = ({
   );
 };
 
-// million-ignore
 export const Box = (props: Props) => {
   const className = cn("relative box", props.className);
 

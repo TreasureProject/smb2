@@ -28,7 +28,6 @@ export const SocketContextProvider = ({
   const [pokedTargetLocation, setPokedTargetLocation] = useState<
     string | "none" | null
   >(null);
-  const data = useRouteLoaderData<typeof loader>("root");
 
   useEffect(() => {
     if (!flicked) return;
@@ -51,7 +50,7 @@ export const SocketContextProvider = ({
   }, [pokedTargetLocation]);
 
   const ws = usePartySocket({
-    host: data?.ENV.PUBLIC_PARTYKIT_URL || "localhost:1999",
+    host: import.meta.env.VITE_PARTYKIT_URL || "localhost:1999",
     room: "my-room",
 
     onMessage(e) {

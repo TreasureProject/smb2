@@ -2,12 +2,10 @@ import { cachified } from "./cache.server";
 import { client } from "./routes/weather/client.server";
 import { Weather } from "./types";
 
-const BASE_URL =
-  (process.env.CHAIN || "arbgoerli") === "arbgoerli"
-    ? "trove-api-dev"
-    : "trove-api";
+const chainName = process.env.CHAIN || "arbsepolia";
+const BASE_URL = chainName === "arbsepolia" ? "trove-api-dev" : "trove-api";
 
-export type TroveSmolToken = {
+export type TroveToken = {
   contractType: "ERC721";
   collectionAddr: string;
   tokenId: string;
@@ -23,6 +21,9 @@ export type TroveSmolToken = {
       display_type?: string;
     }[];
   };
+  isStaked: boolean;
+  tokenSupply: number;
+  queryUserQuantityOwned?: number;
   rarity?: {
     score: number;
     rank: number;
@@ -33,6 +34,11 @@ export type TroveSmolToken = {
       score: number;
     }[];
   };
+};
+
+export type TroveTokensForUserApiResponse = {
+  tokens: TroveToken[];
+  nextPageKey: string | null;
 };
 
 const LIMIT = "117";
@@ -112,14 +118,14 @@ export const fetchSmols = async (page: number) =>
         )}`,
         {
           headers: {
-            "X-API-Key": process.env.PUBLIC_TROVE_API_KEY
+            "X-API-Key": process.env.TROVE_API_KEY ?? ""
           }
         }
       );
 
       const data = await res.json();
 
-      return data.tokens as TroveSmolToken[];
+      return data.tokens as TroveToken[];
     }
   });
 
@@ -136,14 +142,14 @@ export const searchSmol = async (tokenId: string) =>
           )}`,
           {
             headers: {
-              "X-API-Key": process.env.PUBLIC_TROVE_API_KEY
+              "X-API-Key": process.env.TROVE_API_KEY ?? ""
             }
           }
         );
 
         const data = await res.json();
 
-        return data.tokens as TroveSmolToken[] | undefined;
+        return data.tokens as TroveToken[] | undefined;
       }
     }
   });
@@ -223,3 +229,102 @@ export const fetchSmolNews = async () =>
       return data.data.newsSmolCollection.items[0].videosCollection.items;
     }
   });
+
+let collectionsToFetch = [
+  "swol-jrs",
+  "smol-jrs",
+  "smol-cars",
+  "swolercycles",
+  "smol-treasures",
+  "smol-brains",
+  "degradables"
+] as const;
+
+export type TCollectionsToFetch = typeof collectionsToFetch;
+
+export type TCollectionsToFetchWithoutAs<A> = Exclude<
+  TCollectionsToFetch[number],
+  A
+>;
+
+if (process.env.CHAIN === "arbsepolia") {
+  collectionsToFetch = [
+    // @ts-ignore
+    "swol-jrs-as",
+    // @ts-ignore
+    "smol-jrs-as",
+    // @ts-ignore
+    "smol-cars-as",
+    // @ts-ignore
+    "swolercycles-as",
+    // @ts-ignore
+    "smol-treasures-as",
+    // @ts-ignore
+    "smol-brains-as",
+    // @ts-ignore
+    "degradables-as"
+  ];
+}
+
+export const fetchTroveTokensForUser = async (userAddress: string) => {
+  const res = await fetch(
+    `https://${BASE_URL}.treasure.lol/tokens-for-user-page`,
+    {
+      method: "POST",
+      headers: {
+        "X-API-Key": process.env.TROVE_API_KEY ?? ""
+      },
+      body: JSON.stringify({
+        slugs: collectionsToFetch,
+        chains: [process.env.CHAIN],
+        showHiddenTraits: true,
+        userAddress
+      })
+    }
+  );
+
+  const data = (await res.json()) as TroveTokensForUserApiResponse;
+  const collections = data.tokens.reduce<{
+    [key in TCollectionsToFetch[number]]?: TroveToken[];
+  }>((acc, token) => {
+    const collectionUrlSlug = (
+      process.env.CHAIN === "arbsepolia"
+        ? token.collectionUrlSlug.replace("-as", "")
+        : token.collectionUrlSlug
+    ) as (typeof collectionsToFetch)[number];
+
+    if (!acc[collectionUrlSlug]) {
+      acc[collectionUrlSlug] = [];
+    }
+
+    acc[collectionUrlSlug]?.push(token);
+    return acc;
+  }, {});
+
+  return collections;
+};
+
+export const refreshTroveTokens = async ({
+  tokens,
+  slug
+}: {
+  tokens: string[];
+  slug: TCollectionsToFetch[number];
+}) => {
+  const normalizedSlug = chainName === "arbsepolia" ? `${slug}-as` : slug;
+  const url = (tokenId: string) =>
+    `https://${BASE_URL}.treasure.lol/collection/${
+      process.env.CHAIN || "arbsepolia"
+    }/${normalizedSlug}/${tokenId}/refresh`;
+
+  await Promise.all(
+    tokens.map((token) => {
+      return fetch(url(token), {
+        method: "POST",
+        headers: {
+          "X-API-Key": process.env.TROVE_API_KEY ?? ""
+        }
+      });
+    })
+  );
+};

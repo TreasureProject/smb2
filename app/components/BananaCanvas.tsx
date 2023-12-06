@@ -79,7 +79,6 @@ function Banana({
 
 useGLTF.preload("/banana-transformed.glb");
 
-// million-ignore
 const Background = () => {
   const texture = useTexture("/img/stars.webp");
   const { viewport, camera } = useThree();

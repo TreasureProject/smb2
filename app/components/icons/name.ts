@@ -5,6 +5,7 @@ export type IconName =
 	| "brain"
 	| "call"
 	| "check-square"
+	| "check"
 	| "chevron-up"
 	| "cloudy"
 	| "darkbright"

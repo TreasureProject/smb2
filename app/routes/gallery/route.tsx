@@ -12,7 +12,7 @@ import {
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { distance } from "@popmotion/popcorn";
-import type { TroveSmolToken, searchSmol } from "~/api.server";
+import type { TroveToken, searchSmol } from "~/api.server";
 import { fetchSmols } from "~/api.server";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -49,7 +49,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   });
 };
 
-function splitApps(apps: TroveSmolToken[], isMobile: boolean = false) {
+function splitApps(apps: TroveToken[], isMobile: boolean = false) {
   let results = [];
   let isFirst = true;
   const first = isMobile ? 5 : 7;
@@ -83,7 +83,7 @@ const FiveColumns = ({
   parentHeight,
   openModal
 }: {
-  apps: TroveSmolToken[];
+  apps: TroveToken[];
   width: number;
   x: MotionValue<number>;
   parentHeight: number;
@@ -119,7 +119,7 @@ const SevenColumns = ({
   parentHeight,
   openModal
 }: {
-  apps: TroveSmolToken[];
+  apps: TroveToken[];
   width: number;
   x: MotionValue<number>;
   parentHeight: number;
@@ -155,7 +155,7 @@ const Item = ({
   parentHeight,
   openModal
 }: {
-  app: TroveSmolToken;
+  app: TroveToken;
   width: number;
   x: MotionValue<number>;
   parentHeight: number;
@@ -561,7 +561,7 @@ const useSpeechSynthesis = () => {
   };
 };
 
-const SidePopup = ({ smol }: { smol: TroveSmolToken }) => {
+const SidePopup = ({ smol }: { smol: TroveToken }) => {
   const [seconds, setSeconds] = useState(0);
   const gender =
     smol.metadata.attributes.find((a) => a.trait_type === "Gender")?.value ??
