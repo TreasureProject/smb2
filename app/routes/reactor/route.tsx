@@ -33,6 +33,7 @@ import scientist from "./assets/scientist.png";
 import {
   ReactorProvider,
   State,
+  TroveTokenToItem,
   Ttoken,
   lootToRainbowTreasure,
   useReactor
@@ -488,7 +489,7 @@ function Physics({
 
         const combined = data
           .reduce<string[]>((acc, d) => {
-            return [...acc, ...d.tokens.map((t) => t.image.uri)];
+            return [...acc, ...d.tokens.map((t) => t.uri)];
           }, [])
           .slice(0, 100);
 
@@ -625,10 +626,7 @@ const Button = ({
 
 function Conversation() {
   const { state, dispatch } = useReactor();
-  const { address } = useAccount();
   const message = state.message;
-
-  const fetcher = useFetcher();
 
   const { setOpen } = useModal();
 
@@ -901,9 +899,12 @@ const RerollDialog = ({
 
   const producableList = useMemo(
     () =>
-      lootToRainbowTreasure(degradables).reduce<string[]>((acc, d) => {
-        return [...acc, ...d.tokens.map((t) => t.tokenId)];
-      }, []),
+      lootToRainbowTreasure(degradables.map(TroveTokenToItem)).reduce<string[]>(
+        (acc, d) => {
+          return [...acc, ...d.tokens.map((t) => t.tokenId)];
+        },
+        []
+      ),
     [degradables]
   );
 
@@ -932,9 +933,6 @@ const RerollDialog = ({
                   isSelected && "bg-[#DCD0E7]"
                 )}
               >
-                <p className="absolute left-0 top-0 text-white text-3xl">
-                  {degradable.tokenId}
-                </p>
                 {canBeUsedToProduceRainbowTreasure && (
                   <Icon
                     name="exclamation-mark"
@@ -1125,6 +1123,36 @@ const ResultDialog = ({ state }: { state: PickState<State, "RESULT"> }) => {
 
   const degradableMintedSlice = degradableMinted.slice(0, 10);
 
+  const currentDegradables = state.inventory?.["degradables"];
+
+  const availableToProduceRainbowTreasure = lootToRainbowTreasure(
+    [
+      ...(currentDegradables ? currentDegradables : []),
+      ...(degradableMinted.length > 0 ? degradableMinted : degradablesRerolled)
+    ].map((degradable) => {
+      if ("collectionAddr" in degradable) {
+        return TroveTokenToItem(degradable);
+      }
+
+      const { colorName, shapeName } = mapper[degradable.lootId];
+
+      return {
+        tokenId: degradable.tokenId,
+        uri: `https://ipfs.io/ipfs/QmaVzSLBXppoHAPZb8ZL6Z8vk9z2usuANgcgE8Wg1jf1qN/${colorName.toLowerCase()}/${shapeName.toLowerCase()}.png`,
+        attributes: [
+          {
+            trait_type: "Color",
+            value: colorName
+          },
+          {
+            trait_type: "Shape",
+            value: shapeName
+          }
+        ]
+      };
+    })
+  );
+
   const leftOver = degradableMinted.length - degradableMintedSlice.length;
 
   return (
@@ -1137,28 +1165,39 @@ const ResultDialog = ({ state }: { state: PickState<State, "RESULT"> }) => {
               transform: "translateY(-999%), translateX(-50%)"
             }}
             ref={degradableMintedRef}
-            className="absolute left-1/2 flex items-end"
+            className="absolute left-1/2 flex flex-col items-center"
           >
-            <div className="flex w-max -space-x-16">
-              {degradableMintedSlice.map((degradable, i) => {
-                const { colorName, shapeName } = mapper[degradable.lootId];
-                return (
-                  <img
-                    style={{
-                      zIndex: degradableMintedSlice.length - i
-                    }}
-                    className="relative inline-block h-24 w-24"
-                    src={`https://ipfs.io/ipfs/QmaVzSLBXppoHAPZb8ZL6Z8vk9z2usuANgcgE8Wg1jf1qN/${colorName.toLowerCase()}/${shapeName.toLowerCase()}.png`}
-                    alt={`${colorName} ${shapeName}`}
-                  />
-                );
-              })}
+            <div className="flex items-end">
+              <div className="flex w-max -space-x-16">
+                {degradableMintedSlice.map((degradable, i) => {
+                  const { colorName, shapeName } = mapper[degradable.lootId];
+                  return (
+                    <img
+                      style={{
+                        zIndex: degradableMintedSlice.length - i
+                      }}
+                      className="relative inline-block h-24 w-24"
+                      src={`https://ipfs.io/ipfs/QmaVzSLBXppoHAPZb8ZL6Z8vk9z2usuANgcgE8Wg1jf1qN/${colorName.toLowerCase()}/${shapeName.toLowerCase()}.png`}
+                      alt={`${colorName} ${shapeName}`}
+                    />
+                  );
+                })}
+              </div>
+              {leftOver > 0 && (
+                <span className="whitespace-nowrap font-bold text-white font-formula text-xl">
+                  + {leftOver}
+                </span>
+              )}
             </div>
-            {leftOver > 0 && (
-              <span className="whitespace-nowrap font-bold text-white font-formula text-xl">
-                + {leftOver}
-              </span>
-            )}
+            {availableToProduceRainbowTreasure.length > 0 ? (
+              <p className="mt-8 whitespace-nowrap text-white font-formula">
+                Looks like you can make{" "}
+                <span className="font-bold">
+                  {availableToProduceRainbowTreasure.length}
+                </span>{" "}
+                Rainbow Treasure(s) in total!
+              </p>
+            ) : null}
           </motion.div>
         ) : null}
 
@@ -1169,7 +1208,7 @@ const ResultDialog = ({ state }: { state: PickState<State, "RESULT"> }) => {
               transform: "translateY(-999%), translateX(-50%)"
             }}
             ref={rainbowTreasureMintedRef}
-            className="absolute left-1/2 flex h-48 w-48 -translate-x-1/2 translate-y-[-999%] flex-col items-center space-y-1"
+            className="absolute left-1/2 flex h-32 w-32 -translate-x-1/2 translate-y-[-999%] flex-col items-center space-y-1"
           >
             <img src={rainbowTreasure} className="h-full w-full" />
             <span className="font-bold text-neonPink font-formula text-2xl">
@@ -1179,46 +1218,57 @@ const ResultDialog = ({ state }: { state: PickState<State, "RESULT"> }) => {
         ) : null}
 
         {degradablesRerolled.length > 0 ? (
-          <div className="grid max-h-[27rem] grid-cols-3 overflow-auto sm:grid-cols-4">
-            {degradablesRerolled.map((degradable) => {
-              const { colorName, shapeName } = mapper[degradable.lootId];
+          <div>
+            <div className="grid max-h-[27rem] grid-cols-3 overflow-auto sm:grid-cols-4">
+              {degradablesRerolled.map((degradable) => {
+                const { colorName, shapeName } = mapper[degradable.lootId];
 
-              return (
-                <div
-                  key={degradable.previousDegradable.tokenId + 1}
-                  className="relative h-24 w-24"
-                >
-                  <motion.img
-                    animate={{
-                      opacity: 0
-                    }}
-                    transition={{
-                      delay: 0.5,
-                      duration: 1.5
-                    }}
-                    src={degradable.previousDegradable.image.uri}
-                    className="h-full w-full opacity-100"
-                  />
-                  <motion.img
-                    animate={{
-                      opacity: 1
-                    }}
-                    transition={{
-                      delay: 0.5,
-                      duration: 1
-                    }}
-                    className="absolute inset-0 z-10 opacity-0"
-                    src={`https://ipfs.io/ipfs/QmaVzSLBXppoHAPZb8ZL6Z8vk9z2usuANgcgE8Wg1jf1qN/${colorName.toLowerCase()}/${shapeName.toLowerCase()}.png`}
-                    alt={`${colorName} ${shapeName}`}
-                  />
-                </div>
-              );
-            })}
+                return (
+                  <div
+                    key={degradable.previousDegradable.tokenId + 1}
+                    className="relative h-24 w-24"
+                  >
+                    <motion.img
+                      animate={{
+                        opacity: 0
+                      }}
+                      transition={{
+                        delay: 0.5,
+                        duration: 1.5
+                      }}
+                      src={degradable.previousDegradable.image.uri}
+                      className="h-full w-full opacity-100"
+                    />
+                    <motion.img
+                      animate={{
+                        opacity: 1
+                      }}
+                      transition={{
+                        delay: 0.5,
+                        duration: 1
+                      }}
+                      className="absolute inset-0 z-10 opacity-0"
+                      src={`https://ipfs.io/ipfs/QmaVzSLBXppoHAPZb8ZL6Z8vk9z2usuANgcgE8Wg1jf1qN/${colorName.toLowerCase()}/${shapeName.toLowerCase()}.png`}
+                      alt={`${colorName} ${shapeName}`}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            {availableToProduceRainbowTreasure.length > 0 ? (
+              <p className="mt-8 whitespace-nowrap text-white font-formula">
+                Looks like you can make{" "}
+                <span className="font-bold">
+                  {availableToProduceRainbowTreasure.length}
+                </span>{" "}
+                Rainbow Treasure(s) in total!
+              </p>
+            ) : null}
           </div>
         ) : null}
         <div
           className={cn(
-            "mt-64 flex space-x-2",
+            "mt-48 flex space-x-2",
             degradablesRerolled.length > 0 && "mx-auto mt-8"
           )}
         >

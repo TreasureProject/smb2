@@ -22,7 +22,6 @@ import {
   useWaitForTransaction
 } from "wagmi";
 import {
-  TCollectionsToFetch,
   TCollectionsToFetchWithoutAs,
   TroveToken,
   fetchTroveTokensForUser
@@ -42,16 +41,36 @@ export type Ttoken = {
   supply: number;
 };
 
-export function lootToRainbowTreasure(items?: TroveToken[]) {
+type TItem = {
+  tokenId: string;
+  uri: string;
+  attributes: {
+    trait_type: string;
+    value: string | number;
+  }[];
+};
+
+export function TroveTokenToItem(token: TroveToken): TItem {
+  return {
+    tokenId: token.tokenId,
+    uri: token.image.uri,
+    attributes: token.metadata.attributes.map((attribute) => ({
+      trait_type: attribute.trait_type,
+      value: attribute.value
+    }))
+  };
+}
+
+export function lootToRainbowTreasure(items?: TItem[]) {
   const colorCounts: Record<string, number> = {};
   const shapeCounts: Record<string, number> = {};
-  const colorTokenIds: Record<string, TroveToken[]> = {};
-  const shapeTokenIds: Record<string, TroveToken[]> = {};
+  const colorTokenIds: Record<string, TItem[]> = {};
+  const shapeTokenIds: Record<string, TItem[]> = {};
 
   if (!items) return [];
 
   items.forEach((item) => {
-    item.metadata.attributes.forEach((attribute) => {
+    item.attributes.forEach((attribute) => {
       if (attribute.trait_type === "Color") {
         const color = attribute.value as string;
         colorCounts[color] = (colorCounts[color] || 0) + 1;
@@ -67,10 +86,10 @@ export function lootToRainbowTreasure(items?: TroveToken[]) {
   });
   // 0 = BY_SHAPE
   // 1 = BY_COLOR
-  const results: { tokens: TroveToken[]; craftType: 0 | 1 }[] = [];
+  const results: { tokens: TItem[]; craftType: 0 | 1 }[] = [];
 
   const createResultsForAttribute = (
-    tokens: TroveToken[],
+    tokens: TItem[],
     craftType: "COLOR" | "SHAPE"
   ) => {
     for (let i = 0; i < tokens.length; i += 15) {
@@ -454,7 +473,11 @@ const transitions: TTransitions<State, Action> = {
   USE_REACTOR: {
     ...BASE_TRANSITIONS,
     MOVE_TO_RAINBOW_TREASURE_DIALOG: (ctx, { degradables }) => {
-      const producableRainbowTreasures = lootToRainbowTreasure(degradables);
+      if (!degradables) return ctx;
+
+      const producableRainbowTreasures = lootToRainbowTreasure(
+        degradables.map(TroveTokenToItem)
+      );
 
       return {
         ...ctx,
