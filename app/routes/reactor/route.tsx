@@ -986,10 +986,10 @@ const RerollDialog = ({
           })}
         </div>
         <div className="flex flex-col space-y-3 px-6 py-4">
-          <div className="flex justify-between">
+          <div className="flex flex-col justify-between space-y-2 sm:flex-row">
             <div className="flex items-center">
               <Icon name="exclamation-mark" className="h-5 w-5 text-white" />
-              <p className="text-white font-mono text-xs">
+              <p className="text-white font-mono text-[0.6rem] sm:text-xs">
                 - This degradable can be used to craft Rainbow Treasures.
               </p>
             </div>
