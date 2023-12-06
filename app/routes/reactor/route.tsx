@@ -514,7 +514,7 @@ function Physics({
         if (count++ === combined.length) {
           clearInterval(id);
         }
-      }, 200);
+      }, 400);
 
       return () => clearInterval(id);
     } else {
@@ -541,7 +541,7 @@ function Physics({
         if (count++ === data.length) {
           clearInterval(id);
         }
-      }, 200);
+      }, 400);
 
       return () => clearInterval(id);
     }
