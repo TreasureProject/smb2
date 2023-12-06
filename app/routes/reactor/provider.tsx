@@ -287,6 +287,9 @@ export type State = {
   | {
       state: "ERROR";
     }
+  | {
+      state: "WATCHING_AD";
+    }
 );
 
 type Action =
@@ -370,6 +373,9 @@ type Action =
     }
   | {
       type: "RESTART";
+    }
+  | {
+      type: "WATCH_AD";
     };
 
 const BASE_TRANSITIONS: TTransition<State, Action> = {
@@ -468,7 +474,11 @@ const transitions: TTransitions<State, Action> = {
     })
   },
   WHAT_IS_THIS: {
-    ...BASE_TRANSITIONS
+    ...BASE_TRANSITIONS,
+    WATCH_AD: (ctx) => ({
+      ...ctx,
+      state: "WATCHING_AD"
+    })
   },
   USE_REACTOR: {
     ...BASE_TRANSITIONS,
@@ -642,6 +652,9 @@ const transitions: TTransitions<State, Action> = {
     ...BASE_TRANSITIONS
   },
   ERROR: {
+    ...BASE_TRANSITIONS
+  },
+  WATCHING_AD: {
     ...BASE_TRANSITIONS
   }
 };
