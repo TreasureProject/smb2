@@ -1045,7 +1045,6 @@ const ResultDialog = ({ state }: { state: PickState<State, "RESULT"> }) => {
   const [index, setIndex] = useState(1);
   const degradableMintedRef = useRef<HTMLDivElement | null>(null);
   const rainbowTreasureMintedRef = useRef<HTMLDivElement | null>(null);
-  const [scope, _animate] = useAnimate();
 
   const maxIndex =
     degradableMinted.length > 0 && rainbowTreasuresMinted > 0 ? 2 : 1;
@@ -1167,8 +1166,8 @@ const ResultDialog = ({ state }: { state: PickState<State, "RESULT"> }) => {
             ref={degradableMintedRef}
             className="absolute left-1/2 flex flex-col items-center"
           >
-            <div className="flex items-end">
-              <div className="flex w-max -space-x-16">
+            <div className="flex items-end px-4">
+              <div className="flex w-max -space-x-12 sm:-space-x-16">
                 {degradableMintedSlice.map((degradable, i) => {
                   const { colorName, shapeName } = mapper[degradable.lootId];
                   return (
@@ -1176,7 +1175,7 @@ const ResultDialog = ({ state }: { state: PickState<State, "RESULT"> }) => {
                       style={{
                         zIndex: degradableMintedSlice.length - i
                       }}
-                      className="relative inline-block h-24 w-24"
+                      className="relative inline-block h-16 w-16 sm:h-24 sm:w-24"
                       src={`https://ipfs.io/ipfs/QmaVzSLBXppoHAPZb8ZL6Z8vk9z2usuANgcgE8Wg1jf1qN/${colorName.toLowerCase()}/${shapeName.toLowerCase()}.png`}
                       alt={`${colorName} ${shapeName}`}
                     />
@@ -1190,7 +1189,7 @@ const ResultDialog = ({ state }: { state: PickState<State, "RESULT"> }) => {
               )}
             </div>
             {availableToProduceRainbowTreasure.length > 0 ? (
-              <p className="mt-8 whitespace-nowrap text-white font-formula">
+              <p className="mt-8  text-center text-white font-formula text-xs sm:text-sm">
                 Looks like you can make{" "}
                 <span className="font-bold">
                   {availableToProduceRainbowTreasure.length}
@@ -1459,7 +1458,7 @@ const ReactorInner = () => {
   return (
     <div className="flex h-full min-h-full flex-col">
       <Header name="Reactor" />
-      <div className="relative z-10">
+      <div className="relative z-10 ml-auto px-4 pt-4">
         <ConnectKitButton />
       </div>
       <AnimatePresence>
