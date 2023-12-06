@@ -154,7 +154,7 @@ export default function App() {
       </head>
       <body
         className={cn(
-          "relative h-[100dvh] bg-[url(/img/stars.webp)] bg-repeat antialiased [overscroll-behavior:none]",
+          "relative !h-[100dvh] bg-[url(/img/stars.webp)] bg-repeat antialiased [overscroll-behavior:none]",
           isRoot || overflowHide ? "overflow-hidden" : null
         )}
         onMouseMove={({ currentTarget, clientX, clientY }) => {

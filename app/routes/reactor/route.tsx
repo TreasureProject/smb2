@@ -25,7 +25,7 @@ import reactor from "./assets/reactor.mp4";
 import { Engine, Body, Render, Bodies, World, Runner, Events } from "matter-js";
 import { cn } from "~/utils";
 import beltAnimation from "./assets/belt-animated.gif";
-import { LinksFunction } from "@remix-run/node";
+import { LinksFunction, LoaderFunction, json, redirect } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { useResponsive } from "~/contexts/responsive";
 import scientist from "./assets/scientist.png";
@@ -65,6 +65,17 @@ export const links: LinksFunction = () => [
 ];
 
 export const meta = commonMeta;
+
+export const loader: LoaderFunction = ({ request }) => {
+  const url = new URL(request.url);
+  const pw = url.searchParams.get("password");
+
+  if (pw !== "smolrockx") return redirect("/");
+
+  return json({
+    ok: true
+  });
+};
 
 const NORMAL_TIME = 3;
 
@@ -617,6 +628,7 @@ const Button = ({
     <button
       {...props}
       className={cn(
+        props.className,
         "w-full rounded-md bg-white px-4 py-2 text-black font-formula text-[0.6rem] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:text-base",
         primary && "bg-troll font-semibold uppercase tracking-wider text-white"
       )}
@@ -1006,41 +1018,58 @@ const RerollDialog = ({
               <span className="font-bold">{magicInWallet}</span> MAGIC
             </p>
           </div>
-          {isApproved ? (
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-4">
             <Drawer.Close asChild>
               <Button
-                primary
+                className="flex-1"
                 onClick={() =>
                   dispatch({
-                    type: "CONFIRM_REROLL",
-                    degradablesToReroll: selected
+                    type: "RESTART"
                   })
                 }
-                disabled={
-                  selected.length === 0 ||
-                  magicInWallet === 0 ||
-                  magicInWallet < selected.length
-                }
               >
-                {magicInWallet < selected.length || magicInWallet === 0 ? (
-                  <span>Insufficient MAGIC</span>
-                ) : (
-                  <span>
-                    Reroll{" "}
-                    {selected.length !== 0 && `for ${selected.length} MAGIC`}
-                  </span>
-                )}
+                Back
               </Button>
             </Drawer.Close>
-          ) : (
-            <Button
-              disabled={selected.length === 0}
-              onClick={() => erc20Approve?.write?.()}
-            >
-              Approve{" "}
-              {selected.length !== 0 && `${selected.length} MAGIC to be spent`}
-            </Button>
-          )}
+            {isApproved ? (
+              <Drawer.Close asChild>
+                <Button
+                  primary
+                  className="flex-1"
+                  onClick={() =>
+                    dispatch({
+                      type: "CONFIRM_REROLL",
+                      degradablesToReroll: selected
+                    })
+                  }
+                  disabled={
+                    selected.length === 0 ||
+                    magicInWallet === 0 ||
+                    magicInWallet < selected.length
+                  }
+                >
+                  {magicInWallet < selected.length || magicInWallet === 0 ? (
+                    <span>Insufficient MAGIC</span>
+                  ) : (
+                    <span>
+                      Reroll{" "}
+                      {selected.length !== 0 && `for ${selected.length} MAGIC`}
+                    </span>
+                  )}
+                </Button>
+              </Drawer.Close>
+            ) : (
+              <Button
+                className="flex-1"
+                disabled={selected.length === 0}
+                onClick={() => erc20Approve?.write?.()}
+              >
+                Approve{" "}
+                {selected.length !== 0 &&
+                  `${selected.length} MAGIC to be spent`}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </Drawer.Content>
@@ -1346,20 +1375,35 @@ const SelectSmolverseNFTDialog = ({
               The degradables you make will expire after 30 days.
             </p>
           </div>
-          <Drawer.Close asChild>
-            <Button
-              primary
-              disabled={items.length === 0}
-              onClick={() =>
-                dispatch({
-                  type: "SELECT_SMOLVERSE_NFT",
-                  tokens: items
-                })
-              }
-            >
-              Confirm
-            </Button>
-          </Drawer.Close>
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-4">
+            <Drawer.Close asChild>
+              <Button
+                className="flex-1"
+                onClick={() =>
+                  dispatch({
+                    type: "RESTART"
+                  })
+                }
+              >
+                Back
+              </Button>
+            </Drawer.Close>
+            <Drawer.Close asChild>
+              <Button
+                primary
+                className="flex-1"
+                disabled={items.length === 0}
+                onClick={() =>
+                  dispatch({
+                    type: "SELECT_SMOLVERSE_NFT",
+                    tokens: items
+                  })
+                }
+              >
+                Confirm
+              </Button>
+            </Drawer.Close>
+          </div>
         </div>
       </div>
     </Drawer.Content>
@@ -1467,7 +1511,7 @@ const ReactorInner = () => {
   const { state, dispatch } = useReactor();
   return (
     <div className="flex h-full min-h-full flex-col">
-      <Header name="Reactor" />
+      <Header name="Reactor" blendColor="#F9471D" />
       <div className="relative z-10 ml-auto px-4 pt-4">
         <ConnectKitButton />
       </div>

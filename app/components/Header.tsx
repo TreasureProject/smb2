@@ -1,14 +1,27 @@
 import { motion } from "framer-motion";
 import { Link } from "@remix-run/react";
 import { Icon } from "~/components/Icons";
-import { useState } from "react";
+import { CSSProperties, useState } from "react";
 
 const MotionLink = motion(Link);
 
-export const Header = ({ name }: { name: string }) => {
+export const Header = ({
+  name,
+  blendColor = "#ffffff"
+}: {
+  name: string;
+  blendColor?: string;
+}) => {
   const [hovered, setHovered] = useState(false);
   return (
-    <div className="relative z-20 w-full bg-[url(/img/pinkBg.avif),url(/img/pinkBg.webp)] [background-position:center_30%]">
+    <div
+      style={
+        {
+          "--blend-color": blendColor
+        } as CSSProperties
+      }
+      className="relative z-20 w-full bg-blend-darken mix-blend-luminosity [background-position:center_30%] [background:url(/img/pinkBg.avif),url(/img/pinkBg.webp),var(--blend-color)_50%/cover_no-repeat]"
+    >
       <header className="mx-auto flex h-16 items-center px-8 sm:h-24 sm:px-12">
         <h1 className="inline uppercase tracking-wider text-white text-4xl [filter:url(#outline)] sm:text-7xl">
           {name}
