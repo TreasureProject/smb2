@@ -364,7 +364,7 @@ function Physics({
     const ch = height;
 
     engine.current.gravity.y = 1;
-    engine.current.gravity.x = isMobile ? 0.2 : 0.5;
+    engine.current.gravity.x = isMobile ? 0.1 : 0.3;
 
     const render = Render.create({
       element: scene.current,
@@ -446,37 +446,39 @@ function Physics({
 
         if (!currentNft) return;
 
-        const ball = Bodies.rectangle(
-          -10,
-          height - 400,
-          isMobile ? 25 : 100,
-          isMobile ? 25 : 100,
-          {
-            mass: 10,
-            restitution: 0.1,
-            render: {
-              sprite: {
-                texture: currentNft.uri,
-                xScale:
-                  currentNft.type === "smol-treasures"
-                    ? isMobile
-                      ? 0.08
-                      : 0.16
-                    : isMobile
-                    ? 0.142
-                    : 0.285,
-                yScale:
-                  currentNft.type === "smol-treasures"
-                    ? isMobile
-                      ? 0.075
-                      : 0.15
-                    : isMobile
-                    ? 0.142
-                    : 0.285
-              }
+        const ball = Bodies.circle(-10, height - 400, isMobile ? 20 : 50, {
+          mass: 10,
+          restitution: 0.1,
+          render: {
+            sprite: {
+              texture: currentNft.uri,
+              xScale:
+                currentNft.type === "smol-treasures"
+                  ? isMobile
+                    ? 0.08
+                    : 0.16
+                  : currentNft.type === "smol-brains"
+                  ? isMobile
+                    ? 0.285
+                    : 0.4
+                  : isMobile
+                  ? 0.142
+                  : 0.285,
+              yScale:
+                currentNft.type === "smol-treasures"
+                  ? isMobile
+                    ? 0.075
+                    : 0.15
+                  : currentNft.type === "smol-brains"
+                  ? isMobile
+                    ? 0.285
+                    : 0.4
+                  : isMobile
+                  ? 0.142
+                  : 0.285
             }
           }
-        );
+        });
         World.add(engine.current.world, ball);
         if (count++ === data.length) {
           clearInterval(id);
