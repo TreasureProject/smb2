@@ -399,7 +399,7 @@ function Physics({
         }
       ),
       Bodies.rectangle(
-        cw - reactorPosition + (isMobile ? 40 : 180) / 1.5,
+        cw - reactorPosition + (isMobile ? 70 : 180) / 1.5,
         ch - (isMobile ? 65 : 100),
         isMobile ? 40 : 90,
         isMobile ? 50 : 140,
@@ -497,14 +497,14 @@ function Physics({
 
         if (!currentNftImage) return;
 
-        const ball = Bodies.circle(-10, height - 400, 50, {
+        const ball = Bodies.circle(-10, height - 400, isMobile ? 20 : 50, {
           mass: 20,
           restitution: 0.1,
           render: {
             sprite: {
               texture: currentNftImage,
-              xScale: 0.27,
-              yScale: 0.27
+              xScale: isMobile ? 0.12 : 0.27,
+              yScale: isMobile ? 0.12 : 0.27
             }
           }
         });
@@ -524,14 +524,14 @@ function Physics({
 
         if (!currentNFt) return;
 
-        const ball = Bodies.circle(-10, height - 400, 50, {
+        const ball = Bodies.circle(-10, height - 400, isMobile ? 20 : 50, {
           mass: 20,
           restitution: 0.1,
           render: {
             sprite: {
               texture: currentNFt.image.uri,
-              xScale: 0.27,
-              yScale: 0.27
+              xScale: isMobile ? 0.12 : 0.27,
+              yScale: isMobile ? 0.12 : 0.27
             }
           }
         });

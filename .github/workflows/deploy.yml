@@ -62,6 +62,6 @@ jobs:
 
       - name: 🚀 Deploy Production
         if: ${{ github.ref == 'refs/heads/main' }}
-        run: flyctl deploy --remote-only --build-secret dotenv="${{ secrets.DOTENV }}"
+        run: flyctl deploy --remote-only --build-secret dotenv="${{ secrets.DOTENV_PROD }}"
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
