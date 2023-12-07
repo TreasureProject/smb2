@@ -1,9 +1,12 @@
+import { arbitrum, arbitrumSepolia } from "viem/chains";
 import { cachified } from "./cache.server";
+import { CONTRACT_ADDRESSES } from "./const";
 import { client } from "./routes/weather/client.server";
 import { Weather } from "./types";
 
 const chainName = process.env.CHAIN || "arbsepolia";
-const BASE_URL = chainName === "arbsepolia" ? "trove-api-dev" : "trove-api";
+const isTestnet = chainName === "arbsepolia";
+const BASE_URL = isTestnet ? "trove-api-dev" : "trove-api";
 
 export type TroveToken = {
   contractType: "ERC721";
@@ -247,7 +250,7 @@ export type TCollectionsToFetchWithoutAs<A> = Exclude<
   A
 >;
 
-if (process.env.CHAIN === "arbsepolia") {
+if (isTestnet) {
   collectionsToFetch = [
     // @ts-ignore
     "swol-jrs-as",
@@ -276,7 +279,7 @@ export const fetchTroveTokensForUser = async (userAddress: string) => {
       },
       body: JSON.stringify({
         slugs: collectionsToFetch,
-        chains: [process.env.CHAIN],
+        chains: [chainName],
         showHiddenTraits: true,
         userAddress
       })
@@ -287,14 +290,43 @@ export const fetchTroveTokensForUser = async (userAddress: string) => {
   const collections = data.tokens.reduce<{
     [key in TCollectionsToFetch[number]]?: TroveToken[];
   }>((acc, token) => {
+    const swolJrsContractAddress =
+      CONTRACT_ADDRESSES[isTestnet ? arbitrumSepolia.id : arbitrum.id][
+        "SWOL_JRS"
+      ].toLowerCase();
+
+    const slug =
+      token.collectionUrlSlug === (isTestnet ? "smol-jrs-as" : "smol-jrs")
+        ? token.collectionAddr === swolJrsContractAddress
+          ? isTestnet
+            ? "swol-jrs-as"
+            : "swol-jrs"
+          : isTestnet
+          ? "smol-jrs-as"
+          : "smol-jrs"
+        : token.collectionUrlSlug;
+
     const collectionUrlSlug = (
-      process.env.CHAIN === "arbsepolia"
-        ? token.collectionUrlSlug.replace("-as", "")
-        : token.collectionUrlSlug
+      isTestnet ? slug.replace("-as", "") : slug
     ) as (typeof collectionsToFetch)[number];
 
     if (!acc[collectionUrlSlug]) {
       acc[collectionUrlSlug] = [];
+    }
+
+    if (collectionUrlSlug === "smol-jrs") {
+      const swolJrsContractAddress =
+        CONTRACT_ADDRESSES[isTestnet ? arbitrumSepolia.id : arbitrum.id][
+          "SWOL_JRS"
+        ];
+
+      if (token.collectionAddr === swolJrsContractAddress) {
+        acc["swol-jrs"]?.push(token);
+      } else {
+        acc["smol-jrs"]?.push(token);
+      }
+
+      return acc;
     }
 
     acc[collectionUrlSlug]?.push(token);
@@ -311,10 +343,10 @@ export const refreshTroveTokens = async ({
   tokens: string[];
   slug: TCollectionsToFetch[number];
 }) => {
-  const normalizedSlug = chainName === "arbsepolia" ? `${slug}-as` : slug;
+  const normalizedSlug = isTestnet ? `${slug}-as` : slug;
   const url = (tokenId: string) =>
     `https://${BASE_URL}.treasure.lol/collection/${
-      process.env.CHAIN || "arbsepolia"
+      chainName || "arbsepolia"
     }/${normalizedSlug}/${tokenId}/refresh`;
 
   await Promise.all(
