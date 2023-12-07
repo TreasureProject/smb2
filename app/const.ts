@@ -28,9 +28,10 @@ export const TYPE_TO_IPFS: Record<
   "smol-brains": "QmPgLw49FDqzjjUszxVRsvZ312o8njEvVTWv3Xrf4D8hRN"
 };
 
-export const ENABLED_CHAINS = import.meta.env.VITE_ENABLE_TESTNETS
-  ? [arbitrumSepolia, arbitrum]
-  : [arbitrum];
+export const ENABLED_CHAINS =
+  import.meta.env.VITE_ENABLE_TESTNETS === "true"
+    ? [arbitrumSepolia, arbitrum]
+    : [arbitrum];
 
 const ContractName = {
   DEGRADABLES: "DEGRADABLES",
