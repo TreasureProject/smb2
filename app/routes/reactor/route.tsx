@@ -66,17 +66,6 @@ export const links: LinksFunction = () => [
 
 export const meta = commonMeta;
 
-export const loader: LoaderFunction = ({ request }) => {
-  const url = new URL(request.url);
-  const pw = url.searchParams.get("password");
-
-  if (pw !== "smolrockx") return redirect("/");
-
-  return json({
-    ok: true
-  });
-};
-
 const NORMAL_TIME = 3;
 
 const GreenScreenVideo = ({ src }: { src: string }) => {
