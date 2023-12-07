@@ -470,7 +470,7 @@ function Physics({
                     : 0.16
                   : currentNft.type === "smol-brains"
                   ? isMobile
-                    ? 0.285
+                    ? 0.12
                     : 0.4
                   : isMobile
                   ? 0.142
@@ -482,7 +482,7 @@ function Physics({
                     : 0.15
                   : currentNft.type === "smol-brains"
                   ? isMobile
-                    ? 0.285
+                    ? 0.12
                     : 0.4
                   : isMobile
                   ? 0.142

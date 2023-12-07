@@ -761,7 +761,7 @@ const useReactorReducer = () => {
     () => {
       const id = setTimeout(() => {
         craftRainbowTreasures.write?.();
-      }, 1000);
+      }, 4000);
       return () => clearTimeout(id);
     },
     [craftRainbowTreasures.write]
@@ -890,7 +890,7 @@ const useReactorReducer = () => {
     () => {
       const id = setTimeout(() => {
         craftDegradable.write?.();
-      }, 1000);
+      }, 4000);
       return () => clearTimeout(id);
     },
     [craftDegradable.write]
@@ -931,7 +931,7 @@ const useReactorReducer = () => {
     () => {
       const id = setTimeout(() => {
         rerollLoots.write?.();
-      }, 1000);
+      }, 4000);
       return () => clearTimeout(id);
     },
     [rerollLoots.write]
