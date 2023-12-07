@@ -415,7 +415,7 @@ const BASE_TRANSITIONS: TTransition<State, Action> = {
   CONNECTION_ERROR: (ctx) => ({
     ...ctx,
     state: "ERROR",
-    message: "Connection error. Please try again."
+    message: "Connection error. Pleaes Wait a few minutes and try again."
   })
 };
 
@@ -1004,7 +1004,13 @@ const useReactorReducer = () => {
   }, [fetcher]);
 
   useEffect(() => {
-    if (connected || state.state === "IDLE" || state.state === "NOT_CONNECTED")
+    if (
+      connected ||
+      state.state === "IDLE" ||
+      state.state === "NOT_CONNECTED" ||
+      state.state === "WHAT_IS_THIS" ||
+      state.state === "WATCHING_AD"
+    )
       return;
 
     dispatch({

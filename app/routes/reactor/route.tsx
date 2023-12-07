@@ -6,7 +6,7 @@ import {
   useRef,
   useState
 } from "react";
-import smol_brian from "./assets/smol_brian.mp4";
+import smol_brian from "./assets/smol-brain.mp4";
 import Tv from "./assets/tv.png";
 import {
   AnimatePresence,
@@ -61,136 +61,18 @@ export const links: LinksFunction = () => [
     href: beltAnimation,
     as: "image",
     type: "image/gif"
+  },
+  {
+    rel: "preload",
+    href: smol_brian,
+    as: "video",
+    type: "video/mp4"
   }
 ];
 
 export const meta = commonMeta;
 
 const NORMAL_TIME = 3;
-
-const GreenScreenVideo = ({ src }: { src: string }) => {
-  const [scope, animate] = useAnimate();
-  const { dispatch } = useReactor();
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [playing, setPlaying] = useState(false);
-
-  useEffect(() => {
-    const updateCanvas = () => {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-
-      if (!canvas || !video) return;
-
-      const ctx = canvas.getContext("2d");
-
-      if (!ctx || video.paused || video.ended) return;
-
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      let frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      let l = frame.data.length / 4;
-
-      for (let i = 0; i < l; i++) {
-        let r = frame.data[i * 4 + 0];
-        let g = frame.data[i * 4 + 1];
-        let b = frame.data[i * 4 + 2];
-        const greenTolerance = 40;
-        if (
-          g > 85.7 - greenTolerance &&
-          g < 85.7 + greenTolerance &&
-          r < 45 &&
-          b < 45
-        ) {
-          frame.data[i * 4 + 3] = 0;
-        }
-      }
-
-      ctx.putImageData(frame, 0, 0);
-      requestAnimationFrame(updateCanvas);
-    };
-
-    if (playing) {
-      requestAnimationFrame(updateCanvas);
-    }
-  }, [playing]);
-
-  useEffect(() => {
-    const animation = async () => {
-      await animate(
-        scope.current,
-        {
-          y: [-1500, 0]
-        },
-        {
-          duration: 0.3,
-          ease: "linear"
-        }
-      );
-
-      await animate(
-        scope.current,
-        {
-          rotate: [12, 0, -4, 0],
-          transformOrigin: ["0% 100%", "100% 100%"]
-        },
-        {
-          duration: 0.1,
-          ease: "linear"
-        }
-      );
-    };
-
-    animation();
-  }, [animate, scope]);
-
-  return (
-    <div className="relative grid flex-1 place-items-center">
-      <video
-        onPlay={() => {
-          setPlaying(true);
-        }}
-        onPause={() => {
-          setPlaying(false);
-        }}
-        ref={videoRef}
-        src={src}
-        crossOrigin="anonymous"
-        className="hidden"
-        playsInline
-      />
-
-      <motion.div
-        initial={{
-          rotate: 12,
-          transformOrigin: "0% 100%",
-          y: -1500
-        }}
-        ref={scope}
-        className="relative inline-block w-80 overflow-hidden sm:w-[30rem]"
-      >
-        <button
-          className="absolute inset-0 z-30 h-full w-full"
-          onClick={() => {
-            if (playing) {
-              videoRef.current?.pause();
-            } else {
-              videoRef.current?.play();
-            }
-          }}
-        ></button>
-        <img src={Tv} className="relative z-20 h-full w-full" />
-        <div className="crt absolute bottom-[22.2%] left-[-20%] z-10 h-[47%] w-[110%] ">
-          <canvas ref={canvasRef} className="h-full" />
-        </div>
-      </motion.div>
-      <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2">
-        <Button onClick={() => dispatch({ type: "RESTART" })}>Back</Button>
-      </div>
-    </div>
-  );
-};
 
 type ReactorVideoState = PickState<
   State,
@@ -431,6 +313,11 @@ function Physics({
     let id: NodeJS.Timeout;
     let count = 0;
 
+    function preloadImage(url: string) {
+      var img = new Image();
+      img.src = url;
+    }
+
     if (
       state.state !== "REACTOR__SELECTED_SMOLVERSE_NFT" &&
       state.state !== "REACTOR__PRODUCING_RAINBOW_TREASURE" &&
@@ -439,46 +326,64 @@ function Physics({
       return;
 
     if (state.state === "REACTOR__SELECTED_SMOLVERSE_NFT") {
+      const data = matchProp(state, "selectedTokens")?.selectedTokens;
+
+      data.forEach((data) =>
+        preloadImage(
+          `https://images.treasure.lol/${data.type}/${data.tokenId}.png`
+        )
+      );
+
       id = setInterval(() => {
-        const data = matchProp(state, "selectedTokens")?.selectedTokens;
-
         const currentNft = data[count];
-
         if (!currentNft) return;
 
-        const ball = Bodies.circle(-10, height - 400, isMobile ? 20 : 50, {
-          mass: 10,
-          restitution: 0.1,
-          render: {
-            sprite: {
-              texture: currentNft.uri,
-              xScale:
-                currentNft.type === "smol-treasures"
-                  ? isMobile
-                    ? 0.08
-                    : 0.16
-                  : currentNft.type === "smol-brains"
-                  ? isMobile
-                    ? 0.12
-                    : 0.4
-                  : isMobile
-                  ? 0.142
-                  : 0.285,
-              yScale:
-                currentNft.type === "smol-treasures"
-                  ? isMobile
-                    ? 0.075
-                    : 0.15
-                  : currentNft.type === "smol-brains"
-                  ? isMobile
-                    ? 0.12
-                    : 0.4
-                  : isMobile
-                  ? 0.142
-                  : 0.285
+        let ball: Body[] = [];
+
+        if (currentNft.type === "smol-treasures") {
+          ball = Array.from({ length: Math.min(currentNft.supply, 10) }).map(
+            (_, i) => {
+              return Bodies.rectangle(
+                -10,
+                height - (400 + i),
+                isMobile ? 20 : 50,
+                isMobile ? 20 : 50,
+                {
+                  mass: 10,
+                  restitution: 0.1,
+                  render: {
+                    sprite: {
+                      texture: `https://images.treasure.lol/${currentNft.type}/${currentNft.tokenId}.png`,
+                      xScale: isMobile ? 0.04 : 0.135,
+                      yScale: isMobile ? 0.04 : 0.135
+                    }
+                  }
+                }
+              );
             }
-          }
-        });
+          );
+        } else {
+          ball = [
+            Bodies.rectangle(
+              -10,
+              height - 400,
+              isMobile ? 20 : 50,
+              isMobile ? 20 : 50,
+              {
+                mass: 10,
+                restitution: 0.1,
+                render: {
+                  sprite: {
+                    texture: `https://images.treasure.lol/${currentNft.type}/${currentNft.tokenId}.png`,
+                    xScale: isMobile ? 0.04 : 0.135,
+                    yScale: isMobile ? 0.04 : 0.135
+                  }
+                }
+              }
+            )
+          ];
+        }
+
         World.add(engine.current.world, ball);
         if (count++ === data.length) {
           clearInterval(id);
@@ -487,16 +392,15 @@ function Physics({
 
       return () => clearInterval(id);
     } else if (state.state === "REACTOR__PRODUCING_RAINBOW_TREASURE") {
+      const data = matchProp(state, "producableRainbowTreasures")
+        ?.producableRainbowTreasures;
+      const combined = data
+        .reduce<string[]>((acc, d) => {
+          return [...acc, ...d.tokens.map((t) => t.uri)];
+        }, [])
+        .slice(0, 100);
+
       id = setInterval(() => {
-        const data = matchProp(state, "producableRainbowTreasures")
-          ?.producableRainbowTreasures;
-
-        const combined = data
-          .reduce<string[]>((acc, d) => {
-            return [...acc, ...d.tokens.map((t) => t.uri)];
-          }, [])
-          .slice(0, 100);
-
         const currentNftImage = combined[count];
 
         if (!currentNftImage) return;
@@ -520,10 +424,9 @@ function Physics({
 
       return () => clearInterval(id);
     } else {
-      id = setInterval(() => {
-        const data = matchProp(state, "degradablesToReroll")
-          ?.degradablesToReroll;
+      const data = matchProp(state, "degradablesToReroll")?.degradablesToReroll;
 
+      id = setInterval(() => {
         const currentNFt = data[count];
 
         if (!currentNFt) return;
@@ -549,7 +452,6 @@ function Physics({
     }
   }, [state, height, isMobile]);
 
-  // Events
   useEffect(() => {
     Events.on(engine.current, "collisionStart", (e) => {
       for (var i = 0, j = e.pairs.length; i != j; ++i) {
@@ -929,6 +831,14 @@ const RerollDialog = ({
               (a) => a.trait_type === "Use-By Date"
             )?.value as number | undefined;
 
+            const shape = degradable.metadata.attributes.find(
+              (a) => a.trait_type === "Shape"
+            )?.value as string | undefined;
+
+            const color = degradable.metadata.attributes.find(
+              (a) => a.trait_type === "Color"
+            )?.value as string | undefined;
+
             const canBeUsedToProduceRainbowTreasure = producableList.includes(
               degradable.tokenId
             );
@@ -939,7 +849,7 @@ const RerollDialog = ({
               <div
                 key={degradable.tokenId}
                 className={cn(
-                  "relative inline-block bg-[#483B53] p-2",
+                  "relative flex flex-col space-y-3 bg-[#483B53] p-2",
                   isSelected && "bg-[#DCD0E7]"
                 )}
               >
@@ -954,31 +864,35 @@ const RerollDialog = ({
                     <Icon name="check" className="h-8 w-8 text-white" />
                   </div>
                 )}
-                {expireAt && (
-                  <div className="absolute bottom-2 left-1/2 z-10 grid w-full -translate-x-1/2 place-items-center p-2">
-                    <div className="h-1 w-2/3 bg-gray-300 sm:h-2">
-                      <div
-                        style={{
-                          width: `${expirePercentage}%`
-                        }}
-                        className={cn(
-                          "h-full",
-                          expirePercentage < 20
-                            ? "bg-rage"
-                            : expirePercentage < 50
-                            ? "bg-pepe"
-                            : expirePercentage < 100
-                            ? "bg-acid"
-                            : "bg-rage"
-                        )}
-                      ></div>
+                <div className="relative flex-1">
+                  <img src={degradable.image.uri} className="h-full w-full" />
+                  {expireAt && (
+                    <div className="absolute bottom-2 left-1/2 z-10 grid w-full -translate-x-1/2 place-items-center p-2">
+                      <div className="h-1 w-2/3 bg-gray-300 sm:h-2">
+                        <div
+                          style={{
+                            width: `${expirePercentage}%`
+                          }}
+                          className={cn(
+                            "h-full",
+                            expirePercentage < 20
+                              ? "bg-rage"
+                              : expirePercentage < 50
+                              ? "bg-pepe"
+                              : expirePercentage < 100
+                              ? "bg-acid"
+                              : "bg-rage"
+                          )}
+                        ></div>
+                      </div>
                     </div>
-                  </div>
-                )}
-                <img
-                  src={degradable.image.uri}
-                  className="relative h-full w-full"
-                />
+                  )}
+                </div>
+                <div>
+                  <p className="text-white font-mono text-[0.6rem] sm:text-xs">
+                    {shape} / {color}
+                  </p>
+                </div>
                 <button
                   className="absolute inset-0 z-20 h-full w-full"
                   onClick={() => {
@@ -1502,10 +1416,31 @@ const ReactorInner = () => {
   const { state, dispatch } = useReactor();
   return (
     <div className="flex h-full min-h-full flex-col">
-      <Header name="Reactor" blendColor="#F9471D" />
-      <div className="relative z-10 ml-auto px-4 pt-4">
-        <ConnectKitButton />
-      </div>
+      <AnimatePresence>
+        {state.state !== "WATCHING_AD" && (
+          <>
+            <Header name="Reactor" blendColor="#F9471D" />
+            <div className="relative z-10 ml-auto px-4 pt-4">
+              <ConnectKitButton />
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {state.state === "WATCHING_AD" ? (
+          <div className="relative flex-1 overflow-hidden">
+            <div className="absolute bottom-0 left-1/2 grid h-[100dvh] w-[300%] -translate-x-1/2 place-items-center md:w-[250%] xl:bottom-48 xl:w-[150%] 2xl:bottom-12 2xl:w-[150%]">
+              <video
+                autoPlay
+                playsInline
+                className="h-full w-2/3 max-w-none object-fill"
+                src={smol_brian}
+              />
+            </div>
+          </div>
+        ) : null}
+      </AnimatePresence>
       <AnimatePresence>
         {state.state !== "REACTOR__SELECTED_SMOLVERSE_NFT" &&
         state.state !== "REACTOR__PRODUCING_RAINBOW_TREASURE" &&
@@ -1526,11 +1461,7 @@ const ReactorInner = () => {
           <ReactorVideo src={reactor} state={state} />
         ) : null}
       </AnimatePresence>
-      <AnimatePresence>
-        {state.state === "WATCHING_AD" ? (
-          <GreenScreenVideo src={smol_brian} />
-        ) : null}
-      </AnimatePresence>
+
       <Dialog open={state.state === "RESULT"}>
         {state.state === "RESULT" && <ResultDialog state={state} />}
       </Dialog>
