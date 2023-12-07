@@ -1423,8 +1423,10 @@ export const RenderTokens = ({
 }) => {
   // only allow Female to be selected
   if (type === "smol-brains") {
-    console.log(tokens);
     tokens = tokens.filter((t) => {
+      // if it's staked, don't show
+      if (t.isStaked) return false;
+
       const gender = t.metadata.attributes.find(
         (a) => a.trait_type === "Gender"
       );
