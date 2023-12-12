@@ -12,7 +12,6 @@ import {
 } from "@react-three/postprocessing";
 import { useEasterEgg } from "~/contexts/easteregg";
 import { cn } from "~/utils";
-import useStore from "~/store";
 
 interface GLTFResult extends GLTF {
   nodes: {
@@ -133,11 +132,10 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
   const { konamiActivated } = useEasterEgg();
   const ref = React.useRef<THREE.HemisphereLight | null>(null);
   const notHome = location.pathname !== "/";
-  const showIntro = useStore((state) => state.showIntro);
   return (
     <Canvas
       legacy
-      frameloop={notHome || showIntro ? "never" : "always"}
+      frameloop={notHome ? "never" : "always"}
       camera={{
         near: 0.1,
         far: 110,
@@ -151,7 +149,7 @@ export const BananaCanvas = ({ count = 200, depth = 80 }) => {
         inset: 0
       }}
       dpr={[1, 1.5]}
-      className={cn(notHome && "hidden", konamiActivated && "z-20")}
+      className={cn("canvas", notHome && "hidden", konamiActivated && "z-20")}
     >
       <hemisphereLight
         ref={ref}

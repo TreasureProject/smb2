@@ -10,8 +10,7 @@ import {
   useLocation,
   useNavigation,
   useFetchers,
-  Outlet,
-  useLoaderData
+  Outlet
 } from "@remix-run/react";
 import {
   AnimatePresence,
@@ -30,6 +29,7 @@ import { cn } from "./utils";
 import iconHref from "./components/icons/sprite.svg";
 import { ResponsiveProvider } from "./contexts/responsive";
 import { EasterEggProvider, useEasterEgg } from "./contexts/easteregg";
+import useStore from "~/store";
 
 import "./tailwind.css";
 
@@ -100,8 +100,6 @@ function useNProgress() {
 }
 
 export default function App() {
-  const data = useLoaderData<typeof loader>();
-
   const location = useLocation();
   const isRoot = location.pathname === "/";
   const overflowHide = location.pathname === "/gallery";
@@ -280,7 +278,7 @@ function AppInner({
     return () => animation.cancel();
   }, [konamiActivated, hue]);
 
-  const navigation = useLocation();
+  const showIntro = useStore((state) => state.showIntro);
 
   useNProgress();
 
@@ -360,7 +358,7 @@ function AppInner({
             </AnimatePresence>
 
             <div className="relative h-full">
-              <BananaCanvas />
+              {!showIntro && <BananaCanvas />}
               <Outlet />
             </div>
           </MotionConfig>
