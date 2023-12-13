@@ -1,4 +1,4 @@
-import { useFetcher } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import {
   useReducer,
   createContext,
@@ -27,6 +27,7 @@ import {
   fetchTroveTokensForUser
 } from "~/api.server";
 import { loader } from "../get-inventory.$address";
+import { loader as ReactorLoader } from "./route";
 import { useContractAddresses } from "~/useChainAddresses";
 import { TransactionReceipt, decodeEventLog } from "viem";
 import * as R from "remeda";
@@ -159,8 +160,20 @@ const TYPE_TO_IDS: Record<
   "smol-brains": "smolFemaleIds"
 } as const;
 
-function normalizeSmolverseNft(tokens: Ttoken[]) {
+function normalizeSmolverseNft(
+  tokens: Ttoken[],
+  proof: string[] | null | undefined,
+  count: number | null | undefined
+) {
   const newTemplate = R.clone(template);
+
+  if (proof) {
+    newTemplate.merkleProofsForSmolTraitShop = proof as `0x${string}`[];
+  }
+
+  if (count) {
+    newTemplate.smolTraitShopSkinCount = BigInt(count);
+  }
 
   for (const token of tokens) {
     const key = TYPE_TO_IDS[token.type] as keyof typeof newTemplate;
@@ -234,6 +247,8 @@ export type State = {
   | {
       state: "REACTOR__SELECTED_SMOLVERSE_NFT";
       selectedTokens: Ttoken[];
+      proof: string[] | null;
+      count: number | null;
     }
   | {
       state: "REACTOR__CONVERTING_SMOLVERSE_NFT_TO_DEGRADABLE";
@@ -256,6 +271,8 @@ export type State = {
   | {
       state: "REACTOR__MALFUNCTION";
       selectedTokens: Ttoken[];
+      proof: string[] | null;
+      count: number | null;
     }
   | {
       state: "REACTOR__SELECT_OPTION";
@@ -329,6 +346,9 @@ type Action =
   | {
       type: "SELECT_SMOLVERSE_NFT";
       tokens: Ttoken[];
+      burnSkin: boolean;
+      proof?: string[];
+      count?: number;
     }
   | {
       type: "TRY_LUCK";
@@ -534,12 +554,14 @@ const transitions: TTransitions<State, Action> = {
   },
   REACTOR__SELECTING_SMOLVERSE_NFT: {
     ...BASE_TRANSITIONS,
-    SELECT_SMOLVERSE_NFT: (ctx, { tokens }) => {
+    SELECT_SMOLVERSE_NFT: (ctx, { tokens, proof, burnSkin, count }) => {
       return {
         ...ctx,
         state: "REACTOR__SELECTED_SMOLVERSE_NFT",
         message: "Selected Smolverse NFT",
-        selectedTokens: tokens
+        selectedTokens: tokens,
+        proof: burnSkin && proof ? proof : null,
+        count: burnSkin && count ? count : null
       };
     }
   },
@@ -770,6 +792,14 @@ const useReactorReducer = () => {
   // smolverse nft to degradable
 
   const produceDegradable = matchProp(state, "selectedTokens")?.selectedTokens;
+  const proof = matchProp(state, "proof")?.proof;
+  const count = matchProp(state, "count")?.count;
+  const setBurnFetcher = useFetcher();
+  const burnFetcherRef = useRef(setBurnFetcher);
+
+  useEffect(() => {
+    burnFetcherRef.current = setBurnFetcher;
+  }, [setBurnFetcher]);
 
   const {
     config: produceDegradableConfig,
@@ -779,7 +809,9 @@ const useReactorReducer = () => {
     abi: ABIS.DEGRADABLES,
     functionName: "convertToLoot",
     args: [
-      produceDegradable ? normalizeSmolverseNft(produceDegradable) : template
+      produceDegradable
+        ? normalizeSmolverseNft(produceDegradable, proof, count)
+        : template
     ],
     enabled: !!produceDegradable
   });
@@ -789,6 +821,8 @@ const useReactorReducer = () => {
   const craftDegradableResult = useWaitForTransaction({
     hash: craftDegradable.data?.hash
   });
+
+  const { hasBurned } = useLoaderData<typeof ReactorLoader>();
 
   useEffect(() => {
     if (
@@ -804,6 +838,13 @@ const useReactorReducer = () => {
       craftDegradableResult.status === "success" &&
       craftDegradableResult.data
     ) {
+      if (!hasBurned && proof && count) {
+        burnFetcherRef.current.submit(
+          {},
+          { action: "/set-burned", method: "post" }
+        );
+      }
+
       const data = craftDegradableResult.data as TransactionReceipt;
 
       const result = data.logs

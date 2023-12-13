@@ -7,13 +7,11 @@ import {
   useState
 } from "react";
 import smol_brian from "./assets/smol-brain.mp4";
-import Tv from "./assets/tv.png";
 import {
   AnimatePresence,
   HTMLMotionProps,
   animate,
   motion,
-  useAnimate,
   useMotionValue,
   useTransform
 } from "framer-motion";
@@ -25,8 +23,13 @@ import reactor from "./assets/reactor.mp4";
 import { Engine, Body, Render, Bodies, World, Runner, Events } from "matter-js";
 import { cn } from "~/utils";
 import beltAnimation from "./assets/belt-animated.gif";
-import { LinksFunction, LoaderFunction, json, redirect } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
+import {
+  ActionFunction,
+  LinksFunction,
+  LoaderFunction,
+  LoaderFunctionArgs,
+  json
+} from "@remix-run/node";
 import { useResponsive } from "~/contexts/responsive";
 import scientist from "./assets/scientist.png";
 import {
@@ -54,6 +57,9 @@ import {
 } from "~/generated";
 import { parseEther } from "viem";
 import { mapper } from "./lootIdMapper";
+import { useFetcher, useLoaderData } from "@remix-run/react";
+import { loader as proofLoader } from "../get-proof.$address/route";
+import { getSession } from "~/session.server";
 
 export const links: LinksFunction = () => [
   {
@@ -71,6 +77,16 @@ export const links: LinksFunction = () => [
 ];
 
 export const meta = commonMeta;
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const session = await getSession(request.headers.get("Cookie"));
+
+  const hasBurned = session.get("hasBurned") ?? "false";
+
+  return json({
+    hasBurned: hasBurned === "true"
+  });
+};
 
 const NORMAL_TIME = 3;
 
@@ -92,7 +108,6 @@ const ReactorVideo = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     const updateCanvas = () => {
@@ -165,12 +180,6 @@ const ReactorVideo = ({
           } else if (video.currentTime > NORMAL_TIME) {
             video.currentTime = 0;
           }
-        }}
-        onPlay={() => {
-          setPlaying(true);
-        }}
-        onPause={() => {
-          setPlaying(false);
         }}
         ref={videoRef}
         src={src}
@@ -1247,8 +1256,22 @@ const SelectSmolverseNFTDialog = ({
   state: PickState<State, "REACTOR__SELECTING_SMOLVERSE_NFT">;
 }) => {
   const { dispatch } = useReactor();
+  const { address } = useAccount();
   const [items, setItems] = useState<Ttoken[]>([]);
+  const fetcher = useFetcher<typeof proofLoader>();
+  const fetcherRef = useRef(fetcher);
+  const [burnChecked, setBurnChecked] = useState(false);
 
+  const { hasBurned } = useLoaderData<typeof loader>();
+
+  useEffect(() => {
+    fetcherRef.current = fetcher;
+  }, [fetcher]);
+
+  useEffect(() => {
+    if (!address || hasBurned) return;
+    fetcherRef.current.load(`/get-proof/${address}`);
+  }, [address, hasBurned]);
   // inventory except degradables key
   const inventory = useMemo(() => R.clone(state.inventory), [state.inventory]);
 
@@ -1272,12 +1295,31 @@ const SelectSmolverseNFTDialog = ({
             );
           })}
         </div>
-        <div className="flex flex-col space-y-2 px-6 py-4">
-          <div className="bg-[#0F082E] p-6">
+        <div className="flex flex-col space-y-2.5 px-6 py-4">
+          <div className="bg-[#0F082E] p-4">
             <p className="text-white font-formula text-xs sm:text-lg">
               The degradables you make will expire after 30 days.
             </p>
           </div>
+          {!hasBurned &&
+          fetcher.state === "idle" &&
+          fetcher.data &&
+          fetcher.data.ok ? (
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                name="burn"
+                id="burn"
+                checked={burnChecked}
+                onChange={(e) => setBurnChecked(e.target.checked)}
+              />
+              <label htmlFor="burn">
+                <span className="text-white font-formula text-[0.6rem] sm:text-sm">
+                  Burn smol skins (you own {fetcher.data.data.skins})
+                </span>
+              </label>
+            </div>
+          ) : null}
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-4">
             <Drawer.Close asChild>
               <Button
@@ -1296,12 +1338,21 @@ const SelectSmolverseNFTDialog = ({
                 primary
                 className="flex-1"
                 disabled={items.length === 0}
-                onClick={() =>
+                onClick={() => {
                   dispatch({
                     type: "SELECT_SMOLVERSE_NFT",
-                    tokens: items
-                  })
-                }
+                    tokens: items,
+                    burnSkin: burnChecked,
+                    ...(fetcher.state === "idle" && fetcher.data
+                      ? fetcher.data.ok
+                        ? {
+                            proof: fetcher.data.data.proof,
+                            count: fetcher.data.data.skins
+                          }
+                        : {}
+                      : {})
+                  });
+                }}
               >
                 Confirm
               </Button>
@@ -1413,7 +1464,7 @@ export default function Reactor() {
 }
 
 const ReactorInner = () => {
-  const { state, dispatch } = useReactor();
+  const { state } = useReactor();
   return (
     <div className="flex h-full min-h-full flex-col">
       <AnimatePresence>
