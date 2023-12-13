@@ -1337,7 +1337,7 @@ const SelectSmolverseNFTDialog = ({
               <Button
                 primary
                 className="flex-1"
-                disabled={items.length === 0}
+                disabled={items.length === 0 && !burnChecked}
                 onClick={() => {
                   dispatch({
                     type: "SELECT_SMOLVERSE_NFT",

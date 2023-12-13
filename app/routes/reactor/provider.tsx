@@ -925,6 +925,13 @@ const useReactorReducer = () => {
     dispatch
   ]);
 
+  useEnter(state, "REACTOR__SELECTED_SMOLVERSE_NFT", (ctx) => {
+    if (ctx.selectedTokens.length === 0 && ctx.proof && ctx.count) {
+      // move straight to malfunction if the user only selected skins bc we don't have assets
+      dispatch({ type: "MALFUNCTION" });
+    }
+  });
+
   useEnter(
     state,
     "REACTOR__MALFUNCTION",
