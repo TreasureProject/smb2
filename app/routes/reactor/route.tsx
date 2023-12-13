@@ -335,6 +335,11 @@ function Physics({
       return;
 
     if (state.state === "REACTOR__SELECTED_SMOLVERSE_NFT") {
+      if (state.selectedTokens.length === 0 && state.proof && state.count) {
+        if (videoRef.current?.paused) {
+          videoRef.current?.play();
+        }
+      }
       const data = matchProp(state, "selectedTokens")?.selectedTokens;
 
       data.forEach((data) =>
