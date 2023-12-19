@@ -1,6 +1,6 @@
 import { defineConfig } from "@wagmi/cli";
 import { react } from "@wagmi/cli/plugins";
-import { abi } from "./app/artifacts/erc1155";
+import * as ABIs from "./app/artifacts";
 import { erc20ABI, erc721ABI } from "wagmi";
 
 export default defineConfig({
@@ -16,7 +16,15 @@ export default defineConfig({
     },
     {
       name: "ERC1155",
-      abi
+      abi: ABIs.ERC1155
+    },
+    {
+      name: "SCHOOL",
+      abi: ABIs.SCHOOL
+    },
+    {
+      name: "GYM",
+      abi: ABIs.GYM
     }
   ],
   plugins: [react()]

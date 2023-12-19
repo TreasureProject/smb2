@@ -23,13 +23,7 @@ import reactor from "./assets/reactor.mp4";
 import { Engine, Body, Render, Bodies, World, Runner, Events } from "matter-js";
 import { cn } from "~/utils";
 import beltAnimation from "./assets/belt-animated.gif";
-import {
-  ActionFunction,
-  LinksFunction,
-  LoaderFunction,
-  LoaderFunctionArgs,
-  json
-} from "@remix-run/node";
+import { LinksFunction, LoaderFunctionArgs, json } from "@remix-run/node";
 import { useResponsive } from "~/contexts/responsive";
 import scientist from "./assets/scientist.png";
 import {

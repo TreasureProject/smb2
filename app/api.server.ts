@@ -10,7 +10,7 @@ const BASE_URL = isTestnet ? "trove-api-dev" : "trove-api";
 
 export type TroveToken = {
   contractType: "ERC721";
-  collectionAddr: string;
+  collectionAddr: `0x${string}`;
   tokenId: string;
   collectionUrlSlug: string;
   image: {
@@ -240,14 +240,15 @@ let collectionsToFetch = [
   "swolercycles",
   "smol-treasures",
   "smol-brains",
-  "degradables"
+  "degradables",
+  "smol-bodies"
 ] as const;
 
 export type TCollectionsToFetch = typeof collectionsToFetch;
 
 export type TCollectionsToFetchWithoutAs<A> = Exclude<
   TCollectionsToFetch[number],
-  A
+  A | "smol-bodies"
 >;
 
 if (isTestnet) {
@@ -265,7 +266,9 @@ if (isTestnet) {
     // @ts-ignore
     "smol-brains-as",
     // @ts-ignore
-    "degradables-as"
+    "degradables-as",
+    // @ts-ignore
+    "smol-bodies-as"
   ];
 }
 

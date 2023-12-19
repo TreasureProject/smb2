@@ -1,5 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0">
   <defs>
+    <symbol id="alert" fill="none" viewBox="0 0 66 66">
+      <path fill="currentColor" fill-rule="evenodd" d="M35.75 2.75h-5.5v5.5h-5.5v5.5h-5.5v5.5h-5.5v5.5h-5.5v5.5h-5.5v5.5h5.5v5.5h5.5v5.5h5.5v5.5h5.5v5.5h5.5v5.5h5.5v-5.5h5.5v-5.5h5.5v-5.5h5.5v-5.5h5.5v-5.5h5.5v-5.5h-5.5v-5.5h-5.5v-5.5h-5.5v-5.5h-5.5v-5.5h-5.5v-5.5Zm0 5.5v5.5h5.5v5.5h5.5v5.5h5.5v5.5h5.5v5.5h-5.5v5.5h-5.5v5.5h-5.5v5.5h-5.5v5.5h-5.5v-5.5h-5.5v-5.5h-5.5v-5.5h-5.5v-5.5h-5.5v-5.5h5.5v-5.5h5.5v-5.5h5.5v-5.5h5.5v-5.5h5.5Zm0 11h-5.5v16.5h5.5v-16.5Zm0 22h-5.5v5.5h5.5v-5.5Z" clip-rule="evenodd"/>
+    </symbol>
     <symbol id="back" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo-2" viewBox="0 0 24 24">
       <path d="M9 14 4 9l5-5"/>
       <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/>

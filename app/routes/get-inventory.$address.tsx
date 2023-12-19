@@ -12,10 +12,17 @@ export let loader = async ({ params }: LoaderFunctionArgs) => {
 
   try {
     const data = await fetchTroveTokensForUser(address);
-    return json({
-      ok: true,
-      data
-    });
+    return json(
+      {
+        ok: true,
+        data
+      },
+      {
+        headers: {
+          "Cache-Control": "public, max-age=60"
+        }
+      }
+    );
   } catch (e: any) {
     return json({
       ok: false,

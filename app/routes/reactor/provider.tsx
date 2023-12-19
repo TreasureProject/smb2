@@ -1089,7 +1089,10 @@ const useReactorReducer = () => {
     (ctx) => {
       if (!connected) return;
 
-      fetcherRef.current.load(`/get-inventory/${address}`);
+      fetcherRef.current.load(
+        // need to add timestamp to prevent caching
+        `/get-inventory/${address}?_=${new Date().getTime()}`
+      );
 
       if (fetcher.state === "idle" && fetcher.data) {
         if (!fetcher.data.ok) {

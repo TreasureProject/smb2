@@ -10,7 +10,8 @@ import {
   useLocation,
   useNavigation,
   useFetchers,
-  Outlet
+  Outlet,
+  useFetcher
 } from "@remix-run/react";
 import {
   AnimatePresence,
@@ -30,6 +31,7 @@ import iconHref from "./components/icons/sprite.svg";
 import { ResponsiveProvider } from "./contexts/responsive";
 import { EasterEggProvider, useEasterEgg } from "./contexts/easteregg";
 import useStore from "~/store";
+import type { loader as inventoryLoader } from "./routes/get-inventory.$address";
 
 import "./tailwind.css";
 
@@ -37,7 +39,13 @@ import NProgress from "nprogress";
 import { BananaCanvas } from "./components/BananaCanvas";
 import { getDomainUrl } from "./seo";
 import { SocketContextProvider, useSocket } from "./contexts/socket";
-import { WagmiConfig, createConfig, configureChains, mainnet } from "wagmi";
+import {
+  WagmiConfig,
+  createConfig,
+  configureChains,
+  mainnet,
+  useAccount
+} from "wagmi";
 
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import { arbitrum, arbitrumSepolia } from "viem/chains";
@@ -262,6 +270,22 @@ function AppInner({
   const hueFilter = useMotionTemplate`hue-rotate(${hue}deg)`;
 
   const { konamiActivated } = useEasterEgg();
+
+  const { address } = useAccount();
+  const fetcher = useFetcher<typeof inventoryLoader>({
+    key: "inventory"
+  });
+
+  const fetcherRef = useRef(fetcher);
+
+  useEffect(() => {
+    fetcherRef.current = fetcher;
+  }, [fetcher]);
+
+  useEffect(() => {
+    if (!address) return;
+    fetcherRef.current.load(`/get-inventory/${address}`);
+  }, [address]);
 
   useEffect(() => {
     const animation = animate(hue, 360, {
