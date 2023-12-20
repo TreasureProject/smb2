@@ -808,7 +808,7 @@ export default function Index() {
                   className="aspect-square h-full w-full"
                 ></img>
               </Box>
-              <Box name="gym" as="a" href="https://legacy.smolverse.lol/gym">
+              <Box name="gym" as="link" to="/gym">
                 <img
                   src={Gym}
                   alt="gym"

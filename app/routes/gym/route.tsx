@@ -7,13 +7,10 @@ import { Popover, PopoverContent } from "~/components/ui/popover";
 import { PopoverArrow, PopoverTrigger } from "@radix-ui/react-popover";
 import { TroveToken } from "~/api.server";
 import {
-  // useErc721IsApprovedForAll,
-  useErc721SetApprovalForAll,
   useGymDrop,
   useGymIsAtGym,
   useGymJoin,
   useGymPlatesEarned,
-  usePrepareErc721SetApprovalForAll,
   usePrepareGymDrop,
   usePrepareGymJoin
 } from "~/generated";
@@ -24,8 +21,9 @@ import { useEffect } from "react";
 import { Loading } from "~/components/Loading";
 import { ConnectKitButton } from "connectkit";
 import Weight from "./weight.webp";
+import Dumbel from "./dumbel.webp";
 
-export default function School() {
+export default function Gym() {
   const { address } = useAccount();
   const fetcher = useFetcher<typeof inventoryLoader>({ key: "inventory" });
 
@@ -121,7 +119,7 @@ const Swol = ({ token }: { token: TroveToken }) => {
 
   // LEAVE GYM
   const { config: leaveGymConfig } = usePrepareGymDrop({
-    address: contractAddresses["SCHOOL"],
+    address: contractAddresses["GYM"],
     args: [BigInt(token.tokenId)],
     enabled: inGym
   });
@@ -140,20 +138,12 @@ const Swol = ({ token }: { token: TroveToken }) => {
     ((token.metadata.attributes.find((a) => a.trait_type === "Plates")
       ?.value as number) ?? 0) + acquiredPlates ?? 0;
 
-  // APPROVAL FLOW
-  const { config: approveConfig } = usePrepareErc721SetApprovalForAll({
-    address: contractAddresses["SMOL_BODIES"],
-    args: [contractAddresses["GYM"], true]
-  });
-
-  const approveSwolBodies = useErc721SetApprovalForAll(approveConfig);
-
   return (
     <Popover>
       <div className="relative">
         <PopoverTrigger asChild>
           <button className="absolute inset-0 z-10 h-full w-full">
-            <span className="sr-only">View smol brain {token.tokenId}</span>
+            <span className="sr-only">View smol body {token.tokenId}</span>
           </button>
         </PopoverTrigger>
         <PopoverContent
@@ -178,20 +168,14 @@ const Swol = ({ token }: { token: TroveToken }) => {
               >
                 {inGym ? "LEAVE GYM" : "JOIN GYM"}
               </button>
-              <button
-                className="inline-flex h-12 w-full items-center justify-center bg-acid py-4 font-bold font-formula disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={() => approveSwolBodies.write?.()}
-              >
-                approve
-              </button>
             </div>
           </div>
           <PopoverArrow className="fill-vroom" />
         </PopoverContent>
         <img src={token.image.uri} className="rounded-xl" />
         {inGym && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black bg-opacity-50">
-            <Icon name="brain" className="h-6 w-6 text-white" />
+          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/40">
+            <img src={Dumbel} className="h-6 w-6 text-white" />
           </div>
         )}
       </div>
