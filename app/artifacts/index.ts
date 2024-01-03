@@ -5,3 +5,4 @@ export { abi as SMOL_TREASURES } from "./smol-treasures";
 export { abi as ERC1155 } from "./erc1155";
 export { abi as SCHOOL } from "./school";
 export { abi as GYM } from "./gym";
+export { abi as SMOL_WORLD } from "./smol-world";

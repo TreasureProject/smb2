@@ -8,6 +8,19 @@ const chainName = process.env.CHAIN || "arbsepolia";
 const isTestnet = chainName === "arbsepolia";
 const BASE_URL = isTestnet ? "trove-api-dev" : "trove-api";
 
+export type SmolWorldT = {
+  checkedInSmol: string | null;
+  components: {
+    componentId: number;
+    level: number;
+    canUnlock: boolean;
+    name: string;
+    isUnlocked: boolean;
+    canUpgrade: boolean;
+    type: "Island" | "Building" | "Character" | "Discovery";
+  }[];
+};
+
 export type TroveToken = {
   contractType: "ERC721";
   collectionAddr: `0x${string}`;
@@ -18,6 +31,8 @@ export type TroveToken = {
   };
   metadata: {
     name: string;
+    description: string;
+    smolWorldData?: SmolWorldT;
     attributes: {
       value: string | number;
       trait_type: string;
@@ -241,14 +256,16 @@ let collectionsToFetch = [
   "smol-treasures",
   "smol-brains",
   "degradables",
-  "smol-bodies"
+  "smol-bodies",
+  "smol-brains-land",
+  "smol-world"
 ] as const;
 
 export type TCollectionsToFetch = typeof collectionsToFetch;
 
 export type TCollectionsToFetchWithoutAs<A> = Exclude<
   TCollectionsToFetch[number],
-  A | "smol-bodies"
+  A | "smol-bodies" | "smol-world"
 >;
 
 if (isTestnet) {
@@ -268,29 +285,48 @@ if (isTestnet) {
     // @ts-ignore
     "degradables-as",
     // @ts-ignore
-    "smol-bodies-as"
+    "smol-bodies-as",
+    // @ts-ignore
+    "smol-brains-land-as",
+    // @ts-ignore
+    "smol-world-as"
   ];
 }
 
 export const fetchTroveTokensForUser = async (userAddress: string) => {
-  const res = await fetch(
-    `https://${BASE_URL}.treasure.lol/tokens-for-user-page`,
-    {
-      method: "POST",
-      headers: {
-        "X-API-Key": process.env.TROVE_API_KEY ?? ""
-      },
-      body: JSON.stringify({
-        slugs: collectionsToFetch,
-        chains: [chainName],
-        showHiddenTraits: true,
-        userAddress
-      })
-    }
-  );
+  const tokens: TroveToken[] = [];
 
-  const data = (await res.json()) as TroveTokensForUserApiResponse;
-  const collections = data.tokens.reduce<{
+  let nextKey: string | null = "";
+
+  while (true) {
+    if (nextKey === null) {
+      break;
+    }
+
+    const res = await fetch(
+      `https://${BASE_URL}.treasure.lol/tokens-for-user-page`,
+      {
+        method: "POST",
+        headers: {
+          "X-API-Key": process.env.TROVE_API_KEY ?? ""
+        },
+        body: JSON.stringify({
+          slugs: collectionsToFetch,
+          chains: [chainName],
+          showHiddenTraits: true,
+          pageKey: nextKey === "" ? undefined : nextKey,
+          userAddress,
+          limit: 100
+        })
+      }
+    );
+
+    const json = (await res.json()) as TroveTokensForUserApiResponse;
+    tokens.push(...json.tokens);
+    nextKey = json.nextPageKey;
+  }
+
+  const collections = tokens.reduce<{
     [key in TCollectionsToFetch[number]]?: TroveToken[];
   }>((acc, token) => {
     const swolJrsContractAddress =
@@ -338,6 +374,8 @@ export const fetchTroveTokensForUser = async (userAddress: string) => {
 
   return collections;
 };
+
+export type InventoryT = Awaited<ReturnType<typeof fetchTroveTokensForUser>>;
 
 export const refreshTroveTokens = async ({
   tokens,

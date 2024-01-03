@@ -17,7 +17,7 @@ export const SOCIALS = [
 ] as const;
 
 export const TYPE_TO_IPFS: Record<
-  TCollectionsToFetchWithoutAs<"degradables">,
+  TCollectionsToFetchWithoutAs<"degradables" | "smol-brains-land">,
   string
 > = {
   "swol-jrs": "QmXFvo9fN9oS8yodqbptNJQtZtWwAMiA56AnLh48cL9YhL",
@@ -44,7 +44,9 @@ const ContractName = {
   MAGIC: "MAGIC",
   SCHOOL: "SCHOOL",
   GYM: "GYM",
-  SMOL_BODIES: "SMOL_BODIES"
+  SMOL_BODIES: "SMOL_BODIES",
+  SMOL_WORLD: "SMOL_WORLD",
+  SMOL_BRAINS_LAND: "SMOL_BRAINS_LAND"
 } as const;
 
 type ObjectValues<T> = T[keyof T];
@@ -66,7 +68,10 @@ export const CONTRACT_ADDRESSES: Record<
     [ContractName.SMOL_BRAINS]: "0x269b635c10dEE290310072c160eeb7279a4c32a9",
     [ContractName.SCHOOL]: "0x22f6272FdfF01f5E0866F50a03F229eA31D7fAf8",
     [ContractName.GYM]: "0xcba012978544aCD852971500D1163E556D5bC883",
-    [ContractName.SMOL_BODIES]: "0x924597eA8D6841C31B878a9CA82c89DdB4E9a2F4"
+    [ContractName.SMOL_BODIES]: "0x924597eA8D6841C31B878a9CA82c89DdB4E9a2F4",
+    [ContractName.SMOL_WORLD]: "0xA4cBeEBBFbbE502c7Cbc2184B197909dBBA6B423",
+    [ContractName.SMOL_BRAINS_LAND]:
+      "0x256cF509d7bE4F7E1960FDa2FD2be4b18C19D73D"
   },
   [arbitrum.id]: {
     [ContractName.MAGIC]: "0x539bde0d7dbd336b79148aa742883198bbf60342",
@@ -79,6 +84,10 @@ export const CONTRACT_ADDRESSES: Record<
     [ContractName.SMOL_BRAINS]: "0xA7f1462e0EcdeEbDeE4FaF6681148Ca96Db78777",
     [ContractName.SCHOOL]: "0xBadDab83c79D3Aa8742d979609592BEe8499370d",
     [ContractName.GYM]: "0x66299ecC614b7A1920922bBa7527819c841174BD",
-    [ContractName.SMOL_BODIES]: "0x17DaCAD7975960833f374622fad08b90Ed67D1B5"
+    [ContractName.SMOL_BODIES]: "0x17DaCAD7975960833f374622fad08b90Ed67D1B5",
+    // TODO: update this address
+    [ContractName.SMOL_WORLD]: "0x000000000000000000000",
+    [ContractName.SMOL_BRAINS_LAND]:
+      "0xd666d1CC3102cd03e07794A61E5F4333B4239F53"
   }
 };

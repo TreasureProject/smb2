@@ -3,8 +3,6 @@ import { json } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { fetchTroveTokensForUser } from "~/api.server";
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 export let loader = async ({ params }: LoaderFunctionArgs) => {
   const address = params.address;
 

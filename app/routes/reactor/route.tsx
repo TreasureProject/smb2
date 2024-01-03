@@ -1286,7 +1286,11 @@ const SelectSmolverseNFTDialog = ({
             return (
               <RenderTokens
                 key={type}
-                type={type as TCollectionsToFetchWithoutAs<"degradables">}
+                type={
+                  type as TCollectionsToFetchWithoutAs<
+                    "degradables" | "smol-brains-land"
+                  >
+                }
                 tokens={tokens}
                 items={items}
                 setItems={setItems}
@@ -1369,11 +1373,14 @@ export const RenderTokens = ({
   items,
   setItems
 }: {
-  type: TCollectionsToFetchWithoutAs<"degradables">;
-  tokens: TroveToken[];
+  type: TCollectionsToFetchWithoutAs<"degradables" | "smol-brains-land">;
+  tokens: TroveToken[] | undefined;
   items: Ttoken[];
   setItems: React.Dispatch<React.SetStateAction<Ttoken[]>>;
 }) => {
+  const contractAddresses = useContractAddresses();
+
+  if (!tokens) return null;
   // only allow Female to be selected
   if (type === "smol-brains") {
     tokens = tokens.filter((t) => {
@@ -1391,7 +1398,10 @@ export const RenderTokens = ({
     tokens = tokens.filter((t) => t.tokenId !== "10"); // rainbow treasure
   }
 
-  const { isApproved, approve, refetch, isSuccess } = useApproval({ type });
+  const { isApproved, approve, refetch, isSuccess } = useApproval({
+    type,
+    operator: contractAddresses["DEGRADABLES"]
+  });
 
   useEffect(() => {
     if (isSuccess) {

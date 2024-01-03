@@ -22,6 +22,7 @@ import {
   useWaitForTransaction
 } from "wagmi";
 import {
+  InventoryT,
   TCollectionsToFetchWithoutAs,
   TroveToken,
   fetchTroveTokensForUser
@@ -37,7 +38,7 @@ import { isBurnAddress } from "~/utils";
 
 export type Ttoken = {
   tokenId: string;
-  type: TCollectionsToFetchWithoutAs<"degradables">;
+  type: TCollectionsToFetchWithoutAs<"degradables" | "smol-brains-land">;
   uri: string;
   supply: number;
 };
@@ -149,7 +150,7 @@ const template: {
 };
 
 const TYPE_TO_IDS: Record<
-  TCollectionsToFetchWithoutAs<"degradables">,
+  TCollectionsToFetchWithoutAs<"degradables" | "smol-brains-land">,
   string
 > = {
   "swol-jrs": "swolPetIds",
@@ -210,11 +211,9 @@ export const useReactor = () => {
   return context;
 };
 
-type Inventory = Awaited<ReturnType<typeof fetchTroveTokensForUser>>;
-
 export type State = {
   message?: string;
-  inventory: Inventory | null;
+  inventory: InventoryT | null;
 } & (
   | {
       // Scientist welcomes you
@@ -334,7 +333,7 @@ type Action =
   | {
       type: "PUT_BACK";
       state: PickState<State, "USE_REACTOR" | "REROLL" | "IDLE">["state"];
-      inventory: Inventory;
+      inventory: InventoryT;
     }
   | {
       type: "MISSING";
@@ -361,7 +360,7 @@ type Action =
     }
   | {
       type: "MOVE_TO_RAINBOW_TREASURE_DIALOG";
-      degradables: Inventory["degradables"];
+      degradables: InventoryT["degradables"];
     }
   | {
       type: "PRODUCE_RAINBOW_TREASURE_AUTOMATICALLY";

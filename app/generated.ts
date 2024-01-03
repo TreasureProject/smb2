@@ -1359,6 +1359,878 @@ export const schoolABI = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// SMOL_WORLD
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const smolWorldABI = [
+  { type: 'error', inputs: [], name: 'ComponentDoesNotYetExist' },
+  { type: 'error', inputs: [], name: 'ComponentLevelNotHighEnough' },
+  { type: 'error', inputs: [], name: 'ComponentNotMatchingDesiredStatus' },
+  { type: 'error', inputs: [], name: 'NotEnoughGlobalCountOfComponentType' },
+  { type: 'error', inputs: [], name: 'NotEnoughObjectCountOfComponentType' },
+  { type: 'error', inputs: [], name: 'NotEnoughTimePassedSinceLastAction' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true
+      },
+      {
+        name: 'approved',
+        internalType: 'address',
+        type: 'address',
+        indexed: true
+      },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true
+      }
+    ],
+    name: 'Approval'
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true
+      },
+      {
+        name: 'operator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true
+      },
+      { name: 'approved', internalType: 'bool', type: 'bool', indexed: false }
+    ],
+    name: 'ApprovalForAll'
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'smolWorldId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false
+      },
+      {
+        name: 'componentId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false
+      }
+    ],
+    name: 'ComponentUnlocked'
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'smolWorldId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false
+      },
+      {
+        name: 'componentId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false
+      },
+      {
+        name: 'newLevel',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false
+      }
+    ],
+    name: 'ComponentUpgraded'
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'account',
+        internalType: 'address',
+        type: 'address',
+        indexed: false
+      }
+    ],
+    name: 'Paused'
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'role', internalType: 'bytes32', type: 'bytes32', indexed: true },
+      {
+        name: 'previousAdminRole',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: true
+      },
+      {
+        name: 'newAdminRole',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: true
+      }
+    ],
+    name: 'RoleAdminChanged'
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'role', internalType: 'bytes32', type: 'bytes32', indexed: true },
+      {
+        name: 'account',
+        internalType: 'address',
+        type: 'address',
+        indexed: true
+      },
+      {
+        name: 'sender',
+        internalType: 'address',
+        type: 'address',
+        indexed: true
+      }
+    ],
+    name: 'RoleGranted'
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'role', internalType: 'bytes32', type: 'bytes32', indexed: true },
+      {
+        name: 'account',
+        internalType: 'address',
+        type: 'address',
+        indexed: true
+      },
+      {
+        name: 'sender',
+        internalType: 'address',
+        type: 'address',
+        indexed: true
+      }
+    ],
+    name: 'RoleRevoked'
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'smolWorldId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false
+      },
+      {
+        name: 'smolId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false
+      }
+    ],
+    name: 'SmolCheckedIn'
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'smolWorldId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false
+      },
+      {
+        name: 'smolId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false
+      }
+    ],
+    name: 'SmolCheckedOut'
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address', indexed: true },
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true
+      }
+    ],
+    name: 'Transfer'
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'account',
+        internalType: 'address',
+        type: 'address',
+        indexed: false
+      }
+    ],
+    name: 'Unpaused'
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'DEFAULT_ADMIN_ROLE',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }]
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      {
+        name: '_components',
+        internalType: 'struct ISmolWorld.Component[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'exists', internalType: 'bool', type: 'bool' },
+          { name: 'componentName', internalType: 'string', type: 'string' },
+          {
+            name: 'componentType',
+            internalType: 'enum ISmolWorld.COMPONENT_TYPE',
+            type: 'uint8'
+          },
+          {
+            name: 'componentLevels',
+            internalType: 'struct ISmolWorld.ComponentLevel[]',
+            type: 'tuple[]',
+            components: [
+              { name: 'exists', internalType: 'bool', type: 'bool' },
+              {
+                name: 'componentLevelName',
+                internalType: 'string',
+                type: 'string'
+              },
+              { name: 'uri', internalType: 'string', type: 'string' },
+              { name: 'unlockText', internalType: 'string', type: 'string' },
+              {
+                name: 'costsForUnlock',
+                internalType: 'struct ISmolWorld.Cost[]',
+                type: 'tuple[]',
+                components: [
+                  {
+                    name: 'costType',
+                    internalType: 'enum ISmolWorld.COST_TYPE',
+                    type: 'uint8'
+                  },
+                  { name: 'costData', internalType: 'bytes', type: 'bytes' }
+                ]
+              },
+              {
+                name: 'conditionsForUnlock',
+                internalType: 'struct ISmolWorld.Condition[]',
+                type: 'tuple[]',
+                components: [
+                  {
+                    name: 'conditionType',
+                    internalType: 'enum ISmolWorld.CONDITION_TYPE',
+                    type: 'uint8'
+                  },
+                  {
+                    name: 'conditionData',
+                    internalType: 'bytes',
+                    type: 'bytes'
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    name: 'addComponents',
+    outputs: []
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' }
+    ],
+    name: 'approve',
+    outputs: []
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'areContractsSet',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }]
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: '_oldSmolWorldId', internalType: 'uint256', type: 'uint256' }
+    ],
+    name: 'burnOldSmolWorldToMintNewSmolWorld',
+    outputs: []
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: '_smolWorldId', internalType: 'uint256', type: 'uint256' },
+      { name: '_componentId', internalType: 'uint256', type: 'uint256' },
+      { name: '_targetLevel', internalType: 'uint256', type: 'uint256' }
+    ],
+    name: 'canUnlockComponent',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }]
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: '_smolId', internalType: 'uint256', type: 'uint256' },
+      { name: '_smolWorldId', internalType: 'uint256', type: 'uint256' }
+    ],
+    name: 'checkSmolIntoSmolWorld',
+    outputs: []
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [{ name: '_smolId', internalType: 'uint256', type: 'uint256' }],
+    name: 'checkSmolOutOfSmolWorld',
+    outputs: []
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'componentCount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'componentIdToComponent',
+    outputs: [
+      { name: 'exists', internalType: 'bool', type: 'bool' },
+      { name: 'componentName', internalType: 'string', type: 'string' },
+      {
+        name: 'componentType',
+        internalType: 'enum ISmolWorld.COMPONENT_TYPE',
+        type: 'uint8'
+      }
+    ]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'componentTypeIdToGlobalCount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'getAllComponents',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct ISmolWorld.Component[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'exists', internalType: 'bool', type: 'bool' },
+          { name: 'componentName', internalType: 'string', type: 'string' },
+          {
+            name: 'componentType',
+            internalType: 'enum ISmolWorld.COMPONENT_TYPE',
+            type: 'uint8'
+          },
+          {
+            name: 'componentLevels',
+            internalType: 'struct ISmolWorld.ComponentLevel[]',
+            type: 'tuple[]',
+            components: [
+              { name: 'exists', internalType: 'bool', type: 'bool' },
+              {
+                name: 'componentLevelName',
+                internalType: 'string',
+                type: 'string'
+              },
+              { name: 'uri', internalType: 'string', type: 'string' },
+              { name: 'unlockText', internalType: 'string', type: 'string' },
+              {
+                name: 'costsForUnlock',
+                internalType: 'struct ISmolWorld.Cost[]',
+                type: 'tuple[]',
+                components: [
+                  {
+                    name: 'costType',
+                    internalType: 'enum ISmolWorld.COST_TYPE',
+                    type: 'uint8'
+                  },
+                  { name: 'costData', internalType: 'bytes', type: 'bytes' }
+                ]
+              },
+              {
+                name: 'conditionsForUnlock',
+                internalType: 'struct ISmolWorld.Condition[]',
+                type: 'tuple[]',
+                components: [
+                  {
+                    name: 'conditionType',
+                    internalType: 'enum ISmolWorld.CONDITION_TYPE',
+                    type: 'uint8'
+                  },
+                  {
+                    name: 'conditionData',
+                    internalType: 'bytes',
+                    type: 'bytes'
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: '_smolWorldId', internalType: 'uint256', type: 'uint256' }
+    ],
+    name: 'getAllTokenUnlockedComponents',
+    outputs: [{ name: '', internalType: 'uint256[]', type: 'uint256[]' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'getApproved',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'role', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'getRoleAdmin',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: 'role', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'index', internalType: 'uint256', type: 'uint256' }
+    ],
+    name: 'getRoleMember',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'role', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'getRoleMemberCount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }]
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: '_role', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_account', internalType: 'address', type: 'address' }
+    ],
+    name: 'grantRole',
+    outputs: []
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: 'role', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'account', internalType: 'address', type: 'address' }
+    ],
+    name: 'hasRole',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }]
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [],
+    name: 'initialize',
+    outputs: []
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'operator', internalType: 'address', type: 'address' }
+    ],
+    name: 'isApprovedForAll',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: '_tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'isSmolCheckedIn',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'name',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'oldSmolWorldAddress',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }]
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: '', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: '', internalType: 'bytes', type: 'bytes' }
+    ],
+    name: 'onERC1155BatchReceived',
+    outputs: [{ name: '', internalType: 'bytes4', type: 'bytes4' }]
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'bytes', type: 'bytes' }
+    ],
+    name: 'onERC1155Received',
+    outputs: [{ name: '', internalType: 'bytes4', type: 'bytes4' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'ownerOf',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'paused',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }]
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'role', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'account', internalType: 'address', type: 'address' }
+    ],
+    name: 'renounceRole',
+    outputs: []
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: '_role', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_account', internalType: 'address', type: 'address' }
+    ],
+    name: 'revokeRole',
+    outputs: []
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' }
+    ],
+    name: 'safeTransferFrom',
+    outputs: []
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: '_data', internalType: 'bytes', type: 'bytes' }
+    ],
+    name: 'safeTransferFrom',
+    outputs: []
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'operator', internalType: 'address', type: 'address' },
+      { name: 'approved', internalType: 'bool', type: 'bool' }
+    ],
+    name: 'setApprovalForAll',
+    outputs: []
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: '_smolsAddress', internalType: 'address', type: 'address' },
+      { name: '_oldSmolWorldAddress', internalType: 'address', type: 'address' }
+    ],
+    name: 'setContracts',
+    outputs: []
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [{ name: '_shouldPause', internalType: 'bool', type: 'bool' }],
+    name: 'setPause',
+    outputs: []
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'smolIdToSmolWorldData',
+    outputs: [
+      { name: 'checkedIn', internalType: 'bool', type: 'bool' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' }
+    ]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'uint256', type: 'uint256' }
+    ],
+    name: 'smolWorldIdToComponentIdToTokenComponentData',
+    outputs: [
+      { name: 'unlocked', internalType: 'bool', type: 'bool' },
+      { name: 'unlockTime', internalType: 'uint256', type: 'uint256' },
+      { name: 'currentLevel', internalType: 'uint256', type: 'uint256' }
+    ]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'uint256', type: 'uint256' }
+    ],
+    name: 'smolWorldIdToComponentTypeIdToObjectCount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'smolWorldIdToLastActionTimestamp',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'smolWorldIdToSmolData',
+    outputs: [
+      { name: 'checkedIn', internalType: 'bool', type: 'bool' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' }
+    ]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'smolsAddress',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'interfaceId', internalType: 'bytes4', type: 'bytes4' }],
+    name: 'supportsInterface',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'symbol',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'tokenURI',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }]
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'totalSupply',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }]
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' }
+    ],
+    name: 'transferFrom',
+    outputs: []
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [{ name: '_newOwner', internalType: 'address', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: []
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: '_smolWorldId', internalType: 'uint256', type: 'uint256' },
+      { name: '_componentId', internalType: 'uint256', type: 'uint256' }
+    ],
+    name: 'unlockComponent',
+    outputs: []
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      {
+        name: '_components',
+        internalType: 'struct ISmolWorld.Component[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'exists', internalType: 'bool', type: 'bool' },
+          { name: 'componentName', internalType: 'string', type: 'string' },
+          {
+            name: 'componentType',
+            internalType: 'enum ISmolWorld.COMPONENT_TYPE',
+            type: 'uint8'
+          },
+          {
+            name: 'componentLevels',
+            internalType: 'struct ISmolWorld.ComponentLevel[]',
+            type: 'tuple[]',
+            components: [
+              { name: 'exists', internalType: 'bool', type: 'bool' },
+              {
+                name: 'componentLevelName',
+                internalType: 'string',
+                type: 'string'
+              },
+              { name: 'uri', internalType: 'string', type: 'string' },
+              { name: 'unlockText', internalType: 'string', type: 'string' },
+              {
+                name: 'costsForUnlock',
+                internalType: 'struct ISmolWorld.Cost[]',
+                type: 'tuple[]',
+                components: [
+                  {
+                    name: 'costType',
+                    internalType: 'enum ISmolWorld.COST_TYPE',
+                    type: 'uint8'
+                  },
+                  { name: 'costData', internalType: 'bytes', type: 'bytes' }
+                ]
+              },
+              {
+                name: 'conditionsForUnlock',
+                internalType: 'struct ISmolWorld.Condition[]',
+                type: 'tuple[]',
+                components: [
+                  {
+                    name: 'conditionType',
+                    internalType: 'enum ISmolWorld.CONDITION_TYPE',
+                    type: 'uint8'
+                  },
+                  {
+                    name: 'conditionData',
+                    internalType: 'bytes',
+                    type: 'bytes'
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      { name: '_componentIds', internalType: 'uint256[]', type: 'uint256[]' }
+    ],
+    name: 'updateComponents',
+    outputs: []
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: '_smolWorldId', internalType: 'uint256', type: 'uint256' },
+      { name: '_componentId', internalType: 'uint256', type: 'uint256' }
+    ],
+    name: 'upgradeComponent',
+    outputs: []
+  }
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // React
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -4773,4 +5645,1764 @@ export function useSchoolUnpausedEvent(
     eventName: 'Unpaused',
     ...config
   } as UseContractEventConfig<typeof schoolABI, 'Unpaused'>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__.
+ */
+export function useSmolWorldRead<
+  TFunctionName extends string,
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"DEFAULT_ADMIN_ROLE"`.
+ */
+export function useSmolWorldDefaultAdminRole<
+  TFunctionName extends 'DEFAULT_ADMIN_ROLE',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'DEFAULT_ADMIN_ROLE',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"areContractsSet"`.
+ */
+export function useSmolWorldAreContractsSet<
+  TFunctionName extends 'areContractsSet',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'areContractsSet',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"balanceOf"`.
+ */
+export function useSmolWorldBalanceOf<
+  TFunctionName extends 'balanceOf',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'balanceOf',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"canUnlockComponent"`.
+ */
+export function useSmolWorldCanUnlockComponent<
+  TFunctionName extends 'canUnlockComponent',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'canUnlockComponent',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"componentCount"`.
+ */
+export function useSmolWorldComponentCount<
+  TFunctionName extends 'componentCount',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'componentCount',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"componentIdToComponent"`.
+ */
+export function useSmolWorldComponentIdToComponent<
+  TFunctionName extends 'componentIdToComponent',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'componentIdToComponent',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"componentTypeIdToGlobalCount"`.
+ */
+export function useSmolWorldComponentTypeIdToGlobalCount<
+  TFunctionName extends 'componentTypeIdToGlobalCount',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'componentTypeIdToGlobalCount',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"getAllComponents"`.
+ */
+export function useSmolWorldGetAllComponents<
+  TFunctionName extends 'getAllComponents',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'getAllComponents',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"getAllTokenUnlockedComponents"`.
+ */
+export function useSmolWorldGetAllTokenUnlockedComponents<
+  TFunctionName extends 'getAllTokenUnlockedComponents',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'getAllTokenUnlockedComponents',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"getApproved"`.
+ */
+export function useSmolWorldGetApproved<
+  TFunctionName extends 'getApproved',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'getApproved',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"getRoleAdmin"`.
+ */
+export function useSmolWorldGetRoleAdmin<
+  TFunctionName extends 'getRoleAdmin',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'getRoleAdmin',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"getRoleMember"`.
+ */
+export function useSmolWorldGetRoleMember<
+  TFunctionName extends 'getRoleMember',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'getRoleMember',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"getRoleMemberCount"`.
+ */
+export function useSmolWorldGetRoleMemberCount<
+  TFunctionName extends 'getRoleMemberCount',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'getRoleMemberCount',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"hasRole"`.
+ */
+export function useSmolWorldHasRole<
+  TFunctionName extends 'hasRole',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'hasRole',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"isApprovedForAll"`.
+ */
+export function useSmolWorldIsApprovedForAll<
+  TFunctionName extends 'isApprovedForAll',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'isApprovedForAll',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"isSmolCheckedIn"`.
+ */
+export function useSmolWorldIsSmolCheckedIn<
+  TFunctionName extends 'isSmolCheckedIn',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'isSmolCheckedIn',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"name"`.
+ */
+export function useSmolWorldName<
+  TFunctionName extends 'name',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'name',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"oldSmolWorldAddress"`.
+ */
+export function useSmolWorldOldSmolWorldAddress<
+  TFunctionName extends 'oldSmolWorldAddress',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'oldSmolWorldAddress',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"ownerOf"`.
+ */
+export function useSmolWorldOwnerOf<
+  TFunctionName extends 'ownerOf',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'ownerOf',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"paused"`.
+ */
+export function useSmolWorldPaused<
+  TFunctionName extends 'paused',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'paused',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"smolIdToSmolWorldData"`.
+ */
+export function useSmolWorldSmolIdToSmolWorldData<
+  TFunctionName extends 'smolIdToSmolWorldData',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'smolIdToSmolWorldData',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"smolWorldIdToComponentIdToTokenComponentData"`.
+ */
+export function useSmolWorldSmolWorldIdToComponentIdToTokenComponentData<
+  TFunctionName extends 'smolWorldIdToComponentIdToTokenComponentData',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'smolWorldIdToComponentIdToTokenComponentData',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"smolWorldIdToComponentTypeIdToObjectCount"`.
+ */
+export function useSmolWorldSmolWorldIdToComponentTypeIdToObjectCount<
+  TFunctionName extends 'smolWorldIdToComponentTypeIdToObjectCount',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'smolWorldIdToComponentTypeIdToObjectCount',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"smolWorldIdToLastActionTimestamp"`.
+ */
+export function useSmolWorldSmolWorldIdToLastActionTimestamp<
+  TFunctionName extends 'smolWorldIdToLastActionTimestamp',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'smolWorldIdToLastActionTimestamp',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"smolWorldIdToSmolData"`.
+ */
+export function useSmolWorldSmolWorldIdToSmolData<
+  TFunctionName extends 'smolWorldIdToSmolData',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'smolWorldIdToSmolData',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"smolsAddress"`.
+ */
+export function useSmolWorldSmolsAddress<
+  TFunctionName extends 'smolsAddress',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'smolsAddress',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"supportsInterface"`.
+ */
+export function useSmolWorldSupportsInterface<
+  TFunctionName extends 'supportsInterface',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'supportsInterface',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"symbol"`.
+ */
+export function useSmolWorldSymbol<
+  TFunctionName extends 'symbol',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'symbol',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"tokenURI"`.
+ */
+export function useSmolWorldTokenUri<
+  TFunctionName extends 'tokenURI',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'tokenURI',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"totalSupply"`.
+ */
+export function useSmolWorldTotalSupply<
+  TFunctionName extends 'totalSupply',
+  TSelectData = ReadContractResult<typeof smolWorldABI, TFunctionName>
+>(
+  config: Omit<
+    UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return useContractRead({
+    abi: smolWorldABI,
+    functionName: 'totalSupply',
+    ...config
+  } as UseContractReadConfig<typeof smolWorldABI, TFunctionName, TSelectData>)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__.
+ */
+export function useSmolWorldWrite<
+  TFunctionName extends string,
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          string
+        >['request']['abi'],
+        TFunctionName,
+        TMode
+      >
+    : UseContractWriteConfig<typeof smolWorldABI, TFunctionName, TMode> & {
+        abi?: never
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, TFunctionName, TMode>({
+    abi: smolWorldABI,
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"addComponents"`.
+ */
+export function useSmolWorldAddComponents<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'addComponents'
+        >['request']['abi'],
+        'addComponents',
+        TMode
+      > & { functionName?: 'addComponents' }
+    : UseContractWriteConfig<typeof smolWorldABI, 'addComponents', TMode> & {
+        abi?: never
+        functionName?: 'addComponents'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'addComponents', TMode>({
+    abi: smolWorldABI,
+    functionName: 'addComponents',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"approve"`.
+ */
+export function useSmolWorldApprove<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'approve'
+        >['request']['abi'],
+        'approve',
+        TMode
+      > & { functionName?: 'approve' }
+    : UseContractWriteConfig<typeof smolWorldABI, 'approve', TMode> & {
+        abi?: never
+        functionName?: 'approve'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'approve', TMode>({
+    abi: smolWorldABI,
+    functionName: 'approve',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"burnOldSmolWorldToMintNewSmolWorld"`.
+ */
+export function useSmolWorldBurnOldSmolWorldToMintNewSmolWorld<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'burnOldSmolWorldToMintNewSmolWorld'
+        >['request']['abi'],
+        'burnOldSmolWorldToMintNewSmolWorld',
+        TMode
+      > & { functionName?: 'burnOldSmolWorldToMintNewSmolWorld' }
+    : UseContractWriteConfig<
+        typeof smolWorldABI,
+        'burnOldSmolWorldToMintNewSmolWorld',
+        TMode
+      > & {
+        abi?: never
+        functionName?: 'burnOldSmolWorldToMintNewSmolWorld'
+      } = {} as any
+) {
+  return useContractWrite<
+    typeof smolWorldABI,
+    'burnOldSmolWorldToMintNewSmolWorld',
+    TMode
+  >({
+    abi: smolWorldABI,
+    functionName: 'burnOldSmolWorldToMintNewSmolWorld',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"checkSmolIntoSmolWorld"`.
+ */
+export function useSmolWorldCheckSmolIntoSmolWorld<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'checkSmolIntoSmolWorld'
+        >['request']['abi'],
+        'checkSmolIntoSmolWorld',
+        TMode
+      > & { functionName?: 'checkSmolIntoSmolWorld' }
+    : UseContractWriteConfig<
+        typeof smolWorldABI,
+        'checkSmolIntoSmolWorld',
+        TMode
+      > & {
+        abi?: never
+        functionName?: 'checkSmolIntoSmolWorld'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'checkSmolIntoSmolWorld', TMode>(
+    {
+      abi: smolWorldABI,
+      functionName: 'checkSmolIntoSmolWorld',
+      ...config
+    } as any
+  )
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"checkSmolOutOfSmolWorld"`.
+ */
+export function useSmolWorldCheckSmolOutOfSmolWorld<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'checkSmolOutOfSmolWorld'
+        >['request']['abi'],
+        'checkSmolOutOfSmolWorld',
+        TMode
+      > & { functionName?: 'checkSmolOutOfSmolWorld' }
+    : UseContractWriteConfig<
+        typeof smolWorldABI,
+        'checkSmolOutOfSmolWorld',
+        TMode
+      > & {
+        abi?: never
+        functionName?: 'checkSmolOutOfSmolWorld'
+      } = {} as any
+) {
+  return useContractWrite<
+    typeof smolWorldABI,
+    'checkSmolOutOfSmolWorld',
+    TMode
+  >({
+    abi: smolWorldABI,
+    functionName: 'checkSmolOutOfSmolWorld',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"grantRole"`.
+ */
+export function useSmolWorldGrantRole<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'grantRole'
+        >['request']['abi'],
+        'grantRole',
+        TMode
+      > & { functionName?: 'grantRole' }
+    : UseContractWriteConfig<typeof smolWorldABI, 'grantRole', TMode> & {
+        abi?: never
+        functionName?: 'grantRole'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'grantRole', TMode>({
+    abi: smolWorldABI,
+    functionName: 'grantRole',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"initialize"`.
+ */
+export function useSmolWorldInitialize<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'initialize'
+        >['request']['abi'],
+        'initialize',
+        TMode
+      > & { functionName?: 'initialize' }
+    : UseContractWriteConfig<typeof smolWorldABI, 'initialize', TMode> & {
+        abi?: never
+        functionName?: 'initialize'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'initialize', TMode>({
+    abi: smolWorldABI,
+    functionName: 'initialize',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"onERC1155BatchReceived"`.
+ */
+export function useSmolWorldOnErc1155BatchReceived<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'onERC1155BatchReceived'
+        >['request']['abi'],
+        'onERC1155BatchReceived',
+        TMode
+      > & { functionName?: 'onERC1155BatchReceived' }
+    : UseContractWriteConfig<
+        typeof smolWorldABI,
+        'onERC1155BatchReceived',
+        TMode
+      > & {
+        abi?: never
+        functionName?: 'onERC1155BatchReceived'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'onERC1155BatchReceived', TMode>(
+    {
+      abi: smolWorldABI,
+      functionName: 'onERC1155BatchReceived',
+      ...config
+    } as any
+  )
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"onERC1155Received"`.
+ */
+export function useSmolWorldOnErc1155Received<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'onERC1155Received'
+        >['request']['abi'],
+        'onERC1155Received',
+        TMode
+      > & { functionName?: 'onERC1155Received' }
+    : UseContractWriteConfig<
+        typeof smolWorldABI,
+        'onERC1155Received',
+        TMode
+      > & {
+        abi?: never
+        functionName?: 'onERC1155Received'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'onERC1155Received', TMode>({
+    abi: smolWorldABI,
+    functionName: 'onERC1155Received',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"renounceRole"`.
+ */
+export function useSmolWorldRenounceRole<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'renounceRole'
+        >['request']['abi'],
+        'renounceRole',
+        TMode
+      > & { functionName?: 'renounceRole' }
+    : UseContractWriteConfig<typeof smolWorldABI, 'renounceRole', TMode> & {
+        abi?: never
+        functionName?: 'renounceRole'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'renounceRole', TMode>({
+    abi: smolWorldABI,
+    functionName: 'renounceRole',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"revokeRole"`.
+ */
+export function useSmolWorldRevokeRole<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'revokeRole'
+        >['request']['abi'],
+        'revokeRole',
+        TMode
+      > & { functionName?: 'revokeRole' }
+    : UseContractWriteConfig<typeof smolWorldABI, 'revokeRole', TMode> & {
+        abi?: never
+        functionName?: 'revokeRole'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'revokeRole', TMode>({
+    abi: smolWorldABI,
+    functionName: 'revokeRole',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"safeTransferFrom"`.
+ */
+export function useSmolWorldSafeTransferFrom<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'safeTransferFrom'
+        >['request']['abi'],
+        'safeTransferFrom',
+        TMode
+      > & { functionName?: 'safeTransferFrom' }
+    : UseContractWriteConfig<typeof smolWorldABI, 'safeTransferFrom', TMode> & {
+        abi?: never
+        functionName?: 'safeTransferFrom'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'safeTransferFrom', TMode>({
+    abi: smolWorldABI,
+    functionName: 'safeTransferFrom',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"setApprovalForAll"`.
+ */
+export function useSmolWorldSetApprovalForAll<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'setApprovalForAll'
+        >['request']['abi'],
+        'setApprovalForAll',
+        TMode
+      > & { functionName?: 'setApprovalForAll' }
+    : UseContractWriteConfig<
+        typeof smolWorldABI,
+        'setApprovalForAll',
+        TMode
+      > & {
+        abi?: never
+        functionName?: 'setApprovalForAll'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'setApprovalForAll', TMode>({
+    abi: smolWorldABI,
+    functionName: 'setApprovalForAll',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"setContracts"`.
+ */
+export function useSmolWorldSetContracts<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'setContracts'
+        >['request']['abi'],
+        'setContracts',
+        TMode
+      > & { functionName?: 'setContracts' }
+    : UseContractWriteConfig<typeof smolWorldABI, 'setContracts', TMode> & {
+        abi?: never
+        functionName?: 'setContracts'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'setContracts', TMode>({
+    abi: smolWorldABI,
+    functionName: 'setContracts',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"setPause"`.
+ */
+export function useSmolWorldSetPause<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'setPause'
+        >['request']['abi'],
+        'setPause',
+        TMode
+      > & { functionName?: 'setPause' }
+    : UseContractWriteConfig<typeof smolWorldABI, 'setPause', TMode> & {
+        abi?: never
+        functionName?: 'setPause'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'setPause', TMode>({
+    abi: smolWorldABI,
+    functionName: 'setPause',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"transferFrom"`.
+ */
+export function useSmolWorldTransferFrom<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'transferFrom'
+        >['request']['abi'],
+        'transferFrom',
+        TMode
+      > & { functionName?: 'transferFrom' }
+    : UseContractWriteConfig<typeof smolWorldABI, 'transferFrom', TMode> & {
+        abi?: never
+        functionName?: 'transferFrom'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'transferFrom', TMode>({
+    abi: smolWorldABI,
+    functionName: 'transferFrom',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"transferOwnership"`.
+ */
+export function useSmolWorldTransferOwnership<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'transferOwnership'
+        >['request']['abi'],
+        'transferOwnership',
+        TMode
+      > & { functionName?: 'transferOwnership' }
+    : UseContractWriteConfig<
+        typeof smolWorldABI,
+        'transferOwnership',
+        TMode
+      > & {
+        abi?: never
+        functionName?: 'transferOwnership'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'transferOwnership', TMode>({
+    abi: smolWorldABI,
+    functionName: 'transferOwnership',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"unlockComponent"`.
+ */
+export function useSmolWorldUnlockComponent<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'unlockComponent'
+        >['request']['abi'],
+        'unlockComponent',
+        TMode
+      > & { functionName?: 'unlockComponent' }
+    : UseContractWriteConfig<typeof smolWorldABI, 'unlockComponent', TMode> & {
+        abi?: never
+        functionName?: 'unlockComponent'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'unlockComponent', TMode>({
+    abi: smolWorldABI,
+    functionName: 'unlockComponent',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"updateComponents"`.
+ */
+export function useSmolWorldUpdateComponents<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'updateComponents'
+        >['request']['abi'],
+        'updateComponents',
+        TMode
+      > & { functionName?: 'updateComponents' }
+    : UseContractWriteConfig<typeof smolWorldABI, 'updateComponents', TMode> & {
+        abi?: never
+        functionName?: 'updateComponents'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'updateComponents', TMode>({
+    abi: smolWorldABI,
+    functionName: 'updateComponents',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"upgradeComponent"`.
+ */
+export function useSmolWorldUpgradeComponent<
+  TMode extends WriteContractMode = undefined
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof smolWorldABI,
+          'upgradeComponent'
+        >['request']['abi'],
+        'upgradeComponent',
+        TMode
+      > & { functionName?: 'upgradeComponent' }
+    : UseContractWriteConfig<typeof smolWorldABI, 'upgradeComponent', TMode> & {
+        abi?: never
+        functionName?: 'upgradeComponent'
+      } = {} as any
+) {
+  return useContractWrite<typeof smolWorldABI, 'upgradeComponent', TMode>({
+    abi: smolWorldABI,
+    functionName: 'upgradeComponent',
+    ...config
+  } as any)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__.
+ */
+export function usePrepareSmolWorldWrite<TFunctionName extends string>(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, TFunctionName>,
+    'abi'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, TFunctionName>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"addComponents"`.
+ */
+export function usePrepareSmolWorldAddComponents(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'addComponents'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'addComponents',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'addComponents'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"approve"`.
+ */
+export function usePrepareSmolWorldApprove(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'approve'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'approve',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'approve'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"burnOldSmolWorldToMintNewSmolWorld"`.
+ */
+export function usePrepareSmolWorldBurnOldSmolWorldToMintNewSmolWorld(
+  config: Omit<
+    UsePrepareContractWriteConfig<
+      typeof smolWorldABI,
+      'burnOldSmolWorldToMintNewSmolWorld'
+    >,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'burnOldSmolWorldToMintNewSmolWorld',
+    ...config
+  } as UsePrepareContractWriteConfig<
+    typeof smolWorldABI,
+    'burnOldSmolWorldToMintNewSmolWorld'
+  >)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"checkSmolIntoSmolWorld"`.
+ */
+export function usePrepareSmolWorldCheckSmolIntoSmolWorld(
+  config: Omit<
+    UsePrepareContractWriteConfig<
+      typeof smolWorldABI,
+      'checkSmolIntoSmolWorld'
+    >,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'checkSmolIntoSmolWorld',
+    ...config
+  } as UsePrepareContractWriteConfig<
+    typeof smolWorldABI,
+    'checkSmolIntoSmolWorld'
+  >)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"checkSmolOutOfSmolWorld"`.
+ */
+export function usePrepareSmolWorldCheckSmolOutOfSmolWorld(
+  config: Omit<
+    UsePrepareContractWriteConfig<
+      typeof smolWorldABI,
+      'checkSmolOutOfSmolWorld'
+    >,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'checkSmolOutOfSmolWorld',
+    ...config
+  } as UsePrepareContractWriteConfig<
+    typeof smolWorldABI,
+    'checkSmolOutOfSmolWorld'
+  >)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"grantRole"`.
+ */
+export function usePrepareSmolWorldGrantRole(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'grantRole'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'grantRole',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'grantRole'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"initialize"`.
+ */
+export function usePrepareSmolWorldInitialize(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'initialize'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'initialize',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'initialize'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"onERC1155BatchReceived"`.
+ */
+export function usePrepareSmolWorldOnErc1155BatchReceived(
+  config: Omit<
+    UsePrepareContractWriteConfig<
+      typeof smolWorldABI,
+      'onERC1155BatchReceived'
+    >,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'onERC1155BatchReceived',
+    ...config
+  } as UsePrepareContractWriteConfig<
+    typeof smolWorldABI,
+    'onERC1155BatchReceived'
+  >)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"onERC1155Received"`.
+ */
+export function usePrepareSmolWorldOnErc1155Received(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'onERC1155Received'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'onERC1155Received',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'onERC1155Received'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"renounceRole"`.
+ */
+export function usePrepareSmolWorldRenounceRole(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'renounceRole'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'renounceRole',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'renounceRole'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"revokeRole"`.
+ */
+export function usePrepareSmolWorldRevokeRole(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'revokeRole'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'revokeRole',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'revokeRole'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"safeTransferFrom"`.
+ */
+export function usePrepareSmolWorldSafeTransferFrom(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'safeTransferFrom'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'safeTransferFrom',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'safeTransferFrom'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"setApprovalForAll"`.
+ */
+export function usePrepareSmolWorldSetApprovalForAll(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'setApprovalForAll'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'setApprovalForAll',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'setApprovalForAll'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"setContracts"`.
+ */
+export function usePrepareSmolWorldSetContracts(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'setContracts'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'setContracts',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'setContracts'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"setPause"`.
+ */
+export function usePrepareSmolWorldSetPause(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'setPause'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'setPause',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'setPause'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"transferFrom"`.
+ */
+export function usePrepareSmolWorldTransferFrom(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'transferFrom'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'transferFrom',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'transferFrom'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"transferOwnership"`.
+ */
+export function usePrepareSmolWorldTransferOwnership(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'transferOwnership'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'transferOwnership',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'transferOwnership'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"unlockComponent"`.
+ */
+export function usePrepareSmolWorldUnlockComponent(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'unlockComponent'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'unlockComponent',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'unlockComponent'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"updateComponents"`.
+ */
+export function usePrepareSmolWorldUpdateComponents(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'updateComponents'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'updateComponents',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'updateComponents'>)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link smolWorldABI}__ and `functionName` set to `"upgradeComponent"`.
+ */
+export function usePrepareSmolWorldUpgradeComponent(
+  config: Omit<
+    UsePrepareContractWriteConfig<typeof smolWorldABI, 'upgradeComponent'>,
+    'abi' | 'functionName'
+  > = {} as any
+) {
+  return usePrepareContractWrite({
+    abi: smolWorldABI,
+    functionName: 'upgradeComponent',
+    ...config
+  } as UsePrepareContractWriteConfig<typeof smolWorldABI, 'upgradeComponent'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link smolWorldABI}__.
+ */
+export function useSmolWorldEvent<TEventName extends string>(
+  config: Omit<
+    UseContractEventConfig<typeof smolWorldABI, TEventName>,
+    'abi'
+  > = {} as any
+) {
+  return useContractEvent({
+    abi: smolWorldABI,
+    ...config
+  } as UseContractEventConfig<typeof smolWorldABI, TEventName>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link smolWorldABI}__ and `eventName` set to `"Approval"`.
+ */
+export function useSmolWorldApprovalEvent(
+  config: Omit<
+    UseContractEventConfig<typeof smolWorldABI, 'Approval'>,
+    'abi' | 'eventName'
+  > = {} as any
+) {
+  return useContractEvent({
+    abi: smolWorldABI,
+    eventName: 'Approval',
+    ...config
+  } as UseContractEventConfig<typeof smolWorldABI, 'Approval'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link smolWorldABI}__ and `eventName` set to `"ApprovalForAll"`.
+ */
+export function useSmolWorldApprovalForAllEvent(
+  config: Omit<
+    UseContractEventConfig<typeof smolWorldABI, 'ApprovalForAll'>,
+    'abi' | 'eventName'
+  > = {} as any
+) {
+  return useContractEvent({
+    abi: smolWorldABI,
+    eventName: 'ApprovalForAll',
+    ...config
+  } as UseContractEventConfig<typeof smolWorldABI, 'ApprovalForAll'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link smolWorldABI}__ and `eventName` set to `"ComponentUnlocked"`.
+ */
+export function useSmolWorldComponentUnlockedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof smolWorldABI, 'ComponentUnlocked'>,
+    'abi' | 'eventName'
+  > = {} as any
+) {
+  return useContractEvent({
+    abi: smolWorldABI,
+    eventName: 'ComponentUnlocked',
+    ...config
+  } as UseContractEventConfig<typeof smolWorldABI, 'ComponentUnlocked'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link smolWorldABI}__ and `eventName` set to `"ComponentUpgraded"`.
+ */
+export function useSmolWorldComponentUpgradedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof smolWorldABI, 'ComponentUpgraded'>,
+    'abi' | 'eventName'
+  > = {} as any
+) {
+  return useContractEvent({
+    abi: smolWorldABI,
+    eventName: 'ComponentUpgraded',
+    ...config
+  } as UseContractEventConfig<typeof smolWorldABI, 'ComponentUpgraded'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link smolWorldABI}__ and `eventName` set to `"Paused"`.
+ */
+export function useSmolWorldPausedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof smolWorldABI, 'Paused'>,
+    'abi' | 'eventName'
+  > = {} as any
+) {
+  return useContractEvent({
+    abi: smolWorldABI,
+    eventName: 'Paused',
+    ...config
+  } as UseContractEventConfig<typeof smolWorldABI, 'Paused'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link smolWorldABI}__ and `eventName` set to `"RoleAdminChanged"`.
+ */
+export function useSmolWorldRoleAdminChangedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof smolWorldABI, 'RoleAdminChanged'>,
+    'abi' | 'eventName'
+  > = {} as any
+) {
+  return useContractEvent({
+    abi: smolWorldABI,
+    eventName: 'RoleAdminChanged',
+    ...config
+  } as UseContractEventConfig<typeof smolWorldABI, 'RoleAdminChanged'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link smolWorldABI}__ and `eventName` set to `"RoleGranted"`.
+ */
+export function useSmolWorldRoleGrantedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof smolWorldABI, 'RoleGranted'>,
+    'abi' | 'eventName'
+  > = {} as any
+) {
+  return useContractEvent({
+    abi: smolWorldABI,
+    eventName: 'RoleGranted',
+    ...config
+  } as UseContractEventConfig<typeof smolWorldABI, 'RoleGranted'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link smolWorldABI}__ and `eventName` set to `"RoleRevoked"`.
+ */
+export function useSmolWorldRoleRevokedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof smolWorldABI, 'RoleRevoked'>,
+    'abi' | 'eventName'
+  > = {} as any
+) {
+  return useContractEvent({
+    abi: smolWorldABI,
+    eventName: 'RoleRevoked',
+    ...config
+  } as UseContractEventConfig<typeof smolWorldABI, 'RoleRevoked'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link smolWorldABI}__ and `eventName` set to `"SmolCheckedIn"`.
+ */
+export function useSmolWorldSmolCheckedInEvent(
+  config: Omit<
+    UseContractEventConfig<typeof smolWorldABI, 'SmolCheckedIn'>,
+    'abi' | 'eventName'
+  > = {} as any
+) {
+  return useContractEvent({
+    abi: smolWorldABI,
+    eventName: 'SmolCheckedIn',
+    ...config
+  } as UseContractEventConfig<typeof smolWorldABI, 'SmolCheckedIn'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link smolWorldABI}__ and `eventName` set to `"SmolCheckedOut"`.
+ */
+export function useSmolWorldSmolCheckedOutEvent(
+  config: Omit<
+    UseContractEventConfig<typeof smolWorldABI, 'SmolCheckedOut'>,
+    'abi' | 'eventName'
+  > = {} as any
+) {
+  return useContractEvent({
+    abi: smolWorldABI,
+    eventName: 'SmolCheckedOut',
+    ...config
+  } as UseContractEventConfig<typeof smolWorldABI, 'SmolCheckedOut'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link smolWorldABI}__ and `eventName` set to `"Transfer"`.
+ */
+export function useSmolWorldTransferEvent(
+  config: Omit<
+    UseContractEventConfig<typeof smolWorldABI, 'Transfer'>,
+    'abi' | 'eventName'
+  > = {} as any
+) {
+  return useContractEvent({
+    abi: smolWorldABI,
+    eventName: 'Transfer',
+    ...config
+  } as UseContractEventConfig<typeof smolWorldABI, 'Transfer'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link smolWorldABI}__ and `eventName` set to `"Unpaused"`.
+ */
+export function useSmolWorldUnpausedEvent(
+  config: Omit<
+    UseContractEventConfig<typeof smolWorldABI, 'Unpaused'>,
+    'abi' | 'eventName'
+  > = {} as any
+) {
+  return useContractEvent({
+    abi: smolWorldABI,
+    eventName: 'Unpaused',
+    ...config
+  } as UseContractEventConfig<typeof smolWorldABI, 'Unpaused'>)
 }

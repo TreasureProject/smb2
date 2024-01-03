@@ -25,6 +25,10 @@ export default defineConfig({
     {
       name: "GYM",
       abi: ABIs.GYM
+    },
+    {
+      name: "SMOL_WORLD",
+      abi: ABIs.SMOL_WORLD
     }
   ],
   plugins: [react()]

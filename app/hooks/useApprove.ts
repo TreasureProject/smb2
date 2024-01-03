@@ -17,6 +17,7 @@ import { useCallback } from "react";
 
 type Props = {
   type: TCollectionsToFetchWithoutAs<"degradables">;
+  operator: `0x${string}`;
 };
 
 const TYPE_TO_CONTRACT_NAME: Record<
@@ -28,12 +29,12 @@ const TYPE_TO_CONTRACT_NAME: Record<
   "smol-cars": "SMOL_CARS",
   swolercycles: "SWOLERCYCLES",
   "smol-treasures": "SMOL_TREASURES",
-  "smol-brains": "SMOL_BRAINS"
+  "smol-brains": "SMOL_BRAINS",
+  "smol-brains-land": "SMOL_BRAINS_LAND"
 } as const;
 
-const useApprove = ({ type }: Props) => {
+const useApprove = ({ type, operator }: Props) => {
   const contractAddresses = useContractAddresses();
-  const operator = contractAddresses["DEGRADABLES"];
   const contractName = TYPE_TO_CONTRACT_NAME[type];
   const address = contractAddresses[contractName];
   const ercType = contractName !== "SMOL_TREASURES" ? "ERC721" : "ERC1155";
@@ -58,22 +59,23 @@ const useApprove = ({ type }: Props) => {
     erc1155Approve.data
   );
 
+  const approve = useCallback(() => {
+    if (ercType === "ERC721") {
+      erc721Approve.write?.();
+    } else {
+      erc1155Approve.write?.();
+    }
+  }, [ercType, erc721Approve.write, erc1155Approve.write]);
+
   return {
-    approve: () => {
-      if (ercType === "ERC721") {
-        erc721Approve.write?.();
-      } else {
-        erc1155Approve.write?.();
-      }
-    },
+    approve,
     isSuccess: isERC721ApproveSuccess || isERC1155ApproveSuccess
   };
 };
 
-const useIsApproved = ({ type }: Props) => {
+const useIsApproved = ({ type, operator }: Props) => {
   const { address } = useAccount();
   const contractAddresses = useContractAddresses();
-  const operator = contractAddresses["DEGRADABLES"];
   const contractName = TYPE_TO_CONTRACT_NAME[type];
   const collectionAddress = contractAddresses[contractName];
   const ercType = contractName !== "SMOL_TREASURES" ? "ERC721" : "ERC1155";
@@ -107,12 +109,14 @@ const useIsApproved = ({ type }: Props) => {
   };
 };
 
-export const useApproval = ({ type }: Props) => {
+export const useApproval = ({ type, operator }: Props) => {
   const { isApproved, refetch } = useIsApproved({
-    type
+    type,
+    operator
   });
   const { approve, isSuccess } = useApprove({
-    type
+    type,
+    operator
   });
   return {
     isApproved,
