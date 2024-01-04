@@ -148,8 +148,11 @@ const WorldDisplay = ({
         ></iframe>
       </div>
       <div className="mt-3 grid grid-cols-3">
-        <div className="overflow-hidden rounded-bl-md rounded-tl-md border-b-2 border-l-2 border-t-2 border-grayTwo/20">
-          <Tabs className="relative flex flex-col rounded-md">
+        <div className="overflow-hidden rounded-bl-md  rounded-tl-md border-b-2 border-l-2 border-t-2 border-grayTwo/20 bg-fud">
+          <Tabs
+            defaultValue="island"
+            className="relative flex flex-col rounded-md"
+          >
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger
                 className="text-white font-formula text-xs"
@@ -176,12 +179,13 @@ const WorldDisplay = ({
                 Discovery
               </TabsTrigger>
             </TabsList>
-            <div className="h-48 overflow-auto bg-fud">
+            <div className="h-48 overflow-auto">
               <TabsContent value="island">
                 <div className="grid grid-cols-4 gap-4 p-4 [grid-auto-rows:min-content]">
                   {islandList.map((island) => {
                     return (
                       <ComponentItem
+                        key={island.name}
                         component={island}
                         setSelected={setSelected}
                         selected={selected}
@@ -195,6 +199,7 @@ const WorldDisplay = ({
                   {characterList.map((character) => {
                     return (
                       <ComponentItem
+                        key={character.name}
                         component={character}
                         setSelected={setSelected}
                         selected={selected}
@@ -208,6 +213,7 @@ const WorldDisplay = ({
                   {buildingList.map((building) => {
                     return (
                       <ComponentItem
+                        key={building.name}
                         component={building}
                         setSelected={setSelected}
                         selected={selected}
@@ -221,6 +227,7 @@ const WorldDisplay = ({
                   {discoveryList.map((discovery) => {
                     return (
                       <ComponentItem
+                        key={discovery.name}
                         component={discovery}
                         setSelected={setSelected}
                         selected={selected}
@@ -234,33 +241,47 @@ const WorldDisplay = ({
         </div>
         <div className="border-b-2 border-l-2 border-t-2 border-grayTwo/20 bg-fud">
           {!selected ? (
-            <div className="grid place-items-center">
-              <p className="font-bold text-2xl">Select an item</p>
+            <div className="grid h-full place-items-center">
+              <p className="font-bold text-white font-formula text-sm">
+                Select a component
+              </p>
             </div>
           ) : (
-            <div className="flex h-full flex-col space-y-2 p-4 text-white font-formula">
-              <div className="space-y-2">
-                <p className="font-bold text-3xl leading-none capsize">
-                  {selected.name}
-                </p>
-                <p className="text-grayOne text-xs">{selected.type}</p>
-              </div>
-              <div className="flex space-x-2">
+            <div className="flex h-full flex-col p-4 text-white font-formula">
+              <div className="flex flex-1 space-x-4">
                 <img
-                  className="h-20 w-20 rounded-md border border-black"
+                  className="h-[8.5rem] w-[8.5rem] rounded-md border border-black object-contain"
                   src={`https://source.unsplash.com/random/200x200`}
                   alt={selected.name}
                 />
-                <div>
-                  <p>Lvl: {selected.level}</p>
+                <div className="flex flex-col space-y-3.5">
+                  <div className="space-y-2">
+                    <p className="font-bold text-3xl leading-none capsize">
+                      {selected.name}
+                    </p>
+                    <p className="text-grayOne text-xs">{selected.type}</p>
+                  </div>
+                  <p className="font-medium text-gray-300 text-sm">
+                    Lvl:{" "}
+                    <span className="font-bold text-white">
+                      {selected.level}
+                    </span>
+                  </p>
+                  <p className="font-medium text-gray-300 text-sm">
+                    Unlock In:{" "}
+                    <span className="font-bold text-white">
+                      {selected.unlockTime}
+                    </span>
+                  </p>
                 </div>
               </div>
+
               <button
                 disabled={
                   (selected.isUnlocked && !selected.canUpgrade) ||
                   !selected.canUnlock
                 }
-                className="flex-1 rounded-md border border-rage/50 bg-rage text-white disabled:cursor-not-allowed disabled:opacity-25"
+                className="mt-2 h-12 rounded-md border border-rage/50 bg-rage/60 font-bold tracking-wider text-white disabled:cursor-not-allowed disabled:opacity-25"
               >
                 {selected.isUnlocked ? "Upgrade" : "Unlock"}
               </button>
@@ -268,7 +289,20 @@ const WorldDisplay = ({
           )}
         </div>
         <div className="rounded-br-md rounded-tr-md border-2 border-grayTwo/20 bg-fud">
-          helloworld
+          <div className="p-4 text-white font-formula">
+            <p className="mx-auto w-max font-bold tracking-wider text-3xl">
+              Smol World {worldId}
+            </p>
+            <ul className="mt-4 space-y-2">
+              <li>Population: 12000</li>
+              <li># of Buildings: 12000</li>
+            </ul>
+            <ul className="mt-8 space-y-1 text-xs">
+              <li>Rainbow Treasures: 12000</li>
+              <li>IQ: 12000</li>
+              <li>MAGIC: 20000</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
