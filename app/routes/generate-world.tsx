@@ -6,10 +6,10 @@ import { CONTRACT_ADDRESSES } from "~/const";
 import { abi } from "~/artifacts/smol-world";
 
 const client = createPublicClient({
-  chain: import.meta.env.DEV ? arbitrumSepolia : arbitrum,
+  chain: process.env.CHAIN === "arbsepolia" ? arbitrumSepolia : arbitrum,
   transport: http(
     `${
-      import.meta.env.DEV
+      process.env.CHAIN === "arbsepolia"
         ? "https://arb-sepolia.g.alchemy.com/v2/"
         : "https://arb-mainnet.g.alchemy.com/v2/"
     }${import.meta.env.VITE_ALCHEMY_KEY}`
@@ -18,9 +18,9 @@ const client = createPublicClient({
 
 const worldContract = {
   address:
-    CONTRACT_ADDRESSES[import.meta.env.DEV ? arbitrumSepolia.id : arbitrum.id][
-      "SMOL_WORLD"
-    ],
+    CONTRACT_ADDRESSES[
+      process.env.CHAIN === "arbsepolia" ? arbitrumSepolia.id : arbitrum.id
+    ]["SMOL_WORLD"],
   abi
 } as const;
 
