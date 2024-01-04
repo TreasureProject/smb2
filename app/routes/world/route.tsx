@@ -1,6 +1,6 @@
 import { ConnectKitButton } from "connectkit";
 import { Header } from "~/components/Header";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useWorldReducer } from "./provider";
 import { PickState, match } from "react-states";
 import { useApproval } from "~/hooks/useApprove";
@@ -10,6 +10,8 @@ import EventEmitter from "eventemitter3";
 import { State } from "./provider";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
+import { worldComponentsT } from "../generate-world";
+import { cn } from "~/utils";
 
 export default function World() {
   const [state, dispatch] = useWorldReducer();
@@ -27,7 +29,7 @@ export default function World() {
       <div className="relative flex flex-1 flex-col">
         <div className="pointer-events-none absolute left-4 top-4 h-48 overflow-auto text-white">
           <pre>
-            <code>{JSON.stringify(state, null, 2)}</code>
+            <code>{JSON.stringify(state.state, null, 2)}</code>
           </pre>
         </div>
         <div className="relative z-10 ml-auto w-min px-4 pt-4">
@@ -80,7 +82,11 @@ export default function World() {
                   </div>
                 ),
                 ENTER_WORLD: (ctx) => (
-                  <WorldDisplay state={ctx} worldId={ctx.worldId} />
+                  <WorldDisplay
+                    state={ctx}
+                    worldId={ctx.worldId}
+                    dispatch={dispatch}
+                  />
                 )
               },
               () => []
@@ -94,11 +100,17 @@ export default function World() {
 
 const WorldDisplay = ({
   worldId,
-  state
+  state,
+  dispatch
 }: {
   worldId: string;
   state: PickState<State, "ENTER_WORLD">;
+  dispatch: ReturnType<typeof useWorldReducer>[1];
 }) => {
+  const [selected, setSelected] = useState<worldComponentsT[number] | null>(
+    null
+  );
+
   useEffect(() => {
     if (worldId && window.godotEmitter) {
       const callback = (value: string) => {
@@ -131,34 +143,49 @@ const WorldDisplay = ({
     <div className="mx-auto w-[70rem]">
       <div className="h-[25rem]">
         <iframe
-          className="aspect-video h-full w-full"
+          className="aspect-video h-full w-full rounded-md border-2 border-grayTwo/20"
           src="/export/Smol%20Town.html"
         ></iframe>
       </div>
-      <div className="grid grid-cols-3">
-        <div className="border border-white">
+      <div className="mt-3 grid grid-cols-3">
+        <div className="overflow-hidden rounded-bl-md rounded-tl-md border-b-2 border-l-2 border-t-2 border-grayTwo/20">
           <Tabs className="relative flex flex-col rounded-md">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="island">I</TabsTrigger>
-              <TabsTrigger value="character">C</TabsTrigger>
-              <TabsTrigger value="building">B</TabsTrigger>
-              <TabsTrigger value="discovery">D</TabsTrigger>
+              <TabsTrigger
+                className="text-white font-formula text-xs"
+                value="island"
+              >
+                Island
+              </TabsTrigger>
+              <TabsTrigger
+                className="text-white font-formula text-xs"
+                value="character"
+              >
+                Character
+              </TabsTrigger>
+              <TabsTrigger
+                className="text-white font-formula text-xs"
+                value="building"
+              >
+                Building
+              </TabsTrigger>
+              <TabsTrigger
+                className="text-white font-formula text-xs"
+                value="discovery"
+              >
+                Discovery
+              </TabsTrigger>
             </TabsList>
-            <div className="h-48 overflow-auto bg-white">
+            <div className="h-48 overflow-auto bg-fud">
               <TabsContent value="island">
-                <div className="grid grid-cols-5 gap-4 p-4 [grid-auto-rows:min-content]">
+                <div className="grid grid-cols-4 gap-4 p-4 [grid-auto-rows:min-content]">
                   {islandList.map((island) => {
                     return (
-                      <div className="relative">
-                        <img
-                          className="h-auto w-auto rounded-full border-4"
-                          src={`https://source.unsplash.com/random/200x200?sig=${island.name}`}
-                          alt={island.name}
-                        />
-                        <p className="absolute bottom-0 right-0">
-                          {island.name}
-                        </p>
-                      </div>
+                      <ComponentItem
+                        component={island}
+                        setSelected={setSelected}
+                        selected={selected}
+                      />
                     );
                   })}
                 </div>
@@ -167,17 +194,11 @@ const WorldDisplay = ({
                 <div className="grid grid-cols-4 gap-4 p-4 [grid-auto-rows:min-content]">
                   {characterList.map((character) => {
                     return (
-                      <div className="relative">
-                        <img
-                          className="h-auto w-auto rounded-full border-4"
-                          // random image from unsplash
-                          src={`https://source.unsplash.com/random/200x200?sig=${character.name}`}
-                          alt={character.name}
-                        />
-                        <p className="absolute bottom-0 right-0">
-                          {character.name}
-                        </p>
-                      </div>
+                      <ComponentItem
+                        component={character}
+                        setSelected={setSelected}
+                        selected={selected}
+                      />
                     );
                   })}
                 </div>
@@ -186,17 +207,11 @@ const WorldDisplay = ({
                 <div className="grid grid-cols-4 gap-4 p-4 [grid-auto-rows:min-content]">
                   {buildingList.map((building) => {
                     return (
-                      <div className="relative">
-                        <img
-                          className="h-auto w-auto rounded-full border-4"
-                          // random image from unsplash
-                          src={`https://source.unsplash.com/random/200x200?sig=${building.name}`}
-                          alt={building.name}
-                        />
-                        <p className="absolute bottom-0 right-0">
-                          {building.name}
-                        </p>
-                      </div>
+                      <ComponentItem
+                        component={building}
+                        setSelected={setSelected}
+                        selected={selected}
+                      />
                     );
                   })}
                 </div>
@@ -205,17 +220,11 @@ const WorldDisplay = ({
                 <div className="grid grid-cols-4 gap-4 p-4 [grid-auto-rows:min-content]">
                   {discoveryList.map((discovery) => {
                     return (
-                      <div className="relative">
-                        <img
-                          className="h-auto w-auto rounded-full border-4"
-                          // random image from unsplash
-                          src={`https://source.unsplash.com/random/200x200?sig=${discovery.name}`}
-                          alt={discovery.name}
-                        />
-                        <p className="absolute bottom-0 right-0">
-                          {discovery.name}
-                        </p>
-                      </div>
+                      <ComponentItem
+                        component={discovery}
+                        setSelected={setSelected}
+                        selected={selected}
+                      />
                     );
                   })}
                 </div>
@@ -223,9 +232,85 @@ const WorldDisplay = ({
             </div>
           </Tabs>
         </div>
-        <div className="border border-white">helloworld</div>
-        <div className="border border-white">helloworld</div>
+        <div className="border-b-2 border-l-2 border-t-2 border-grayTwo/20 bg-fud">
+          {!selected ? (
+            <div className="grid place-items-center">
+              <p className="font-bold text-2xl">Select an item</p>
+            </div>
+          ) : (
+            <div className="flex h-full flex-col space-y-2 p-4 text-white font-formula">
+              <div className="space-y-2">
+                <p className="font-bold text-3xl leading-none capsize">
+                  {selected.name}
+                </p>
+                <p className="text-grayOne text-xs">{selected.type}</p>
+              </div>
+              <div className="flex space-x-2">
+                <img
+                  className="h-20 w-20 rounded-md border border-black"
+                  src={`https://source.unsplash.com/random/200x200`}
+                  alt={selected.name}
+                />
+                <div>
+                  <p>Lvl: {selected.level}</p>
+                </div>
+              </div>
+              <button
+                disabled={
+                  (selected.isUnlocked && !selected.canUpgrade) ||
+                  !selected.canUnlock
+                }
+                className="flex-1 rounded-md border border-rage/50 bg-rage text-white disabled:cursor-not-allowed disabled:opacity-25"
+              >
+                {selected.isUnlocked ? "Upgrade" : "Unlock"}
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="rounded-br-md rounded-tr-md border-2 border-grayTwo/20 bg-fud">
+          helloworld
+        </div>
       </div>
+    </div>
+  );
+};
+
+const ComponentItem = ({
+  component,
+  setSelected,
+  selected
+}: {
+  component: worldComponentsT[number];
+  setSelected: (component: worldComponentsT[number]) => void;
+  selected: worldComponentsT[number] | null;
+}) => {
+  const isSelected = selected?.name === component.name;
+
+  const grayOut = !component.isUnlocked && !component.canUnlock;
+
+  return (
+    <div className={cn("group relative", grayOut && "opacity-25")}>
+      {component.canUnlock || component.canUpgrade ? (
+        <div
+          aria-hidden="true"
+          className="absolute -inset-1 animate-pulse rounded-full bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500 opacity-75 blur transition [animation-duration:2000ms] group-hover:opacity-100"
+        ></div>
+      ) : null}
+      <img
+        className="relative h-auto w-auto rounded-full border-4 border-grayTwo/20"
+        src={`https://source.unsplash.com/random/200x200?sig=${component.name}`}
+        alt={component.name}
+      />
+      <button
+        className={cn(
+          "absolute inset-0 h-full w-full",
+          grayOut && "cursor-not-allowed"
+        )}
+        disabled={grayOut}
+        onClick={() => setSelected(component)}
+      >
+        <span className="sr-only">Show info for {component.name}</span>
+      </button>
     </div>
   );
 };

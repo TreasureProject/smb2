@@ -106,8 +106,10 @@ const getWorldInfo = async (worldTokenId: string) => {
   return components;
 };
 
+export type worldComponentsT = Awaited<ReturnType<typeof getWorldInfo>>;
+
 export type WorldInfoT = {
-  worldComponents: Awaited<ReturnType<typeof getWorldInfo>>;
+  worldComponents: worldComponentsT;
   checkedInSmol: string | null;
 };
 
