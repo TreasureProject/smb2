@@ -18,7 +18,7 @@ import {
 import { useAccount, useWaitForTransaction } from "wagmi";
 import { InventoryT } from "~/api.server";
 import { loader } from "../get-inventory.$address";
-import { loader as worldLoader } from "../generate-world";
+import { loader as worldLoader, WorldInfoT } from "../generate-world";
 import { useContractAddresses } from "~/useChainAddresses";
 import { TransactionReceipt, decodeEventLog } from "viem";
 
@@ -27,11 +27,9 @@ import { isBurnAddress } from "~/utils";
 import { useFetcher } from "~/hooks/useFetcher";
 import {
   usePrepareSmolWorldBurnOldSmolWorldToMintNewSmolWorld,
-  useSmolWorldBurnOldSmolWorldToMintNewSmolWorld,
-  useSmolWorldTransferEvent
+  useSmolWorldBurnOldSmolWorldToMintNewSmolWorld
 } from "~/generated";
 import { useApproval } from "~/hooks/useApprove";
-import { SerializeFrom } from "@remix-run/node";
 
 interface BaseState {
   inventory: InventoryT | null;
@@ -48,7 +46,7 @@ interface LoadingInventoryState extends BaseState {
 interface EnterWorldState extends BaseState {
   state: "ENTER_WORLD";
   worldId: string;
-  world: SerializeFrom<typeof worldLoader>;
+  world: WorldInfoT;
 }
 
 interface GeneratingWorldState extends BaseState {
@@ -83,7 +81,7 @@ interface ErrorState extends BaseState {
   state: "ERROR";
 }
 
-type State =
+export type State =
   | IdleState
   | LoadingInventoryState
   | EnterWorldState
@@ -113,7 +111,7 @@ type Action =
     }
   | {
       type: "enter_world";
-      world: SerializeFrom<typeof worldLoader>;
+      world: WorldInfoT;
     }
   | {
       type: "missing_land";
@@ -330,10 +328,10 @@ export const useWorldReducer = () => {
           dispatch({ type: "connection_error" });
           return;
         }
-      }
 
-      if (worldFetcher.data) {
-        dispatch({ type: "enter_world", world: worldFetcher.data });
+        if (worldFetcher.data) {
+          dispatch({ type: "enter_world", world: worldFetcher.data.data });
+        }
       }
     },
     [worldFetcher.state]

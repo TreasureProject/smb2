@@ -106,6 +106,11 @@ const getWorldInfo = async (worldTokenId: string) => {
   return components;
 };
 
+export type WorldInfoT = {
+  worldComponents: Awaited<ReturnType<typeof getWorldInfo>>;
+  checkedInSmol: string | null;
+};
+
 export let loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const worldTokenId = url.searchParams.get("worldTokenId");
@@ -123,8 +128,10 @@ export let loader = async ({ request }: LoaderFunctionArgs) => {
 
     return json({
       ok: true,
-      worldComponents,
-      checkedInSmol: smolData[0] ? smolData[1].toString() : null
+      data: {
+        worldComponents,
+        checkedInSmol: smolData[0] ? smolData[1].toString() : null
+      }
     });
   } catch (e: any) {
     return json({

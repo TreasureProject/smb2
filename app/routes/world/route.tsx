@@ -2,11 +2,14 @@ import { ConnectKitButton } from "connectkit";
 import { Header } from "~/components/Header";
 import { useEffect } from "react";
 import { useWorldReducer } from "./provider";
-import { match } from "react-states";
+import { PickState, match } from "react-states";
 import { useApproval } from "~/hooks/useApprove";
 import { useContractAddresses } from "~/useChainAddresses";
 import { redirect } from "@remix-run/node";
 import EventEmitter from "eventemitter3";
+import { State } from "./provider";
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { TabsContent } from "@radix-ui/react-tabs";
 
 export default function World() {
   const [state, dispatch] = useWorldReducer();
@@ -77,7 +80,9 @@ export default function World() {
                     </button>
                   </div>
                 ),
-                ENTER_WORLD: (ctx) => <WorldDisplay worldId={ctx.worldId} />
+                ENTER_WORLD: (ctx) => (
+                  <WorldDisplay state={ctx} worldId={ctx.worldId} />
+                )
               },
               () => []
             );
@@ -88,19 +93,131 @@ export default function World() {
   );
 }
 
-const WorldDisplay = ({ worldId }: { worldId: string }) => {
+const WorldDisplay = ({
+  worldId,
+  state
+}: {
+  worldId: string;
+  state: PickState<State, "ENTER_WORLD">;
+}) => {
   useEffect(() => {
     if (worldId && window.godotEmitter) {
       window.godotEmitter.emit("webpage", "selected_land", worldId);
     }
   }, [worldId]);
 
+  const islandList = state.world.worldComponents.filter(
+    (c) => c.type === "Island"
+  );
+  const characterList = state.world.worldComponents.filter(
+    (c) => c.type === "Character"
+  );
+  const buildingList = state.world.worldComponents.filter(
+    (c) => c.type === "Building"
+  );
+  const discoveryList = state.world.worldComponents.filter(
+    (c) => c.type === "Discovery"
+  );
+
   return (
-    <div className="mx-auto h-96 max-w-3xl">
-      <iframe
-        className="aspect-video h-full w-full"
-        src="/export/Smol%20Town.html"
-      ></iframe>
+    <div className="mx-auto w-[70rem]">
+      <div className="h-[25rem]">
+        <iframe
+          className="aspect-video h-full w-full"
+          src="/export/Smol%20Town.html"
+        ></iframe>
+      </div>
+      <div className="grid grid-cols-3">
+        <div className="border border-white">
+          <Tabs className="relative flex flex-col rounded-md">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="island">I</TabsTrigger>
+              <TabsTrigger value="character">C</TabsTrigger>
+              <TabsTrigger value="building">B</TabsTrigger>
+              <TabsTrigger value="discovery">D</TabsTrigger>
+            </TabsList>
+            <div className="h-48 overflow-auto bg-white">
+              <TabsContent value="island">
+                <div className="grid grid-cols-5 gap-4 p-4 [grid-auto-rows:min-content]">
+                  {islandList.map((island) => {
+                    return (
+                      <div className="relative">
+                        <img
+                          className="h-auto w-auto rounded-full border-4"
+                          src={`https://source.unsplash.com/random/200x200?sig=${island.name}`}
+                          alt={island.name}
+                        />
+                        <p className="absolute bottom-0 right-0">
+                          {island.name}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+              <TabsContent value="character">
+                <div className="grid grid-cols-4 gap-4 p-4 [grid-auto-rows:min-content]">
+                  {characterList.map((character) => {
+                    return (
+                      <div className="relative">
+                        <img
+                          className="h-auto w-auto rounded-full border-4"
+                          // random image from unsplash
+                          src={`https://source.unsplash.com/random/200x200?sig=${character.name}`}
+                          alt={character.name}
+                        />
+                        <p className="absolute bottom-0 right-0">
+                          {character.name}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+              <TabsContent value="building">
+                <div className="grid grid-cols-4 gap-4 p-4 [grid-auto-rows:min-content]">
+                  {buildingList.map((building) => {
+                    return (
+                      <div className="relative">
+                        <img
+                          className="h-auto w-auto rounded-full border-4"
+                          // random image from unsplash
+                          src={`https://source.unsplash.com/random/200x200?sig=${building.name}`}
+                          alt={building.name}
+                        />
+                        <p className="absolute bottom-0 right-0">
+                          {building.name}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+              <TabsContent value="discovery">
+                <div className="grid grid-cols-4 gap-4 p-4 [grid-auto-rows:min-content]">
+                  {discoveryList.map((discovery) => {
+                    return (
+                      <div className="relative">
+                        <img
+                          className="h-auto w-auto rounded-full border-4"
+                          // random image from unsplash
+                          src={`https://source.unsplash.com/random/200x200?sig=${discovery.name}`}
+                          alt={discovery.name}
+                        />
+                        <p className="absolute bottom-0 right-0">
+                          {discovery.name}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+            </div>
+          </Tabs>
+        </div>
+        <div className="border border-white">helloworld</div>
+        <div className="border border-white">helloworld</div>
+      </div>
     </div>
   );
 };
