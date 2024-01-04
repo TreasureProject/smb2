@@ -30,6 +30,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "connectkit": "^1.5.3",
+    "eventemitter3": "^5.0.1",
     "framer-motion": "^10.16.4",
     "isbot": "^3.6.8",
     "leva": "^0.9.35",

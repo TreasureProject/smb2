@@ -293,7 +293,10 @@ if (isTestnet) {
   ];
 }
 
-export const fetchTroveTokensForUser = async (userAddress: string) => {
+export const fetchTroveTokensForUser = async (
+  userAddress: string,
+  except: string[]
+) => {
   const tokens: TroveToken[] = [];
 
   let nextKey: string | null = "";
@@ -311,7 +314,9 @@ export const fetchTroveTokensForUser = async (userAddress: string) => {
           "X-API-Key": process.env.TROVE_API_KEY ?? ""
         },
         body: JSON.stringify({
-          slugs: collectionsToFetch,
+          slugs: collectionsToFetch.filter(
+            (slug) => !except.some((token) => slug.includes(token))
+          ) as string[],
           chains: [chainName],
           showHiddenTraits: true,
           pageKey: nextKey === "" ? undefined : nextKey,

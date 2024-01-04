@@ -284,7 +284,11 @@ function AppInner({
 
   useEffect(() => {
     if (!address) return;
-    fetcherRef.current.load(`/get-inventory/${address}`);
+    fetcherRef.current.load(
+      `/get-inventory/${address}?${new URLSearchParams({
+        except: "degradables"
+      })}`
+    );
   }, [address]);
 
   useEffect(() => {

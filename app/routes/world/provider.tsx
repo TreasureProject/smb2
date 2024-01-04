@@ -15,20 +15,10 @@ import {
   transition,
   useEnter
 } from "react-states";
-import {
-  useAccount,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction
-} from "wagmi";
-import {
-  InventoryT,
-  SmolWorldT,
-  TCollectionsToFetchWithoutAs,
-  TroveToken,
-  fetchTroveTokensForUser
-} from "~/api.server";
+import { useAccount, useWaitForTransaction } from "wagmi";
+import { InventoryT } from "~/api.server";
 import { loader } from "../get-inventory.$address";
+import { loader as worldLoader } from "../generate-world";
 import { useContractAddresses } from "~/useChainAddresses";
 import { TransactionReceipt, decodeEventLog } from "viem";
 
@@ -41,40 +31,69 @@ import {
   useSmolWorldTransferEvent
 } from "~/generated";
 import { useApproval } from "~/hooks/useApprove";
+import { SerializeFrom } from "@remix-run/node";
+
+interface BaseState {
+  inventory: InventoryT | null;
+}
+
+interface IdleState extends BaseState {
+  state: "IDLE";
+}
+
+interface LoadingInventoryState extends BaseState {
+  state: "LOADING_INVENTORY";
+}
+
+interface EnterWorldState extends BaseState {
+  state: "ENTER_WORLD";
+  worldId: string;
+  world: SerializeFrom<typeof worldLoader>;
+}
+
+interface GeneratingWorldState extends BaseState {
+  state: "GENERATING_WORLD";
+  worldId: string;
+}
+
+interface MissingWorldState extends BaseState {
+  state: "MISSING_WORLD";
+  landId: string | null;
+}
+
+interface NeedApprovalState extends BaseState {
+  state: "NEED_APPROVAL";
+  landId: string | null;
+}
+
+interface ApprovingLandState extends BaseState {
+  state: "APPROVING_LAND";
+  landId: string | null;
+}
+
+interface MintingWorldState extends BaseState {
+  state: "MINTING_WORLD";
+}
+
+interface MissingLandState extends BaseState {
+  state: "MISSING_LAND";
+}
+
+interface ErrorState extends BaseState {
+  state: "ERROR";
+}
 
 type State =
-  | {
-      state: "IDLE";
-    }
-  | {
-      state: "LOADING_INVENTORY";
-    }
-  | {
-      state: "ENTER_WORLD";
-      inventory: InventoryT;
-      smolWorldData: SmolWorldT | null;
-    }
-  | {
-      state: "MISSING_WORLD";
-      landId: string | null;
-    }
-  | {
-      state: "NEED_APPROVAL";
-      landId: string | null;
-    }
-  | {
-      state: "APPROVING_LAND";
-      landId: string | null;
-    }
-  | {
-      state: "MINTING_WORLD";
-    }
-  | {
-      state: "MISSING_LAND";
-    }
-  | {
-      state: "ERROR";
-    };
+  | IdleState
+  | LoadingInventoryState
+  | EnterWorldState
+  | GeneratingWorldState
+  | MissingWorldState
+  | NeedApprovalState
+  | ApprovingLandState
+  | MintingWorldState
+  | MissingLandState
+  | ErrorState;
 
 type Action =
   | {
@@ -86,11 +105,15 @@ type Action =
   | {
       type: "load_inventory_success";
       inventory: InventoryT;
-      smolWorldData: SmolWorldT | null;
+      worldId: string;
     }
   | {
       type: "missing_world";
       landId: string | null;
+    }
+  | {
+      type: "enter_world";
+      world: SerializeFrom<typeof worldLoader>;
     }
   | {
       type: "missing_land";
@@ -106,6 +129,10 @@ type Action =
     }
   | {
       type: "mint_world";
+    }
+  | {
+      type: "generate_world";
+      worldId: string;
     }
   | {
       type: "load_inventory_error";
@@ -139,11 +166,11 @@ const transitions: TTransitions<State, Action> = {
       ...ctx,
       state: "ERROR"
     }),
-    load_inventory_success: (ctx, { inventory, smolWorldData }) => ({
+    load_inventory_success: (ctx, { inventory, worldId }) => ({
       ...ctx,
       inventory,
-      smolWorldData,
-      state: "ENTER_WORLD"
+      worldId,
+      state: "GENERATING_WORLD"
     }),
     missing_world: (ctx, { landId }) => ({
       ...ctx,
@@ -153,6 +180,14 @@ const transitions: TTransitions<State, Action> = {
     missing_land: (ctx) => ({
       ...ctx,
       state: "MISSING_LAND"
+    })
+  },
+  GENERATING_WORLD: {
+    enter_world: (ctx, { world }) => ({
+      inventory: ctx.inventory,
+      worldId: ctx.worldId,
+      world,
+      state: "ENTER_WORLD"
     })
   },
   ENTER_WORLD: {
@@ -184,7 +219,13 @@ const transitions: TTransitions<State, Action> = {
       state: "MINTING_WORLD"
     })
   },
-  MINTING_WORLD: {},
+  MINTING_WORLD: {
+    generate_world: (ctx, { worldId }) => ({
+      ...ctx,
+      worldId,
+      state: "GENERATING_WORLD"
+    })
+  },
   ERROR: {
     ...BASE_TRANSITIONS
   }
@@ -195,7 +236,8 @@ const reducer = (state: State, action: Action) =>
 
 export const useWorldReducer = () => {
   const worldReducer = useReducer(reducer, {
-    state: "IDLE"
+    state: "IDLE",
+    inventory: null
   });
 
   const [state, dispatch] = worldReducer;
@@ -205,6 +247,7 @@ export const useWorldReducer = () => {
 
   const contractAddresses = useContractAddresses();
   const [fetcherRef, fetcher] = useFetcher<typeof loader>({ key: "inventory" });
+  const [worldFetcherRef, worldFetcher] = useFetcher<typeof worldLoader>();
 
   // reset state when disconnected
   useEffect(() => {
@@ -233,7 +276,12 @@ export const useWorldReducer = () => {
     () => {
       if (!connected) return;
 
-      fetcherRef.load(`/get-inventory/${address}?_=${new Date().getTime()}`);
+      fetcherRef.load(
+        `/get-inventory/${address}?${new URLSearchParams({
+          except:
+            "degradables,smol-treasures,swol-jrs,smol-jrs,smol-cars,swolercycles"
+        })}`
+      );
 
       if (fetcher.state === "idle" && fetcher.data) {
         if (!fetcher.data.ok) {
@@ -262,12 +310,33 @@ export const useWorldReducer = () => {
         dispatch({
           type: "load_inventory_success",
           inventory: fetcher.data.data,
-          smolWorldData:
-            fetcher.data.data["smol-world"][0].metadata.smolWorldData ?? null
+          worldId: fetcher.data.data["smol-world"][0].tokenId
         });
       }
     },
     [connected, fetcher.state]
+  );
+
+  useEnter(
+    state,
+    "GENERATING_WORLD",
+    (ctx) => {
+      const worldId = ctx.worldId;
+
+      worldFetcherRef.load(`/generate-world?worldTokenId=${worldId}`);
+
+      if (worldFetcher.state === "idle" && worldFetcher.data) {
+        if (!worldFetcher.data.ok) {
+          dispatch({ type: "connection_error" });
+          return;
+        }
+      }
+
+      if (worldFetcher.data) {
+        dispatch({ type: "enter_world", world: worldFetcher.data });
+      }
+    },
+    [worldFetcher.state]
   );
 
   // APPROVE LAND
@@ -368,7 +437,10 @@ export const useWorldReducer = () => {
             eventName === "Transfer" && isBurnAddress(args.from)
         );
 
-      console.log({ result });
+      dispatch({
+        type: "generate_world",
+        worldId: (result?.args?.tokenId ?? BigInt(0)).toString()
+      });
 
       burnOldWorldForNewWorld.reset();
     }
