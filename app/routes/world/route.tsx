@@ -8,14 +8,6 @@ import { useContractAddresses } from "~/useChainAddresses";
 import { redirect } from "@remix-run/node";
 import EventEmitter from "eventemitter3";
 
-export const loader = () => {
-  if (process.env.NODE_ENV === "production") {
-    throw redirect("/");
-  }
-
-  return null;
-};
-
 export default function World() {
   const [state, dispatch] = useWorldReducer();
 
