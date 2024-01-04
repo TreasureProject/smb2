@@ -25,7 +25,7 @@ export default function World() {
     <div className="flex h-full min-h-full flex-col">
       <Header name="World" blendColor="#1938F2" />
       <div className="relative flex flex-1 flex-col">
-        <div className="absolute left-4 top-4 h-48 overflow-auto text-white">
+        <div className="pointer-events-none absolute left-4 top-4 h-48 overflow-auto text-white">
           <pre>
             <code>{JSON.stringify(state, null, 2)}</code>
           </pre>
@@ -33,7 +33,7 @@ export default function World() {
         <div className="relative z-10 ml-auto w-min px-4 pt-4">
           <ConnectKitButton />
         </div>
-        <div className=" grid h-full flex-1 place-items-center">
+        <div className=" grid h-full flex-1 place-items-center text-white">
           {(() => {
             return match(
               state,
@@ -45,15 +45,14 @@ export default function World() {
                       You don't have any land yet. You can buy some on the
                       marketplace.
                     </p>
-                    <button
-                      onClick={() =>
-                        dispatch({
-                          type: "mint_world"
-                        })
-                      }
+                    <a
+                      href="https://app.treasure.lol/collection/smol-brains-land"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      className="inline-flex rounded-md border border-white px-2 py-1"
                     >
                       Buy Land
-                    </button>
+                    </a>
                   </div>
                 ),
                 NEED_APPROVAL: () => (
@@ -102,7 +101,16 @@ const WorldDisplay = ({
 }) => {
   useEffect(() => {
     if (worldId && window.godotEmitter) {
-      window.godotEmitter.emit("webpage", "selected_land", worldId);
+      const callback = (value: string) => {
+        if (value === "ready") {
+          window.godotEmitter.emit("webpage", "selected_land", "4");
+        }
+      };
+      window.godotEmitter.on("godot", callback);
+
+      return () => {
+        window.godotEmitter.off("godot", callback);
+      };
     }
   }, [worldId]);
 
