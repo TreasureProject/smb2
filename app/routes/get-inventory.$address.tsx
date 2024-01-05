@@ -10,7 +10,7 @@ export let loader = async ({ params, request }: LoaderFunctionArgs) => {
 
   invariant(address, "address is required");
 
-  const split = except.split(",");
+  const split = except === "" ? null : except.split(",");
 
   try {
     const data = await fetchTroveTokensForUser(address, split);
