@@ -98,6 +98,7 @@ const getWorldInfo = async (worldTokenId: string) => {
         isUnlocked,
         canUnlock,
         canUpgrade,
+        id: componentId.toString(),
         unlockTime: Number(unlockTime)
       };
     })

@@ -8,19 +8,6 @@ const chainName = process.env.CHAIN || "arbsepolia";
 const isTestnet = chainName === "arbsepolia";
 const BASE_URL = isTestnet ? "trove-api-dev" : "trove-api";
 
-export type SmolWorldT = {
-  checkedInSmol: string | null;
-  components: {
-    componentId: number;
-    level: number;
-    canUnlock: boolean;
-    name: string;
-    isUnlocked: boolean;
-    canUpgrade: boolean;
-    type: "Island" | "Building" | "Character" | "Discovery";
-  }[];
-};
-
 export type TroveToken = {
   contractType: "ERC721";
   collectionAddr: `0x${string}`;
@@ -32,7 +19,6 @@ export type TroveToken = {
   metadata: {
     name: string;
     description: string;
-    smolWorldData?: SmolWorldT;
     attributes: {
       value: string | number;
       trait_type: string;

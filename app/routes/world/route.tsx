@@ -1,20 +1,22 @@
 import { ConnectKitButton } from "connectkit";
 import { Header } from "~/components/Header";
 import { useEffect, useState } from "react";
-import { useWorldReducer } from "./provider";
+import { useMainReducer } from "./mainReducer";
 import { PickState, match } from "react-states";
 import { useApproval } from "~/hooks/useApprove";
 import { useContractAddresses } from "~/useChainAddresses";
 import { redirect } from "@remix-run/node";
 import EventEmitter from "eventemitter3";
-import { State } from "./provider";
+import { State } from "./mainReducer";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
-import { worldComponentsT } from "../generate-world";
+import { WorldInfoT, worldComponentsT } from "../generate-world";
 import { cn } from "~/utils";
+import { useWorldReducer } from "./worldReducer";
+import { InventoryT } from "~/api.server";
 
 export default function World() {
-  const [state, dispatch] = useWorldReducer();
+  const [state, dispatch] = useMainReducer();
 
   useEffect(() => {
     if (!window.godotEmitter) {
@@ -85,7 +87,8 @@ export default function World() {
                   <WorldDisplay
                     state={ctx}
                     worldId={ctx.worldId}
-                    dispatch={dispatch}
+                    inventory={ctx.inventory}
+                    world={ctx.world}
                   />
                 )
               },
@@ -101,20 +104,25 @@ export default function World() {
 const WorldDisplay = ({
   worldId,
   state,
-  dispatch
+  inventory,
+  world
 }: {
   worldId: string;
   state: PickState<State, "ENTER_WORLD">;
-  dispatch: ReturnType<typeof useWorldReducer>[1];
+  inventory: InventoryT | null;
+  world: WorldInfoT;
 }) => {
-  const [selected, setSelected] = useState<worldComponentsT[number] | null>(
-    null
-  );
+  const [worldState, dispatch] = useWorldReducer({
+    worldId,
+    world,
+    inventory
+  });
 
   useEffect(() => {
     if (worldId && window.godotEmitter) {
       const callback = (value: string) => {
         if (value === "ready") {
+          // TODO: replace hardcoded land id
           window.godotEmitter.emit("webpage", "selected_land", "4");
         }
       };
@@ -138,6 +146,12 @@ const WorldDisplay = ({
   const discoveryList = state.world.worldComponents.filter(
     (c) => c.type === "Discovery"
   );
+
+  const setSelected = (component: worldComponentsT[number]) => {
+    dispatch({ type: "selectComponent", component });
+  };
+
+  const selected = worldState.selectedComponent;
 
   return (
     <div className="mx-auto w-[70rem]">
@@ -254,7 +268,7 @@ const WorldDisplay = ({
                   src={`https://source.unsplash.com/random/200x200`}
                   alt={selected.name}
                 />
-                <div className="flex flex-col space-y-3.5">
+                <div className="flex flex-col space-y-2">
                   <div className="space-y-2">
                     <p className="font-bold text-3xl leading-none capsize">
                       {selected.name}
@@ -273,6 +287,16 @@ const WorldDisplay = ({
                       {selected.unlockTime}
                     </span>
                   </p>
+                  <p className="font-medium text-gray-300 text-sm">
+                    Status:{" "}
+                    <span className="font-bold text-white">
+                      {!selected.isUnlocked
+                        ? "Locked"
+                        : selected.canUpgrade
+                        ? "Upgradable"
+                        : "Unlocked"}
+                    </span>
+                  </p>
                 </div>
               </div>
 
@@ -282,6 +306,15 @@ const WorldDisplay = ({
                   !selected.canUnlock
                 }
                 className="mt-2 h-12 rounded-md border border-rage/50 bg-rage/60 font-bold tracking-wider text-white disabled:cursor-not-allowed disabled:opacity-25"
+                onClick={() => {
+                  dispatch({
+                    type:
+                      selected.isUnlocked && selected.canUpgrade
+                        ? "upgradeComponent"
+                        : "unlockComponent",
+                    component: selected
+                  });
+                }}
               >
                 {selected.isUnlocked ? "Upgrade" : "Unlock"}
               </button>

@@ -1,14 +1,5 @@
-import { useLoaderData } from "@remix-run/react";
+import { useReducer, useEffect } from "react";
 import {
-  useReducer,
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState
-} from "react";
-import {
-  PickState,
   TTransition,
   TTransitions,
   matchProp,
@@ -232,7 +223,7 @@ const transitions: TTransitions<State, Action> = {
 const reducer = (state: State, action: Action) =>
   transition(state, action, transitions);
 
-export const useWorldReducer = () => {
+export const useMainReducer = () => {
   const worldReducer = useReducer(reducer, {
     state: "IDLE",
     inventory: null
