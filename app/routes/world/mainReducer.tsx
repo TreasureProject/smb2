@@ -265,45 +265,47 @@ export const useMainReducer = () => {
     () => {
       if (!connected) return;
 
-      fetcherRef.load(
-        `/get-inventory/${address}?${new URLSearchParams({
-          except:
-            "degradables,smol-treasures,swol-jrs,smol-jrs,smol-cars,swolercycles"
-        })}`
-      );
+      if (fetcher.state === "idle") {
+        if (!fetcher.data) {
+          fetcherRef.load(
+            `/get-inventory/${address}?${new URLSearchParams({
+              except:
+                "degradables,smol-treasures,swol-jrs,smol-jrs,smol-cars,swolercycles"
+            })}`
+          );
+        } else {
+          if (!fetcher.data.ok) {
+            dispatch({ type: "load_inventory_error" });
+            return;
+          }
 
-      if (fetcher.state === "idle" && fetcher.data) {
-        if (!fetcher.data.ok) {
-          dispatch({ type: "load_inventory_error" });
-          return;
-        }
+          // no land and no world
+          if (
+            !fetcher.data.data["smol-world"] &&
+            !fetcher.data.data["smol-brains-land"]
+          ) {
+            dispatch({ type: "missing_land" });
+            return;
+          }
 
-        // no land and no world
-        if (
-          !fetcher.data.data["smol-world"] &&
-          !fetcher.data.data["smol-brains-land"]
-        ) {
-          dispatch({ type: "missing_land" });
-          return;
-        }
+          // has land but no world
+          if (!fetcher.data.data["smol-world"]) {
+            dispatch({
+              type: "missing_world",
+              landId: fetcher.data.data["smol-brains-land"]?.[0].tokenId ?? null
+            });
+            return;
+          }
 
-        // has land but no world
-        if (!fetcher.data.data["smol-world"]) {
           dispatch({
-            type: "missing_world",
-            landId: fetcher.data.data["smol-brains-land"]?.[0].tokenId ?? null
+            type: "load_inventory_success",
+            inventory: fetcher.data.data,
+            worldId: fetcher.data.data["smol-world"][0].tokenId
           });
-          return;
         }
-
-        dispatch({
-          type: "load_inventory_success",
-          inventory: fetcher.data.data,
-          worldId: fetcher.data.data["smol-world"][0].tokenId
-        });
       }
     },
-    [connected, fetcher.state]
+    [connected, fetcher.state, fetcher.data]
   );
 
   useEnter(
@@ -311,21 +313,20 @@ export const useMainReducer = () => {
     "GENERATING_WORLD",
     (ctx) => {
       const worldId = ctx.worldId;
+      if (worldFetcher.state === "idle") {
+        if (!worldFetcher.data) {
+          worldFetcherRef.load(`/generate-world?worldTokenId=${worldId}`);
+        } else {
+          if (worldFetcher.data.ok) {
+            dispatch({ type: "enter_world", world: worldFetcher.data.data });
+            return;
+          }
 
-      worldFetcherRef.load(`/generate-world?worldTokenId=${worldId}`);
-
-      if (worldFetcher.state === "idle" && worldFetcher.data) {
-        if (!worldFetcher.data.ok) {
           dispatch({ type: "connection_error" });
-          return;
-        }
-
-        if (worldFetcher.data) {
-          dispatch({ type: "enter_world", world: worldFetcher.data.data });
         }
       }
     },
-    [worldFetcher.state]
+    [worldFetcher.state, worldFetcher.data]
   );
 
   // APPROVE LAND

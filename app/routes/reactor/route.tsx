@@ -54,6 +54,7 @@ import { mapper } from "./lootIdMapper";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import { loader as proofLoader } from "../get-proof.$address/route";
 import { getSession } from "~/session.server";
+import { Button as BaseButton } from "~/components/ui/button";
 
 export const links: LinksFunction = () => [
   {
@@ -523,20 +524,13 @@ const Button = ({
   isDialog?: boolean;
   primary?: boolean;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
-  const button = (
-    <button
-      {...props}
-      className={cn(
-        props.className,
-        "w-full rounded-md bg-white px-4 py-2 text-black font-formula text-[0.6rem] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:text-base",
-        primary && "bg-troll font-semibold uppercase tracking-wider text-white"
-      )}
-    >
-      {children}
-    </button>
+  return isDialog ? (
+    <Drawer.Trigger asChild>
+      <BaseButton {...props}>{children}</BaseButton>
+    </Drawer.Trigger>
+  ) : (
+    <BaseButton {...props}>{children}</BaseButton>
   );
-
-  return isDialog ? <Drawer.Trigger asChild>{button}</Drawer.Trigger> : button;
 };
 
 function Conversation() {
