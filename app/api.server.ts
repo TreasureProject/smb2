@@ -361,6 +361,20 @@ export const fetchTroveTokensForUser = async (
       return acc;
     }
 
+    if (collectionUrlSlug === "degradables") {
+      const useByDate = token.metadata.attributes.find(
+        (attribute) => attribute.trait_type === "Use-By Date"
+      );
+
+      if (useByDate) {
+        const useByDateValue = new Date(Number(useByDate.value) * 1000);
+        const now = new Date();
+
+        if (useByDateValue.getTime() < now.getTime()) {
+          return acc;
+        }
+      }
+    }
     acc[collectionUrlSlug]?.push(token);
     return acc;
   }, {});
