@@ -115,8 +115,8 @@ export default function World() {
 
 const normalizeSmolToken = (token: TroveToken): worldComponentsT[number] => {
   return {
-    type: "Unknown",
-    name: "SMOL_TOKEN",
+    type: "UNKNOWN",
+    name: token.metadata.name,
     level: 0,
     isUnlocked: true,
     canUnlock: false,
@@ -315,15 +315,13 @@ const WorldDisplay = ({
                   <div className="flex min-w-0 flex-col space-y-2">
                     <div className="space-y-0.5">
                       <p className="truncate font-bold text-2xl">
-                        {selected.name === "SMOL_TOKEN"
-                          ? "Your Smol"
-                          : selected.name}
+                        {selected.name}
                       </p>
-                      {selected.name !== "SMOL_TOKEN" ? (
+                      {selected.type !== "UNKNOWN" ? (
                         <p className="text-grayOne text-xs">{selected.type}</p>
                       ) : null}
                     </div>
-                    {selected.name !== "SMOL_TOKEN" ? (
+                    {selected.type !== "UNKNOWN" ? (
                       <>
                         <p className="font-medium text-gray-300 text-sm">
                           Lvl:{" "}
@@ -356,14 +354,14 @@ const WorldDisplay = ({
 
                 <button
                   disabled={
-                    selected.name !== "SMOL_TOKEN" &&
+                    selected.type !== "UNKNOWN" &&
                     !selected.canUnlock &&
                     !selected.canUpgrade
                   }
                   className="mt-2 h-12 rounded-md border border-rage/50 bg-rage/60 font-bold tracking-wider text-white disabled:cursor-not-allowed disabled:opacity-25"
                   onClick={() => {
                     if (
-                      selected.name === "SMOL_TOKEN" &&
+                      selected.type === "UNKNOWN" &&
                       worldState.world.checkedInSmol
                     ) {
                       dispatch({
@@ -381,7 +379,7 @@ const WorldDisplay = ({
                     }
                   }}
                 >
-                  {selected.name === "SMOL_TOKEN"
+                  {selected.type === "UNKNOWN"
                     ? "CHECK OUT"
                     : selected.isUnlocked && selected.canUpgrade
                     ? "Upgrade"

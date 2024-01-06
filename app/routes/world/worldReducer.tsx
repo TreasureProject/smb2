@@ -143,7 +143,7 @@ const reducer = (state: State, action: Action) =>
         );
 
         if (targetComponent) {
-          targetComponent.level = newLevel;
+          targetComponent.level = newLevel + 1;
           targetComponent.canUpgrade = false;
         }
 
