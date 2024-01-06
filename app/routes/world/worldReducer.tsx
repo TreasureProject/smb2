@@ -112,6 +112,7 @@ const reducer = (state: State, action: Action) =>
     CHECKING_SMOL_OUT: {
       checkOutSmolSuccess: (ctx) => {
         ctx.world.checkedInSmol = null;
+        ctx.selectedComponent = null;
         return states.IDLE({ ...ctx });
       },
       error: (ctx) => states.IDLE({ ...ctx })

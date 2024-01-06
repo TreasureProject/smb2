@@ -98,6 +98,7 @@ const getWorldInfo = async (worldTokenId: string) => {
         isUnlocked,
         canUnlock,
         canUpgrade,
+        image: `https://source.unsplash.com/random/200x200`,
         id: componentId.toString(),
         unlockTime: Number(unlockTime)
       };

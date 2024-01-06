@@ -113,6 +113,20 @@ export default function World() {
   );
 }
 
+const normalizeSmolToken = (token: TroveToken): worldComponentsT[number] => {
+  return {
+    type: "Unknown",
+    name: "SMOL_TOKEN",
+    level: 0,
+    isUnlocked: true,
+    canUnlock: false,
+    canUpgrade: false,
+    image: token.image.uri,
+    id: token.tokenId.toString(),
+    unlockTime: 0
+  };
+};
+
 const WorldDisplay = ({
   worldId,
   inventory,
@@ -163,11 +177,15 @@ const WorldDisplay = ({
 
   const selected = worldState.selectedComponent;
 
-  console.log(worldState.state);
+  const checkedInSmol = worldState.world.checkedInSmol
+    ? worldState.inventory?.["smol-brains"]?.find(
+        (t) => t.tokenId === worldState.world.checkedInSmol
+      ) ?? null
+    : null;
 
   return (
     <Drawer.Root>
-      <div className="mx-auto w-[70rem]">
+      <div className="mx-auto max-w-[70rem] px-4">
         <div className="relative h-[25rem]">
           <iframe
             className="aspect-video h-full w-full rounded-md border-2 border-grayTwo/20"
@@ -223,35 +241,12 @@ const WorldDisplay = ({
                 </TabsContent>
                 <TabsContent value="character">
                   <div className="grid grid-cols-4 gap-4 p-4 [grid-auto-rows:min-content]">
-                    {worldState.world.checkedInSmol ? (
-                      <div className="group relative overflow-hidden">
-                        <div className="pointer-events-none absolute inset-0 z-10 hidden items-center justify-center rounded-full bg-grayTwo/20 backdrop-blur-sm font-formula text-[0.6rem] group-hover:flex">
-                          Check out
-                        </div>
-                        <img
-                          className="relative h-auto w-auto rounded-full border-4 border-grayTwo/20"
-                          src={
-                            worldState.inventory?.["smol-brains"]?.find(
-                              (t) =>
-                                t.tokenId === worldState.world.checkedInSmol
-                            )?.image.uri ?? ""
-                          }
-                          alt={`Smol ${worldState.world.checkedInSmol}`}
-                        />
-                        <button
-                          className="absolute inset-0 h-full w-full"
-                          onClick={() =>
-                            dispatch({
-                              type: "checkSmolOut",
-                              smolId: worldState.world.checkedInSmol ?? ""
-                            })
-                          }
-                        >
-                          <span className="sr-only">
-                            Show info for Smol {worldState.world.checkedInSmol}
-                          </span>
-                        </button>
-                      </div>
+                    {worldState.world.checkedInSmol && checkedInSmol ? (
+                      <ComponentItem
+                        component={normalizeSmolToken(checkedInSmol)}
+                        setSelected={setSelected}
+                        selected={selected}
+                      />
                     ) : (
                       <Drawer.Trigger asChild>
                         <button className="relative rounded-full border-4 border-dashed border-grayTwo/20 transition-colors font-formula text-xs hover:border-grayTwo/50">
@@ -314,57 +309,81 @@ const WorldDisplay = ({
                 <div className="flex flex-1 space-x-4">
                   <img
                     className="h-[8.5rem] w-[8.5rem] rounded-md border border-black object-contain"
-                    src={`https://source.unsplash.com/random/200x200`}
+                    src={selected.image}
                     alt={selected.name}
                   />
                   <div className="flex min-w-0 flex-col space-y-2">
                     <div className="space-y-0.5">
                       <p className="truncate font-bold text-2xl">
-                        {selected.name}
+                        {selected.name === "SMOL_TOKEN"
+                          ? "Your Smol"
+                          : selected.name}
                       </p>
-                      <p className="text-grayOne text-xs">{selected.type}</p>
+                      {selected.name !== "SMOL_TOKEN" ? (
+                        <p className="text-grayOne text-xs">{selected.type}</p>
+                      ) : null}
                     </div>
-                    <p className="font-medium text-gray-300 text-sm">
-                      Lvl:{" "}
-                      <span className="font-bold text-white">
-                        {selected.isUnlocked ? selected.level : "--"}
-                      </span>
-                    </p>
-                    {!selected.isUnlocked && (
-                      <p className="font-medium text-gray-300 text-sm">
-                        Unlock In:{" "}
-                        <span className="font-bold text-white">
-                          {selected.unlockTime}
-                        </span>
-                      </p>
-                    )}
-                    <p className="font-medium text-gray-300 text-sm">
-                      Status:{" "}
-                      <span className="font-bold text-white">
-                        {!selected.isUnlocked
-                          ? "Locked"
-                          : selected.canUpgrade
-                          ? "Upgradable"
-                          : "Unlocked"}
-                      </span>
-                    </p>
+                    {selected.name !== "SMOL_TOKEN" ? (
+                      <>
+                        <p className="font-medium text-gray-300 text-sm">
+                          Lvl:{" "}
+                          <span className="font-bold text-white">
+                            {selected.isUnlocked ? selected.level : "--"}
+                          </span>
+                        </p>
+                        {!selected.isUnlocked && (
+                          <p className="font-medium text-gray-300 text-sm">
+                            Unlock In:{" "}
+                            <span className="font-bold text-white">
+                              {selected.unlockTime}
+                            </span>
+                          </p>
+                        )}
+                        <p className="font-medium text-gray-300 text-sm">
+                          Status:{" "}
+                          <span className="font-bold text-white">
+                            {!selected.isUnlocked
+                              ? "Locked"
+                              : selected.canUpgrade
+                              ? "Upgradable"
+                              : "Unlocked"}
+                          </span>
+                        </p>
+                      </>
+                    ) : null}
                   </div>
                 </div>
 
                 <button
-                  disabled={!selected.canUnlock && !selected.canUpgrade}
+                  disabled={
+                    selected.name !== "SMOL_TOKEN" &&
+                    !selected.canUnlock &&
+                    !selected.canUpgrade
+                  }
                   className="mt-2 h-12 rounded-md border border-rage/50 bg-rage/60 font-bold tracking-wider text-white disabled:cursor-not-allowed disabled:opacity-25"
                   onClick={() => {
-                    dispatch({
-                      type:
-                        selected.isUnlocked && selected.canUpgrade
-                          ? "upgradeComponent"
-                          : "unlockComponent",
-                      component: selected
-                    });
+                    if (
+                      selected.name === "SMOL_TOKEN" &&
+                      worldState.world.checkedInSmol
+                    ) {
+                      dispatch({
+                        type: "checkSmolOut",
+                        smolId: worldState.world.checkedInSmol
+                      });
+                    } else {
+                      dispatch({
+                        type:
+                          selected.isUnlocked && selected.canUpgrade
+                            ? "upgradeComponent"
+                            : "unlockComponent",
+                        component: selected
+                      });
+                    }
                   }}
                 >
-                  {selected.isUnlocked && selected.canUpgrade
+                  {selected.name === "SMOL_TOKEN"
+                    ? "CHECK OUT"
+                    : selected.isUnlocked && selected.canUpgrade
                     ? "Upgrade"
                     : "Unlock"}
                 </button>
@@ -511,7 +530,7 @@ const ComponentItem = ({
       ) : null}
       <img
         className="relative h-auto w-auto rounded-full border-4 border-grayTwo/20"
-        src={`https://source.unsplash.com/random/200x200?sig=${component.name}`}
+        src={component.image}
         alt={component.name}
       />
       <button
